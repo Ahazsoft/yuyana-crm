@@ -60,7 +60,7 @@ export function UpdateOpportunityForm({
 
   const { data: opportunities, isLoading: isLoadingOpportunities } = useSWR(
     "/api/crm/opportunity",
-    fetcher
+    fetcher,
   );
 
   const formSchema = z.object({
@@ -123,14 +123,20 @@ export function UpdateOpportunityForm({
     );
   //console.log(opportunities, "opportunities");
   const { users, accounts, contacts, saleTypes, saleStages, campaigns } =
-    opportunities;
+    opportunities || {};
 
   if (!users || !accounts || !initialData)
+    console.log("users : ",users);
+    console.log("accounts: ", accounts );
+    console.log("inital data: " , initialData);
     return <div>{c("somethingWentWrong")}</div>;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full px-4 md:px-10">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="h-full px-4 md:px-10"
+      >
         {/*        <div>
           <pre>
             <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
@@ -176,7 +182,7 @@ export function UpdateOpportunityForm({
                           variant={"outline"}
                           className={cn(
                             "w-[240px] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {field.value ? (
@@ -231,11 +237,13 @@ export function UpdateOpportunityForm({
                       <FormLabel>{t("salesType")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        // defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("salesTypePlaceholder")} />
+                            <SelectValue
+                              placeholder={t("salesTypePlaceholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">
@@ -262,7 +270,9 @@ export function UpdateOpportunityForm({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("saleStagePlaceholder")} />
+                            <SelectValue
+                              placeholder={t("saleStagePlaceholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">

@@ -15,8 +15,10 @@ const AccountsPage = async () => {
   return (
     
     <Container
-      title={t("accounts.pageTitle")}
-      description={t("accounts.pageDescription")}
+      // title={t("accounts.pageTitle")} 
+      title="Companies"
+      // description={t("accounts.pageDescription")}
+      description="Everything you need to know about your company"
     >
       <Suspense fallback={<SuspenseLoading />}>
         <AccountsView crmData={crmData} data={accounts} />

@@ -636,7 +636,7 @@ export async function BasicView({ data }: OppsViewProps) {
       <section>
         <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
           <Building2 className="h-3.5 w-3.5" />
-          Account Details
+          Company Details
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-1 bg-card rounded-xl border border-border/50 px-6 py-2">
           <Field label="Annual Revenue" value={data.annual_revenue} />
@@ -706,7 +706,7 @@ export async function BasicView({ data }: OppsViewProps) {
       )}
 
       {/* ── Addresses ──────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AddressCard
           title="Billing Address"
           icon={<MapPin className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -725,10 +725,10 @@ export async function BasicView({ data }: OppsViewProps) {
           state={data.shipping_state}
           country={data.shipping_country}
         />
-      </div>
+      </div> */}
 
       {/* ── Metadata Footer ────────────────────────────── */}
-      <div className="flex flex-wrap gap-x-10 gap-y-2 text-[11px] text-muted-foreground/60 pt-2">
+      <div className="flex flex-wrap gap-x-10 gap-y-2 text-[13px] text-foreground/60 pt-2">
         <span className="inline-flex items-center gap-1.5">
           <CalendarDays className="h-3 w-3" />
           Created {formatDate(data.created_on)} by {findUser(data.createdBy)}

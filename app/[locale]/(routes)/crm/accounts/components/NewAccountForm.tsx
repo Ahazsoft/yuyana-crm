@@ -48,14 +48,14 @@ export function NewAccountForm({ industries, onFinish }: Props) {
     office_phone: z.string().optional(),
     website: z.string().optional(),
     fax: z.string().optional(),
-    company_id: z.string().min(5).max(10),
+    company_id: z.string().optional(),
     vat: z.string().max(20).optional(),
     email: z.string().email(),
-    billing_street: z.string().min(3).max(50),
-    billing_postal_code: z.string().min(2).max(10),
-    billing_city: z.string().min(3).max(50),
-    billing_state: z.string().min(3).max(50).optional(),
-    billing_country: z.string().min(3).max(50),
+    billing_street: z.string().optional(),
+    billing_postal_code: z.string().optional(),
+    billing_city: z.string().optional(),
+    billing_state: z.string().optional(),
+    billing_country: z.string().optional(),
     shipping_street: z.string().optional(),
     shipping_postal_code: z.string().optional(),
     shipping_city: z.string().optional(),
@@ -66,7 +66,7 @@ export function NewAccountForm({ industries, onFinish }: Props) {
     status: z.string().min(3).max(50).optional(),
     annual_revenue: z.string().min(3).max(50).optional(),
     member_of: z.string().min(3).max(50).optional(),
-    industry: z.string().min(3).max(50),
+    employees: z.string().min(1).max(50),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -82,7 +82,7 @@ export function NewAccountForm({ industries, onFinish }: Props) {
       await axios.post("/api/crm/account", data);
       toast({
         title: c("success"),
-        description: t("createSuccess"),
+        description: "Company details created succesfully",
       });
     } catch (error) {
       toast({
@@ -100,7 +100,10 @@ export function NewAccountForm({ industries, onFinish }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full px-4 md:px-10">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="h-full px-4 md:px-10"
+      >
         {/*        <div>
           <pre>
             <code>{JSON.stringify(form.watch(), null, 2)}</code>
@@ -108,16 +111,89 @@ export function NewAccountForm({ industries, onFinish }: Props) {
         </div> */}
         <div className="w-full text-sm">
           <div className="pb-5 space-y-2">
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{"Company Name"}</FormLabel>
+                    {/* <FormLabel>{t("accountName")}</FormLabel> */}
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="NextCRM Inc."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("email")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="account@domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />{" "}
+            </div>
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="office_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("officePhone")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="+251 ...."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("website")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="name"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("accountName")}</FormLabel>
+                  <FormLabel>{c("description")}</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       disabled={isLoading}
-                      placeholder="NextCRM Inc."
+                      placeholder="Description"
                       {...field}
                     />
                   </FormControl>
@@ -125,58 +201,51 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="office_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("officePhone")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="+420 ...."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("email")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="account@domain.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("website")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="https://www.domain.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="employees"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company size</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="flex overflow-y-auto h-56">
+                        <SelectItem value="1-10">1-10 employees</SelectItem>
+                        <SelectItem value="11-50">11-50 employees</SelectItem>
+                        <SelectItem value="51-200">51-200 employees</SelectItem>
+                        <SelectItem value="201+">201+ employees</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="assigned_to"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{c("assignedTo")}</FormLabel>
+                    <FormControl>
+                      <UserSearchCombobox
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        placeholder={c("selectUser")}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {/* <FormField
               control={form.control}
               name="company_id"
               render={({ field }) => (
@@ -192,8 +261,8 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            <FormField
+            /> */}
+            {/* <FormField
               control={form.control}
               name="vat"
               render={({ field }) => (
@@ -209,9 +278,9 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -378,29 +447,11 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                 )}
               />
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
+            <div className="space-y-2"></div>
             <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{c("description")}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        disabled={isLoading}
-                        placeholder="Description"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="annual_revenue"
                 render={({ field }) => (
@@ -433,58 +484,13 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="industry"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("industry")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("industryPlaceholder")} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="flex overflow-y-auto h-56">
-                        {industries.map((industry) => (
-                          <SelectItem key={industry.id} value={industry.id}>
-                            {industry.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="assigned_to"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{c("assignedTo")}</FormLabel>
-                    <FormControl>
-                      <UserSearchCombobox
-                        value={field.value ?? ""}
-                        onChange={field.onChange}
-                        placeholder={c("selectUser")}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              /> */}
             </div>
           </div>
         </div>
         <div className="grid gap-2 py-5">
           <Button disabled={isLoading} type="submit">
-            {t("createButton")}
+            {"Create Company"}
           </Button>
         </div>
       </form>
