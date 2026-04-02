@@ -47,12 +47,12 @@ const AccountsView = ({ data, crmData }: AccountsViewProps) => {
           <div>
             <CardTitle>
               <Link href="/crm/accounts" className="hover:underline">
-                {t("accounts.viewTitle")}
-                
+                {/* {t("accounts.viewTitle")} */}
+                Companies
               </Link>
             </CardTitle>
             <div className="text-sm text-muted-foreground mt-1">
-              {data?.length ?? 0} accounts • {industries?.length ?? 0} industries
+              {data?.length ?? 0} Companies • {industries?.length ?? 0} industries
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -62,9 +62,9 @@ const AccountsView = ({ data, crmData }: AccountsViewProps) => {
               </SheetTrigger>
               <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle>{t("accounts.sheetTitle")}</SheetTitle>
+                  <SheetTitle>{"Create New Company"}</SheetTitle>
                   <SheetDescription>
-                    {t("accounts.sheetDescription")}
+                    {"Add a new company or organization to your CRM system. Fill in the company details and industry information."}
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">

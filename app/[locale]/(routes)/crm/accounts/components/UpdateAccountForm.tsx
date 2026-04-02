@@ -31,9 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import fetcher from "@/lib/fetcher";
-import useSWR from "swr";
-import SuspenseLoading from "@/components/loadings/suspense";
+// removed unused fetcher / SWR import - employees dropdown used instead of industries
 import { crm_Accounts } from "@prisma/client";
 import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 
@@ -53,10 +51,7 @@ export function UpdateAccountForm({
   const t = useTranslations("CrmAccountForm");
   const c = useTranslations("Common");
 
-  const { data: industries, isLoading: isLoadingIndustries } = useSWR(
-    "/api/crm/industries",
-    fetcher
-  );
+  // no remote industries needed - using fixed employees size options
 
   const formSchema = z.object({
     id: z.string().min(5).max(30),
@@ -64,12 +59,12 @@ export function UpdateAccountForm({
     office_phone: z.string().nullable().optional(),
     website: z.string().nullable().optional(),
     fax: z.string().nullable().optional(),
-    company_id: z.string().min(5).max(10),
+    company_id: z.string().min(5).max(10).nullable().optional(),
     vat: z.string().min(5).max(20).nullable().optional(),
     email: z.string().email(),
-    billing_street: z.string().min(3).max(50),
-    billing_postal_code: z.string().min(2).max(10),
-    billing_city: z.string().min(3).max(50),
+    billing_street: z.string().min(3).max(50).nullable().optional(),
+    billing_postal_code: z.string().min(2).max(10).nullable().optional(),
+    billing_city: z.string().min(3).max(50).nullable().optional(),
     billing_state: z.string().min(3).max(50).nullable().optional(),
     billing_country: z.string().min(3).max(50),
     shipping_street: z.string().nullable().optional(),
@@ -82,7 +77,7 @@ export function UpdateAccountForm({
     status: z.string().min(3).max(50).nullable().optional(),
     annual_revenue: z.string().min(3).max(50).nullable().optional(),
     member_of: z.string().min(3).max(50).nullable().optional(),
-    industry: z.string().min(3).max(50),
+    employees: z.string().nullable().optional(),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -119,7 +114,7 @@ export function UpdateAccountForm({
           status: "",
           annual_revenue: "",
           member_of: "",
-          industry: "",
+          employees: "",
         },
   });
 
@@ -145,15 +140,7 @@ export function UpdateAccountForm({
     }
   };
 
-  if (isLoadingIndustries)
-    return (
-      <div>
-        <SuspenseLoading />
-      </div>
-    );
-
-  if (!industries || !initialData)
-    return <div>{c("somethingWentWrong")}</div>;
+  if (!initialData) return <div>{c("somethingWentWrong")}</div>;
 
   return (
     <Form {...form}>
@@ -172,7 +159,7 @@ export function UpdateAccountForm({
 
         <div className="w-full text-sm">
           <div className="pb-5 space-y-2">
-            <FormField
+            {/* <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -208,6 +195,7 @@ export function UpdateAccountForm({
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="email"
@@ -275,9 +263,144 @@ export function UpdateAccountForm({
                   <FormMessage />
                 </FormItem>
               )}
+            /> */}
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{"Company Name"}</FormLabel>
+                    {/* <FormLabel>{t("accountName")}</FormLabel> */}
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="NextCRM Inc."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("email")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="account@domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />{" "}
+            </div>
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="office_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("officePhone")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="+251 ...."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("website")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{c("description")}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      disabled={isLoading}
+                      placeholder="Description"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+            <div className="grid grid-cols-2 gap-4 pb-5">
+              <FormField
+                control={form.control}
+                name="employees"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company size</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="flex overflow-y-auto h-56">
+                        <SelectItem value="1-10">1-10 employees</SelectItem>
+                        <SelectItem value="11-50">11-50 employees</SelectItem>
+                        <SelectItem value="51-200">51-200 employees</SelectItem>
+                        <SelectItem value="201+">201+ employees</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="assigned_to"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{c("assignedTo")}</FormLabel>
+                    <FormControl>
+                      <UserSearchCombobox
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        placeholder={c("selectUser")}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
+          {/* billing and shipping  */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -444,8 +567,10 @@ export function UpdateAccountForm({
                 )}
               />
             </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
+          </div> */}
+
+
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5">
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -546,7 +671,7 @@ export function UpdateAccountForm({
                 )}
               />
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="grid gap-2 py-5">
           <Button disabled={isLoading} type="submit">
