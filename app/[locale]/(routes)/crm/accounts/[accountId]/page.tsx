@@ -51,11 +51,11 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
   if (!account) return <div>Account not found</div>;
 
   return (
-    <Container
-      title={`Account: ${account?.name}`}
-      description={"Everything you need to know about sales potential"}
-    >
-      <div className="space-y-5">
+    // <Container
+    //   title={`Account: ${account?.name}`}
+    //   description={"Everything you need to know about sales potential"}
+    // >
+      <div className="space-y-5 m-9">
         <BasicView data={account} />
         <AccountsTasksView data={tasks} account={account} />
         <OpportunitiesView
@@ -72,7 +72,7 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
         <LeadsView data={leads} crmData={crmData} />
         <DocumentsView data={documents} />
       </div>
-    </Container>
+    // </Container>
   );
 };
 

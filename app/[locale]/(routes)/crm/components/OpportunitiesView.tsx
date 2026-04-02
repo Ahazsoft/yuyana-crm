@@ -49,18 +49,21 @@ const OpportunitiesView = ({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <CardTitle>
               <Link href="/crm/opportunities" className="hover:underline">
                 {t("opportunities.viewTitle")}
               </Link>
             </CardTitle>
+            <div className="text-sm text-muted-foreground mt-1">{data?.length ?? 0} opportunities</div>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button className="my-2 cursor-pointer" aria-label={t("opportunities.addNew")}>+</Button>
+                <Button className="my-2 cursor-pointer" aria-label={t("opportunities.addNew")}>
+                  New
+                </Button>
               </SheetTrigger>
               <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
                 <SheetHeader>

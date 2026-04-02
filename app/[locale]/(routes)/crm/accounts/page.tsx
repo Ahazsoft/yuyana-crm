@@ -13,6 +13,7 @@ const AccountsPage = async () => {
   const accounts = await getAccounts();
 
   return (
+    
     <Container
       title={t("accounts.pageTitle")}
       description={t("accounts.pageDescription")}
