@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 
 import { prismadb } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import { checkResourceAccess } from "@/lib/auth-guard";
+import { mapPrismaError } from "@/lib/crud-service";
 
 export async function DELETE(req: Request, props: { params: Promise<{ projectId: string }> }) {
   const params = await props.params;
@@ -15,37 +17,55 @@ export async function DELETE(req: Request, props: { params: Promise<{ projectId:
   if (!params.projectId) {
     return new NextResponse("Missing project ID", { status: 400 });
   }
+  
   const boardId = params.projectId;
+  const userId = session.user.id;
 
   try {
-    const sections = await prismadb.sections.findMany({
-      where: {
-        board: boardId,
-      },
-    });
+    // Check if user has access to this project
+    const hasAccess = await checkResourceAccess(userId, boardId, 'Boards');
+    if (!hasAccess) {
+      return new NextResponse("Unauthorized", { status: 403 });
+    }
 
-    for (const section of sections) {
-      await prismadb.tasks.deleteMany({
+    // Perform all operations in a single transaction
+    await prismadb.$transaction(async (tx) => {
+      // Get all sections for this board
+      const sections = await tx.sections.findMany({
         where: {
-          section: section.id,
+          board: boardId,
         },
       });
-    }
-    await prismadb.sections.deleteMany({
-      where: {
-        board: boardId,
-      },
+
+      // Delete all tasks in each section
+      for (const section of sections) {
+        await tx.tasks.deleteMany({
+          where: {
+            section: section.id,
+          },
+        });
+      }
+      
+      // Delete all sections
+      await tx.sections.deleteMany({
+        where: {
+          board: boardId,
+        },
+      });
+
+      // Finally delete the board itself
+      await tx.boards.delete({
+        where: {
+          id: boardId,
+        },
+      });
     });
 
-    await prismadb.boards.delete({
-      where: {
-        id: boardId,
-      },
-    });
-
-    return NextResponse.json({ message: "Board deleted" }, { status: 200 });
+    return NextResponse.json({ message: "Board deleted successfully" }, { status: 200 });
   } catch (error) {
     console.log("[PROJECT_DELETE]", error);
-    return new NextResponse("Initial error", { status: 500 });
+    
+    const mappedError = mapPrismaError(error);
+    return new NextResponse(mappedError.message || "Internal error", { status: 500 });
   }
 }

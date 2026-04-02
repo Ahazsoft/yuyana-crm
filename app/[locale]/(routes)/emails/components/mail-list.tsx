@@ -13,7 +13,7 @@ interface MailListProps {
 }
 
 export function MailList({ items }: MailListProps) {
-  const [mail, setMail] = useMail();
+  const mail = useMail();
 
   return (
     <ScrollArea className="h-full">
@@ -25,12 +25,26 @@ export function MailList({ items }: MailListProps) {
               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
               mail.selected === item.id && "bg-muted"
             )}
-            onClick={() =>
-              setMail({
-                ...mail,
-                selected: item.id,
-              })
-            }
+            onClick={() => {
+              // Determine the tab based on the email type
+              let tab = 'inbox'; // Default to inbox
+              
+              // Check if it's a sent email
+              if (item.type === 'sent') {
+                tab = 'sent';
+              } 
+              // Check if it's an unread email
+              else if (!item.read) {
+                tab = 'unread';
+              } 
+              // Check if it's in the all emails view
+              else if (mail.selectedTab === 'all') {
+                tab = 'all';
+              }
+              
+              mail.setSelected(item.id);
+              mail.setSelectedTab(tab);
+            }}
           >
             <div className="flex w-full flex-col gap-1">
               <div className="flex items-center">
