@@ -14,13 +14,13 @@
   {
     "v": 0,
     "name": "emails",
-    "enabled": false,
+    "enabled": true,
     "position": 3
   },
   {
     "v": 0,
     "name": "employee",
-    "enabled": false,
+    "enabled": true,
     "position": 4
   },
   {
@@ -44,7 +44,7 @@
   {
     "v": 0,
     "name": "databox",
-    "enabled": false,
+    "enabled": true,
     "position": 8
   },
   {

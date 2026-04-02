@@ -6,6 +6,7 @@ import {
   ArchiveX,
   File,
   Inbox,
+  Mail,
   MessagesSquare,
   PenBox,
   Search,
@@ -19,7 +20,7 @@ import { AccountSwitcher } from "@/app/[locale]/(routes)/emails/components/accou
 import { MailDisplay } from "@/app/[locale]/(routes)/emails/components/mail-display";
 import { MailList } from "@/app/[locale]/(routes)/emails/components/mail-list";
 import { Nav } from "@/app/[locale]/(routes)/emails/components/nav";
-import { Mail } from "@/app/[locale]/(routes)/emails/data";
+import { Mail as MailType, inboxMails, sentMails } from "@/app/[locale]/(routes)/emails/data";
 import { useMail } from "@/app/[locale]/(routes)/emails/use-mail";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -38,7 +39,7 @@ interface MailProps {
     email: string;
     icon: React.ReactNode;
   }[];
-  mails: Mail[];
+  mails: MailType[];
   defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
@@ -52,7 +53,41 @@ export function MailComponent({
   navCollapsedSize,
 }: MailProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
-  const [mail] = useMail();
+  const mail = useMail();
+
+  // Calculate counts
+  const unreadMailsCount = mails.filter(mail => !mail.read).length;
+  const inboxMailsCount = inboxMails.length;
+  const sentMailsCount = sentMails.length;
+
+  // Separate compose link from inbox/sent links
+  const composeLink = {
+    title: "Compose",
+    label: "",
+    icon: <PenBox />,
+    variant: "ghost",
+  };
+  
+  const mainLinks = [
+    {
+      title: "Inbox",
+      label: `${inboxMailsCount}`, // Show inbox count
+      icon: <Inbox />,
+      variant: "default",
+    },
+    {
+      title: "Sent",
+      label: `${sentMailsCount}`, // Show sent count
+      icon: <Send />,
+      variant: "ghost",
+    },
+    {
+      title: "Unread",
+      label: `${unreadMailsCount}`, // Show unread count
+      icon: <Mail />, // Using Mail icon for Unread
+      variant: "ghost",
+    },
+  ];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -98,105 +133,35 @@ export function MailComponent({
           <div className={cn(isCollapsed ? "block" : "hidden")}>
             <Nav
               isCollapsed={isCollapsed}
-              links={[
-                {
-                  title: "Compose",
-                  label: "",
-                  icon: PenBox,
-                  variant: "ghost",
-                },
-              ]}
+              links={[composeLink]}
+              filterLinks={false}  // Disable filtering for compose button
             />
           </div>
           <Nav
             isCollapsed={isCollapsed}
-            links={[
-              {
-                title: "Inbox",
-                label: "128",
-                icon: Inbox,
-                variant: "default",
-              },
-              {
-                title: "Drafts",
-                label: "9",
-                icon: File,
-                variant: "ghost",
-              },
-              {
-                title: "Sent",
-                label: "",
-                icon: Send,
-                variant: "ghost",
-              },
-              {
-                title: "Junk",
-                label: "23",
-                icon: ArchiveX,
-                variant: "ghost",
-              },
-              {
-                title: "Trash",
-                label: "",
-                icon: Trash2,
-                variant: "ghost",
-              },
-              {
-                title: "Archive",
-                label: "",
-                icon: Archive,
-                variant: "ghost",
-              },
-            ]}
-          />
-          <Separator />
-          <Nav
-            isCollapsed={isCollapsed}
-            links={[
-              {
-                title: "Social",
-                label: "972",
-                icon: Users2,
-                variant: "ghost",
-              },
-              {
-                title: "Updates",
-                label: "342",
-                icon: AlertCircle,
-                variant: "ghost",
-              },
-              {
-                title: "Forums",
-                label: "128",
-                icon: MessagesSquare,
-                variant: "ghost",
-              },
-              {
-                title: "Shopping",
-                label: "8",
-                icon: ShoppingCart,
-                variant: "ghost",
-              },
-              {
-                title: "Promotions",
-                label: "21",
-                icon: Archive,
-                variant: "ghost",
-              },
-            ]}
+            links={mainLinks}
+            filterLinks={false}  // Disable filtering to show all tabs
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={`${defaultLayout[1]}%`} minSize="30%">
-          <Tabs defaultValue="all">
+          <Tabs defaultValue="inbox">
             <div className="flex items-center px-4 py-2">
-              <h1 className="text-xl font-bold">Inbox</h1>
+              <h1 className="text-xl font-bold capitalize">
+                {mail.selectedTab || 'Inbox'}
+              </h1>
               <TabsList className="ml-auto">
                 <TabsTrigger
-                  value="all"
+                  value="inbox"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  All mail
+                  Inbox
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sent"
+                  className="text-zinc-600 dark:text-zinc-200"
+                >
+                  Sent
                 </TabsTrigger>
                 <TabsTrigger
                   value="unread"
@@ -207,6 +172,9 @@ export function MailComponent({
               </TabsList>
             </div>
             <Separator />
+            <div className="text-sm text-muted-foreground py-1">
+              Showing all emails
+            </div>
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <form>
                 <div className="relative">
@@ -215,16 +183,25 @@ export function MailComponent({
                 </div>
               </form>
             </div>
-            <TabsContent value="all" className="m-0">
-              <MailList items={mails} />
+            <TabsContent value="inbox" className="m-0">
+              <div className="flex items-center p-2">
+                <MailList items={inboxMails} />
+              </div>
+            </TabsContent>
+            <TabsContent value="sent" className="m-0">
+              <div className="flex items-center p-2">
+                <MailList items={sentMails} />
+              </div>
             </TabsContent>
             <TabsContent value="unread" className="m-0">
-              <MailList items={mails.filter((item) => !item.read)} />
+              <div className="flex items-center p-2">
+                <MailList items={mails.filter(mail => !mail.read)} />
+              </div>
             </TabsContent>
           </Tabs>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={`${defaultLayout[2]}%`} minSize="30%">
+        <ResizablePanel defaultSize={`${defaultLayout[2]}%`}>
           <MailDisplay
             mail={mails.find((item) => item.id === mail.selected) || null}
           />

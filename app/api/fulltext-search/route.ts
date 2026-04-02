@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   //return new NextResponse("Done", { status: 200 });
 
   try {
-    //Search in modul CRM (Oppotunities)
+    //Search in modul CRM (Opportunities)
     const resultsCrmOpportunities = await prismadb.crm_Opportunities.findMany({
       where: {
         OR: [
@@ -97,6 +97,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
     console.log("[FULLTEXT_SEARCH_POST]", error);
-    return new NextResponse("Initial error", { status: 500 });
+    return new NextResponse("Internal error", { status: 500 });
   }
 }

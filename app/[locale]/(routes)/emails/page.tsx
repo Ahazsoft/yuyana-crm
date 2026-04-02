@@ -50,7 +50,7 @@ const EmailRoute = async () => {
     <Container
       title={t("emails")}
       description={
-        "This module is in development. Now it is only frontend demo."
+        "Manage your emails with dedicated inbox and sent folders."
       }
     >
       <Suspense fallback={<SuspenseLoading />}>
