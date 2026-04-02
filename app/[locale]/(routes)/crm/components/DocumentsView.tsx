@@ -25,13 +25,12 @@ const DocumentsView = ({ data }: DocumentsViewProps) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between">
           <div>
-            <CardTitle
-              onClick={() => router.push("/documents")}
-              className="cursor-pointer"
-            >
+            <CardTitle onClick={() => router.push("/documents")} className="cursor-pointer">
               Documents
             </CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription className="text-sm text-muted-foreground">
+              {data?.length ?? 0} assigned documents
+            </CardDescription>
           </div>
           <div className="flex space-x-2"></div>
         </div>
@@ -39,7 +38,7 @@ const DocumentsView = ({ data }: DocumentsViewProps) => {
       </CardHeader>
       <CardContent>
         {!data || data.length === 0 ? (
-          "No assigned documents found"
+          <div className="text-sm text-muted-foreground">No assigned documents found</div>
         ) : (
           <DocumentsDataTable data={data} columns={columns} />
         )}

@@ -26,17 +26,24 @@ const ContactViewPage = async (props: any) => {
   if (!contact) return <div>Contact not found</div>;
 
   return (
-    <Container
-      title={`Contact detail view: ${contact?.first_name} ${contact?.last_name}`}
-      description={"Everything you need to know about sales potential"}
-    >
-      <div className="space-y-5">
+      <div className="space-y-5 m-9">
         <BasicView data={contact} />
         <AccountsView data={accounts} crmData={crmData} />
         <OpportunitiesView data={opportunities} crmData={crmData} />
         <DocumentsView data={documents} />
       </div>
-    </Container>
+
+    // <Container
+    //   title={`Contact detail view: ${contact?.first_name} ${contact?.last_name}`}
+    //   description={"Everything you need to know about sales potential"}
+    // >
+    //   <div className="space-y-5">
+    //     <BasicView data={contact} />
+    //     <AccountsView data={accounts} crmData={crmData} />
+    //     <OpportunitiesView data={opportunities} crmData={crmData} />
+    //     <DocumentsView data={documents} />
+    //   </div>
+    // </Container>
   );
 };
 
