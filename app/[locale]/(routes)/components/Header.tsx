@@ -3,7 +3,6 @@ import FulltextSearch from "./FulltextSearch";
 
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { SetLanguage } from "@/components/SetLanguage";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CommandComponent } from "@/components/CommandComponent";
 import SupportComponent from "@/components/support";
@@ -20,7 +19,7 @@ type Props = {
  *
  * Layout Structure:
  * - Left side: SidebarTrigger (mobile menu), FulltextSearch
- * - Right side: CommandComponent, SetLanguage, Feedback, ThemeToggle, SupportComponent
+ * - Right side: CommandComponent, Feedback, ThemeToggle, SupportComponent
  *
  * Changes from previous version:
  * - Removed AvatarDropdown (functionality moved to nav-user section in sidebar)
@@ -42,7 +41,6 @@ const Header = ({ id, lang }: Props) => {
         </div>
         <div className="flex items-center gap-2">
           <CommandComponent />
-          <SetLanguage userId={id} />
           <Feedback />
           <ThemeToggle />
           <SupportComponent />

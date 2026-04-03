@@ -19,9 +19,8 @@ import getEmailsMenuItem from "./menu-items/Emails";
 import getEmployeesMenuItem from "./menu-items/Employees";
 import getInvoicesMenuItem from "./menu-items/Invoices";
 import getReportsMenuItem from "./menu-items/Reports";
-import getDocumentsMenuItem from "./menu-items/Documents";
-import getDataboxMenuItem from "./menu-items/Databoxes";
 import getAdministrationMenuItem from "./menu-items/Administration";
+import getMarketingMenuItem from "./menu-items/Marketing";
 
 /**
  * AppSidebar Component - Task Groups 1.2, 2.2-2.7, 3.1, 5.3, 5.4
@@ -122,6 +121,18 @@ export function AppSidebar({
     navItems.push(crmItem);
   }
 
+  // Marketing module navigation (with module filtering)
+  // Only show if Marketing module is enabled
+  const marketingModule = modules.find(
+    (menuItem: any) => menuItem.name === "marketing" && menuItem.enabled
+  );
+  if (marketingModule && dict?.marketing) {
+    const marketingItem = getMarketingMenuItem({
+      localizations: dict.marketing,
+    });
+    navItems.push(marketingItem);
+  }
+
   // Task 2.4: Projects module navigation (with module filtering)
   // Only show if Projects module is enabled
   const projectsModule = modules.find(
@@ -184,6 +195,7 @@ export function AppSidebar({
 
   // Task 2.6.5: Documents module navigation (with module filtering)
   // Only show if Documents module is enabled
+  /*
   const documentsModule = modules.find(
     (menuItem: any) => menuItem.name === "documents" && menuItem.enabled
   );
@@ -193,9 +205,11 @@ export function AppSidebar({
     });
     navItems.push(documentsItem);
   }
+  */
 
   // Task 2.6.6: Databox module navigation (with module filtering)
   // Only show if Databox module is enabled
+  /*
   const databoxModule = modules.find(
     (menuItem: any) => menuItem.name === "databox" && menuItem.enabled
   );
@@ -205,7 +219,7 @@ export function AppSidebar({
     });
     navItems.push(databoxItem);
   }
-
+  */
   // Task 2.7: Administration menu navigation (with role-based visibility)
   // Only show if user is an admin (session.user.isAdmin === true)
   if (session?.user?.isAdmin && dict?.settings) {

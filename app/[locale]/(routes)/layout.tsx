@@ -94,6 +94,13 @@ export default async function AppLayout({
     reports: dict("reports"),
     documents: dict("documents"),
     settings: dict("settings"),
+    marketing: {
+      title: dict("marketing.title"),
+      campaigns: dict("marketing.campaigns"),
+      segments: dict("marketing.segments"),
+      templates: dict("marketing.templates"),
+      analytics: dict("marketing.analytics"),
+    },
   };
 
   const cookieStore = await cookies();

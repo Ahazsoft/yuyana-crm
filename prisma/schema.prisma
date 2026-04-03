@@ -880,3 +880,33 @@ model ContactsToOpportunities {
   @@index([contact_id])
   @@index([opportunity_id])
 }
+
+// Marketing campaigns table
+model crm_marketing_campaigns {
+  id             String   @id @default(cuid())
+  v              Int      @map("__v") @default(0) // For optimistic locking
+  name           String
+  description    String?
+  status         String?  // ACTIVE, INACTIVE, PAUSED
+  startDate      DateTime?
+  endDate        DateTime?
+  budget         Decimal?
+  spent          Decimal?
+  targetAudience Json?
+  emailSubject   String?
+  emailContent   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdById    String?  @db.Uuid
+
+  // Relations
+  createdBy      Users?
+  
+  // Metrics
+  sentCount      Int @default(0)
+  openCount      Int @default(0)
+  clickCount     Int @default(0)
+  conversionCount Int @default(0)
+  
+  @@map("crm_marketing_campaigns")
+}
