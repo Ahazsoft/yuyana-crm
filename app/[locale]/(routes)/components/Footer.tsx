@@ -7,7 +7,7 @@ const Footer = async () => {
   //console.log(nextVersion, "nextVersion");
   return (
     <footer className="flex flex-row h-8 justify-end items-center w-full text-xs text-muted-foreground p-5">
-      <div className="hidden md:flex pr-5">
+      {/* <div className="hidden md:flex pr-5">
         <Link href="/">
           <h1 className="text-muted-foreground hover:text-foreground transition-colors">
             {" "}
@@ -34,7 +34,7 @@ const Footer = async () => {
         <Link className="pl-1 font-bold hover:text-foreground transition-colors" href="https://www.softbase.cz">
           SoftBase s.r.o.
         </Link>
-      </div>
+      </div> */}
     </footer>
   );
 };

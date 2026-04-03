@@ -27,12 +27,13 @@ export async function generateMetadata(props: Props) {
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
-    title: t("title"),
+    title: "Yuyana CRM",
+    // title: t("title"),
     description: t("description"),
     openGraph: {
       images: [
         {
-          url: "/images/opengraph-image.png",
+          url: "/yuyanalogo.png",
           width: 1200,
           height: 630,
           alt: t("title"),
