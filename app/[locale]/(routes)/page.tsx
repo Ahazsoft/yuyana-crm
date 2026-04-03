@@ -200,14 +200,6 @@ const DashboardPage = async () => {
             content={invoices}
           />
         )}
-        {documentsModule?.enabled && (
-          <DashboardCard
-            href="/documents"
-            title={dict("documents")}
-            IconComponent={CoinsIcon}
-            content={documents}
-          />
-        )}
 
         <StorageQuota actual={storage} title={dict("storage")} />
       </div>

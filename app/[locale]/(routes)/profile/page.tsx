@@ -8,7 +8,6 @@ import { ProfilePhotoForm } from "./components/ProfilePhotoForm";
 
 import H4Title from "@/components/typography/h4";
 import { OpenAiForm } from "./components/OpenAiForm";
-import { LanguageForm } from "./components/LanguageForm";
 
 const ProfilePage = async () => {
   const t = await getTranslations("ProfilePage");
@@ -35,9 +34,6 @@ const ProfilePage = async () => {
 
         <H4Title>{t("passwordChange")}</H4Title>
         <PasswordChangeForm userId={data.id} />
-
-        <H4Title>{t("language")}</H4Title>
-        <LanguageForm userId={data.id} />
 
         <H4Title>{t("openAiIntegration")}</H4Title>
         <OpenAiForm userId={data.id} />

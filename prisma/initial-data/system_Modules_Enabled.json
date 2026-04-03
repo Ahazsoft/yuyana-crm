@@ -7,50 +7,56 @@
   },
   {
     "v": 0,
-    "name": "projects",
+    "name": "marketing",
     "enabled": true,
     "position": 2
   },
   {
     "v": 0,
-    "name": "emails",
+    "name": "projects",
     "enabled": true,
     "position": 3
   },
   {
     "v": 0,
-    "name": "employee",
+    "name": "emails",
     "enabled": true,
     "position": 4
   },
   {
     "v": 0,
-    "name": "invoice",
-    "enabled": false,
+    "name": "employee",
+    "enabled": true,
     "position": 5
   },
   {
     "v": 0,
-    "name": "reports",
+    "name": "invoice",
     "enabled": true,
     "position": 6
   },
   {
     "v": 0,
-    "name": "documents",
+    "name": "reports",
     "enabled": true,
     "position": 7
   },
   {
     "v": 0,
-    "name": "databox",
+    "name": "documents",
     "enabled": true,
     "position": 8
   },
   {
     "v": 0,
+    "name": "databox",
+    "enabled": false,
+    "position": 9
+  },
+  {
+    "v": 0,
     "name": "openai",
     "enabled": true,
-    "position": 9
+    "position": 10
   }
 ]

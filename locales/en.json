@@ -20,7 +20,14 @@
     "reports": "Reports",
     "documents": "Documents",
     "storage": "Storage",
-    "settings": "Administration"
+    "settings": "Administration",
+    "marketing": {
+      "title": "Marketing",
+      "campaigns": "Campaigns",
+      "segments": "Segments",
+      "templates": "Templates",
+      "analytics": "Analytics"
+    }
   },
   "DashboardPage": {
     "containerTitle": "Dashboard",
@@ -245,7 +252,7 @@
     "value": "Value",
     "startDate": "Start date",
     "endDate": "End date",
-    "renewalReminderDate": "Renewal reminder date",
+    "revenueReminderDate": "Renewal reminder date",
     "customerSignedDate": "Customer signed date",
     "companySignedDate": "Company signed date",
     "account": "Account",
