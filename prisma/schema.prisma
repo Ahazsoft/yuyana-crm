@@ -269,8 +269,10 @@ model crm_Contracts {
   status              crm_Contracts_Status @default(NOTSTARTED)
   type                String?
 
-  assigned_account crm_Accounts? @relation(fields: [account], references: [id])
-  assigned_to_user Users?        @relation(fields: [assigned_to], references: [id])
+  assigned_account     crm_Accounts?          @relation(fields: [account], references: [id])
+  assigned_to_user     Users?                 @relation(fields: [assigned_to], references: [id])
+  crmAccountsTasks     crm_Accounts_Tasks[]
+  documentsToContracts DocumentsToContracts[]
 
   @@index([account])
   @@index([assigned_to])
@@ -497,6 +499,7 @@ model Documents {
   crm_accounts_tasks   DocumentsToCrmAccountsTasks[]
   leads                DocumentsToLeads[]
   accounts             DocumentsToAccounts[]
+  documentsToContracts DocumentsToContracts[]
 
   @@index([created_by_user])
   @@index([assigned_user])
@@ -609,6 +612,9 @@ model crm_Accounts_Tasks {
   crm_accounts crm_Accounts?                 @relation(fields: [account], references: [id])
   documents    DocumentsToCrmAccountsTasks[]
 
+  contract     String?        @db.Uuid
+  crm_contract crm_Contracts? @relation(fields: [contract], references: [id])
+
   @@index([user])
   @@index([account])
   @@index([createdBy])
@@ -617,6 +623,7 @@ model crm_Accounts_Tasks {
   @@index([taskStatus])
   @@index([dueDateAt])
   @@index([createdAt])
+  @@index([contract])
   @@index([account, taskStatus])
 }
 
@@ -675,23 +682,24 @@ model Users {
   userStatus       ActiveStatus @default(PENDING)
   userLanguage     Language     @default(en)
 
-  tasksComment         tasksComments[]
-  created_by_documents Documents[]           @relation("created_by_user")
-  assigned_documents   Documents[]           @relation("assigned_to_user")
-  tasks                Tasks[]
-  crm_accounts_tasks   crm_Accounts_Tasks[]
-  accounts             crm_Accounts[]        @relation("AccountAssignedTo")
-  leads                crm_Leads[]           @relation("LeadAssignedTo")
-  created_by_user      crm_Opportunities[]   @relation("created_by_user_relation")
-  assigned_opportunity crm_Opportunities[]   @relation("assigned_to_user_relation")
-  assigned_contacts    crm_Contacts[]        @relation("assigned_contacts")
-  crated_contacts      crm_Contacts[]        @relation("created_contacts")
-  openAi_key           openAi_keys[]
-  assigned_invoices    Invoices[]
-  assigned_contracts   crm_Contracts[]
-  boards               Boards[]              @relation("assigned_user")
-  watching_boards      BoardWatchers[]
-  watching_accounts    AccountWatchers[]
+  tasksComment          tasksComments[]
+  created_by_documents  Documents[]               @relation("created_by_user")
+  assigned_documents    Documents[]               @relation("assigned_to_user")
+  tasks                 Tasks[]
+  crm_accounts_tasks    crm_Accounts_Tasks[]
+  accounts              crm_Accounts[]            @relation("AccountAssignedTo")
+  leads                 crm_Leads[]               @relation("LeadAssignedTo")
+  created_by_user       crm_Opportunities[]       @relation("created_by_user_relation")
+  assigned_opportunity  crm_Opportunities[]       @relation("assigned_to_user_relation")
+  assigned_contacts     crm_Contacts[]            @relation("assigned_contacts")
+  crated_contacts       crm_Contacts[]            @relation("created_contacts")
+  openAi_key            openAi_keys[]
+  assigned_invoices     Invoices[]
+  assigned_contracts    crm_Contracts[]
+  boards                Boards[]                  @relation("assigned_user")
+  watching_boards       BoardWatchers[]
+  watching_accounts     AccountWatchers[]
+  crmMarketingCampaigns crm_marketing_campaigns[]
 
   @@index([email])
   @@index([userStatus])
@@ -883,11 +891,11 @@ model ContactsToOpportunities {
 
 // Marketing campaigns table
 model crm_marketing_campaigns {
-  id             String   @id @default(cuid())
-  v              Int      @map("__v") @default(0) // For optimistic locking
+  id             String    @id @default(cuid())
+  v              Int       @default(0) @map("__v") // For optimistic locking
   name           String
   description    String?
-  status         String?  // ACTIVE, INACTIVE, PAUSED
+  status         String? // ACTIVE, INACTIVE, PAUSED
   startDate      DateTime?
   endDate        DateTime?
   budget         Decimal?
@@ -895,18 +903,31 @@ model crm_marketing_campaigns {
   targetAudience Json?
   emailSubject   String?
   emailContent   String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  createdById    String?  @db.Uuid
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdById    String?   @db.Uuid
 
   // Relations
-  createdBy      Users?
-  
+  createdBy      Users? @relation(fields: [createdById], references: [id])
+
   // Metrics
-  sentCount      Int @default(0)
-  openCount      Int @default(0)
-  clickCount     Int @default(0)
-  conversionCount Int @default(0)
+  sentCount       Int     @default(0)
+  openCount       Int     @default(0)
+  clickCount      Int     @default(0)
+  conversionCount Int     @default(0)
   
+
   @@map("crm_marketing_campaigns")
+}
+
+model DocumentsToContracts {
+  document_id String @db.Uuid
+  contract_id String @db.Uuid
+
+  document Documents     @relation(fields: [document_id], references: [id], onDelete: Cascade)
+  contract crm_Contracts @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+
+  @@id([document_id, contract_id])
+  @@index([document_id])
+  @@index([contract_id])
 }

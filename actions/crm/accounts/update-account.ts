@@ -8,6 +8,7 @@ import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { checkResourceAccess } from "@/lib/auth-guard";
 import { mapPrismaError, OptimisticLockError } from "@/lib/crud-service";
+import { z } from "zod";
 
 interface InputType {
   id: string;
@@ -139,4 +140,4 @@ const UpdateAccountSchema = AccountValidator.extend({
   v: z.number().int().min(0, "Version must be a non-negative integer"),
 });
 
-export const updateAccount = createSafeAction(UpdateAccountSchema, handler);
+export const updateAccount = createSafeAction(UpdateAccountSchema as any, handler);

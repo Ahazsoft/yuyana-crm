@@ -9,18 +9,18 @@ import { deleteMarketingCampaign } from "@/actions/marketing/delete-marketing-ca
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const campaigns = await prismadb.crm_marketing_campaigns.findMany({
       orderBy: {
-        createdAt: "desc"
+        createdAt: "desc",
       },
       include: {
-        createdBy: true
-      }
+        createdBy: true,
+      },
     });
 
     return NextResponse.json(campaigns);
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       budget,
       targetAudience,
       emailSubject,
-      emailContent
+      emailContent,
     } = body;
 
     if (!name) {
@@ -64,11 +64,12 @@ export async function POST(req: Request) {
       budget,
       targetAudience,
       emailSubject,
-      emailContent
+      emailContent,
     });
 
-    if ('error' in result) {
-      return new NextResponse(result.error, { status: 400 });
+    if ("error" in result) {
+      // Cast to string or use String() to ensure it's a valid BodyInit
+      return new NextResponse(String(result.error), { status: 400 });
     }
 
     return NextResponse.json(result);
@@ -81,14 +82,14 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     // Extract campaignId from the request URL more reliably
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/');
+    const pathParts = url.pathname.split("/");
     // The path should be something like /api/marketing/campaigns/:id
     const campaignId = pathParts[pathParts.length - 1];
 
@@ -106,7 +107,7 @@ export async function PATCH(req: Request) {
       budget,
       targetAudience,
       emailSubject,
-      emailContent
+      emailContent,
     } = body;
 
     const result = await updateMarketingCampaign({
@@ -119,11 +120,12 @@ export async function PATCH(req: Request) {
       budget,
       targetAudience,
       emailSubject,
-      emailContent
+      emailContent,
     });
 
-    if ('error' in result) {
-      return new NextResponse(result.error, { status: 400 });
+    if ("error" in result) {
+      // Cast to string or use String() to ensure it's a valid BodyInit
+      return new NextResponse(String(result.error), { status: 400 });
     }
 
     return NextResponse.json(result);
@@ -136,14 +138,14 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     // Extract campaignId from the request URL
     const url = new URL(req.url);
-    const pathParts = url.pathname.split('/');
+    const pathParts = url.pathname.split("/");
     const campaignId = pathParts[pathParts.length - 1];
 
     if (!campaignId) {
@@ -152,7 +154,7 @@ export async function DELETE(req: Request) {
 
     const result = await deleteMarketingCampaign({ id: campaignId });
 
-    if ('error' in result) {
+    if ("error" in result) {
       return new NextResponse(result.error, { status: 400 });
     }
 

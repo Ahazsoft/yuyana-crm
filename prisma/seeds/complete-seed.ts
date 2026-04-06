@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { PrismaClient, gptStatus, crmLeadStatus, crmLeadType, crmOpportunityStatus, crmContactType, crmContractsStatus, ActiveStatus, Language, taskStatus, DocumentSystemType } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
