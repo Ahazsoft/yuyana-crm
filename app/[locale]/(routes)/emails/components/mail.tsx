@@ -64,7 +64,7 @@ export function MailComponent({
   const composeLink = {
     title: "Compose",
     label: "",
-    icon: <PenBox />,
+    icon: PenBox,
     variant: "ghost",
   };
   
@@ -72,19 +72,19 @@ export function MailComponent({
     {
       title: "Inbox",
       label: `${inboxMailsCount}`, // Show inbox count
-      icon: <Inbox />,
+      icon: Inbox ,
       variant: "default",
     },
     {
       title: "Sent",
       label: `${sentMailsCount}`, // Show sent count
-      icon: <Send />,
+      icon: Send ,
       variant: "ghost",
     },
     {
       title: "Unread",
       label: `${unreadMailsCount}`, // Show unread count
-      icon: <Mail />, // Using Mail icon for Unread
+      icon: Mail, // Using Mail icon for Unread
       variant: "ghost",
     },
   ];
@@ -133,13 +133,13 @@ export function MailComponent({
           <div className={cn(isCollapsed ? "block" : "hidden")}>
             <Nav
               isCollapsed={isCollapsed}
-              links={[composeLink]}
+              links={[composeLink] as any}
               filterLinks={false}  // Disable filtering for compose button
             />
           </div>
           <Nav
             isCollapsed={isCollapsed}
-            links={mainLinks}
+            links={mainLinks as any} 
             filterLinks={false}  // Disable filtering to show all tabs
           />
         </ResizablePanel>

@@ -643,7 +643,8 @@ export async function BasicView({ data }: OppsViewProps) {
           <Field label="Company ID" value={data.company_id} />
           <Field label="VAT Number" value={data.vat} />
           <Field label="Type" value={data.type} />
-          <Field label="Industry" value={industryName.name} />
+
+          <Field label="Industry" value={industryName?.name} />
           <Field label="Member of" value={data.member_of} />
           <Field label="Status" value={data.status} />
           <Field label="Assigned to" value={data.assigned_to_user?.name} />
