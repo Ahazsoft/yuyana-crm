@@ -13,7 +13,7 @@ export const campaignSchema = z.object({
   targetAudience: z.any().optional(),
   emailSubject: z.string().optional(),
   emailContent: z.string().nullable().optional(),
-  templateId: z.string().optional(),
+  templateId: z.string().nullable().optional(),
   createdAt: z.union([z.string(), z.instanceof(Date)]).optional(),
   createdById: z.string().optional(),
   sentCount: z.number().optional(),
