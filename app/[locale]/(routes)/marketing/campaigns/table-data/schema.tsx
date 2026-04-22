@@ -22,4 +22,5 @@ export const campaignSchema = z.object({
   conversionCount: z.number().optional(),
 });
 
+
 export type Campaign = z.infer<typeof campaignSchema>;
