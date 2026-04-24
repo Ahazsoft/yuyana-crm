@@ -20,7 +20,18 @@ import { AccountSwitcher } from "@/app/[locale]/(routes)/marketing/emails/compon
 import { MailDisplay } from "@/app/[locale]/(routes)/marketing/emails/components/mail-display";
 import { MailList } from "@/app/[locale]/(routes)/marketing/emails/components/mail-list";
 import { Nav } from "@/app/[locale]/(routes)/marketing/emails/components/nav";
-import { Mail as MailType, inboxMails, sentMails } from "@/app/[locale]/(routes)/marketing/emails/data";
+// Mail shape expected by UI
+type MailType = {
+  id: string;
+  name?: string;
+  email?: string;
+  subject?: string;
+  text?: string;
+  date?: string;
+  read?: boolean;
+  labels?: string[];
+  type?: string; // 'inbox' | 'sent'
+};
 import { useMail } from "@/app/[locale]/(routes)/marketing/emails/use-mail";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -55,39 +66,125 @@ export function MailComponent({
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const mail = useMail();
 
-  // Calculate counts
-  const unreadMailsCount = mails.filter(mail => !mail.read).length;
+  // local state so we can poll the API route client-side
+  const [localMails, setLocalMails] = React.useState<MailType[]>(mails || []);
+
+  // Poll /api/imap/fetch to refresh mailbox (uses server API route + lib/imap)
+  React.useEffect(() => {
+    let mounted = true;
+
+    async function refresh() {
+      try {
+        const res = await fetch("/api/imap/fetch?limit=50", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const fetched = json?.data || { INBOX: [], SENT: [] };
+
+        const inbox = fetched.INBOX || [];
+        const sent = fetched.SENT || [];
+
+        const mapped: MailType[] = [
+          ...inbox.map((m: any) => ({
+             id: `inbox_${m.id}`,
+            name: (m.from || m.to?.[0] || "Unknown")
+              .split(" <")[0]
+              .replace(/(^\"+|\"+$)/g, "")
+              .trim(),
+            email:
+              (m.from || "").match(/<(.*)>/)?.[1] || m.from || m.to?.[0] || "",
+            subject: (m.subject || "(no subject)")
+              .replace(/(^\"+|\"+$)/g, "")
+              .trim(),
+            text: m.text || m.html || "",
+            date: m.date || new Date().toISOString(),
+            // use IMAP seen flag for inbox; default to false
+            read: !!m.seen,
+            labels: [],
+            type: "inbox",
+          })),
+          ...sent.map((m: any) => ({
+            id: `sent_${m.id}`,
+            name: (m.from || m.to?.[0] || "Unknown")
+              .split(" <")[0]
+              .replace(/(^\"+|\"+$)/g, "")
+              .trim(),
+            email:
+              (m.from || "").match(/<(.*)>/)?.[1] || m.from || m.to?.[0] || "",
+            subject: (m.subject || "(no subject)")
+              .replace(/(^\"+|\"+$)/g, "")
+              .trim(),
+            text: m.text || m.html || "",
+            date: m.date || new Date().toISOString(),
+            // sent messages don't require opened/read state; mark as read
+            read: true,
+            labels: [],
+            type: "sent",
+          })),
+        ];
+
+        if (mounted) setLocalMails(mapped);
+      } catch (e) {
+        // ignore errors silently
+      }
+    }
+
+    // initial refresh
+    refresh();
+    const id = setInterval(refresh, 30000);
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    // prefer any selected, otherwise pick first from localMails then props
+    if (!mail.selected) {
+      if (localMails && localMails.length) {
+        mail.setSelected(localMails[0].id);
+      } else if (mails && mails.length) {
+        mail.setSelected(mails[0].id);
+      }
+    }
+  }, [mails, localMails]);
+
+  // Calculate counts from local state
+  const inboxMails = localMails.filter((m) => m.type === "inbox");
+  const sentMails = localMails.filter((m) => m.type === "sent");
+  const unreadMailsCount = inboxMails.filter((m) => !m.read).length;
   const inboxMailsCount = inboxMails.length;
   const sentMailsCount = sentMails.length;
 
   // Separate compose link from inbox/sent links
-  const composeLink = {
-    title: "Compose",
-    label: "",
-    icon: PenBox,
-    variant: "ghost",
-  };
-  
-  const mainLinks = [
-    {
-      title: "Inbox",
-      label: `${inboxMailsCount}`, // Show inbox count
-      icon: Inbox ,
-      variant: "default",
-    },
-    {
-      title: "Sent",
-      label: `${sentMailsCount}`, // Show sent count
-      icon: Send ,
-      variant: "ghost",
-    },
-    {
-      title: "Unread",
-      label: `${unreadMailsCount}`, // Show unread count
-      icon: Mail, // Using Mail icon for Unread
-      variant: "ghost",
-    },
-  ];
+  // const composeLink = {
+  //   title: "Compose",
+  //   label: "",
+  //   icon: PenBox,
+  //   variant: "ghost",
+  // };
+
+  // const mainLinks = [
+  //   {
+  //     title: "Inbox",
+  //     label: `${inboxMailsCount}`, // Show inbox count
+  //     icon: Inbox ,
+  //     variant: "default",
+  //   },
+  //   {
+  //     title: "Sent",
+  //     label: `${sentMailsCount}`, // Show sent count
+  //     icon: Send ,
+  //     variant: "ghost",
+  //   },
+  //   {
+  //     title: "Unread",
+  //     label: `${unreadMailsCount}`, // Show unread count
+  //     icon: Mail, // Using Mail icon for Unread
+  //     variant: "ghost",
+  //   },
+  // ];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -97,12 +194,12 @@ export function MailComponent({
           // Convert v4 layout object to array format for storage
           const layoutArray = Object.values(layout);
           document.cookie = `react-resizable-panels:layout=${JSON.stringify(
-            layoutArray
+            layoutArray,
           )}`;
         }}
         className="h-full flex-row"
       >
-        <ResizablePanel
+        {/* <ResizablePanel
           defaultSize={`${defaultLayout[0]}%`}
           collapsedSize={`${navCollapsedSize}%`}
           collapsible={true}
@@ -142,37 +239,47 @@ export function MailComponent({
             links={mainLinks as any} 
             filterLinks={false}  // Disable filtering to show all tabs
           />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={`${defaultLayout[1]}%`} minSize="30%">
-          <Tabs defaultValue="inbox">
+        </ResizablePanel> */}
+
+        {/* Lists of Emails */}
+        {/* <ResizableHandle withHandle /> */}
+        <ResizablePanel
+          defaultSize={`${defaultLayout[1]}%`}
+          minSize="30%"
+          // maxSize="30%"
+        >
+          <Tabs
+            value={mail.selectedTab || "inbox"}
+            onValueChange={(v) => mail.setSelectedTab(v)}
+          >
             <div className="flex items-center px-4 py-2">
               <h1 className="text-xl font-bold capitalize">
-                {mail.selectedTab || 'Inbox'}
+                {(mail.selectedTab || "inbox").charAt(0).toUpperCase() +
+                  (mail.selectedTab || "inbox").slice(1)}
               </h1>
               <TabsList className="ml-auto">
                 <TabsTrigger
                   value="inbox"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  Inbox
+                  Inbox {inboxMailsCount}
                 </TabsTrigger>
                 <TabsTrigger
                   value="sent"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  Sent
+                  Sent {sentMailsCount}
                 </TabsTrigger>
                 <TabsTrigger
                   value="unread"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  Unread
+                  Unread {unreadMailsCount  }
                 </TabsTrigger>
               </TabsList>
             </div>
             <Separator />
-            <div className="text-sm text-muted-foreground py-1">
+            <div className="text-sm text-muted-foreground pt-2 px-4">
               Showing all emails
             </div>
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -195,15 +302,17 @@ export function MailComponent({
             </TabsContent>
             <TabsContent value="unread" className="m-0">
               <div className="flex items-center p-2">
-                <MailList items={mails.filter(mail => !mail.read)} />
+                <MailList items={inboxMails.filter((m) => !m.read)} />
               </div>
             </TabsContent>
           </Tabs>
         </ResizablePanel>
+
+        {/* Selected Email Details */}
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={`${defaultLayout[2]}%`}>
           <MailDisplay
-            mail={mails.find((item) => item.id === mail.selected) || null}
+            mail={localMails.find((item) => item.id === mail.selected) || null}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

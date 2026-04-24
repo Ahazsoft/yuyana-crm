@@ -8,6 +8,6 @@ export default defineConfig({
     url: env("DIRECT_URL"),
   },
   migrations: {
-    seed: "npx tsx prisma/seeds/complete-seed.ts",
+    seed: "npx tsx prisma/seeds/seed_email_account.ts",
   },
 });

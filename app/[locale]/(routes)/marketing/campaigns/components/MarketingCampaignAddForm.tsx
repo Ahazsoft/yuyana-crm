@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -60,6 +61,7 @@ export const MarketingCampaignAddForm = ({
 }: MarketingCampaignAddFormProps) => {
   const [loading, setLoading] = useState(false);
   const [templateLoading, setTemplateLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -133,6 +135,8 @@ export const MarketingCampaignAddForm = ({
       });
 
       if (!response.ok) throw new Error("Failed to create campaign");
+      // Refresh server data and notify parent
+      router.refresh();
       onSuccess();
     } catch (error) {
       console.error(error);
@@ -288,7 +292,7 @@ export const MarketingCampaignAddForm = ({
           )}
         />
 
-        {/* Template Selection */}
+        {/* Template Selection
         <FormField
           control={form.control}
           name="templateId"
@@ -308,9 +312,9 @@ export const MarketingCampaignAddForm = ({
               )}
             </FormItem>
           )}
-        />
+        /> */}
 
-        {/* Email Subject */}
+        {/* Email Subject
         <FormField
           control={form.control}
           name="emailSubject"
@@ -323,9 +327,9 @@ export const MarketingCampaignAddForm = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
-        {/* Email Content */}
+        {/* Email Content
         <FormField
           control={form.control}
           name="emailContent"
@@ -339,7 +343,7 @@ export const MarketingCampaignAddForm = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         {/* Actions */}
         <div className="flex justify-end space-x-4 pt-4">
