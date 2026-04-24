@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { format } from "date-fns";
 import { addDays } from "date-fns";
 
@@ -25,7 +26,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Mail } from "@/app/[locale]/(routes)/marketing/emails/data";
+type Mail = {
+  id: string;
+  name?: string;
+  email?: string;
+  subject?: string;
+  text?: string;
+  date?: string;
+  read?: boolean;
+  labels?: string[];
+  type?: string;
+};
 
 interface MailDisplayProps {
   mail: Mail | null;
@@ -34,8 +45,11 @@ interface MailDisplayProps {
 export function MailDisplay({ mail }: MailDisplayProps) {
   const today = new Date();
 
+  const displayName = mail?.name ? mail.name.replace(/(^\"+|\"+$)/g, "").trim() : "";
+  const displaySubject = mail?.subject ? mail.subject.replace(/(^\"+|\"+$)/g, "").trim() : "";
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" style={{minHeight:"50vh", maxHeight:"100vh"}}>
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
           <Tooltip>
@@ -104,45 +118,44 @@ export function MailDisplay({ mail }: MailDisplayProps) {
       </div>
       <Separator />
       {mail ? (
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col" >
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
                 <AvatarImage alt={mail.name} />
                 <AvatarFallback>
                   {mail.name
-                    .split(" ")
-                    .map((chunk) => chunk[0])
-                    .join("")}
+                    .split(" ")[0].charAt(0).toUpperCase()
+                    }
                 </AvatarFallback>
               </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">{mail.name}</div>
-                <div className="line-clamp-1 text-xs">{mail.subject}</div>
+                <div className="grid gap-1">
+                <div className="font-semibold max-w-[60%] truncate">{displayName}</div>
+                <div className="line-clamp-1 text-xs max-w-[60%] truncate">{displaySubject}</div>
                 <div className="line-clamp-1 text-xs">
                   <span className="font-medium">Reply-To:</span> {mail.email}
                 </div>
               </div>
             </div>
             {mail.date && (
-              <div className="ml-auto text-xs text-muted-foreground">
+              <div className="ml-auto text-xs text-muted-foreground" >
                 {format(new Date(mail.date), "PPpp")}
               </div>
             )}
           </div>
           <Separator />
-          <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
+          <div className="flex-1 whitespace-pre-wrap p-4 text-sm overflow-y-auto"style={{maxHeight:"40vh", minHeight:"40vh" }}>
             {mail.text}
           </div>
           <Separator className="mt-auto" />
           <div className="p-4">
             <form>
-              <div className="grid gap-4">
+              <div className="flex flex-row gap-5 ">
                 <Textarea
                   className="p-4"
                   placeholder={`Reply ${mail.name}...`}
                 />
-                <div className="flex items-center">
+                <div className="flex items-end">
                   <Button size="sm" className="ml-auto">
                     Send
                   </Button>

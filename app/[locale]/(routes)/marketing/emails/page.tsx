@@ -2,8 +2,9 @@ import React, { Suspense } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MailComponent } from "./components/mail";
-import { accounts, mails } from "@/app/[locale]/(routes)/marketing/emails/data";
-import Container from "../../components/ui/Container";
+import { accounts } from "@/app/[locale]/(routes)/marketing/emails/data";
+import { fetchRecentEmails } from "@/lib/imap";
+import Container from "../../components/ui/Container2";
 import SuspenseLoading from "@/components/loadings/suspense";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -52,11 +53,45 @@ const EmailRoute = async () => {
       description={
         "Manage your emails with dedicated inbox and sent folders."
       }
+
+      buttonHref="/marketing/emails/compose"
+      buttonText="Compose Email"
+      
     >
       <Suspense fallback={<SuspenseLoading />}>
+        {/* Fetch IMAP emails server-side and pass to client MailComponent */}
+        {
+          // fetchRecentEmails reads IMAP using lib/imap
+        }
         <MailComponent
           accounts={accounts}
-          mails={mails}
+          // fetch on server to provide initial render
+          mails={await (async () => {
+            try {
+              const fetched = await fetchRecentEmails({ limit: 50, userId: session.user?.id });
+
+              // Map fetched emails to UI Mail shape — use mailbox source to set type
+              const inbox = fetched?.INBOX || [];
+              const sent = fetched?.SENT || [];
+
+              const mapMsg = (m: any, type: string) => ({
+                id: m.id,
+                name: m.from ? m.from.split(" <")[0] : (m.to?.[0] || "Unknown"),
+                email: (m.from || "").match(/<(.*)>/)?.[1] || (m.from || m.to?.[0] || ""),
+                subject: m.subject || "(no subject)",
+                text: m.text || m.html || "",
+                date: m.date || new Date().toISOString(),
+                read: false,
+                labels: [],
+                type,
+              });
+
+              return [...inbox.map((m: any) => mapMsg(m, "inbox")), ...sent.map((m: any) => mapMsg(m, "sent"))];
+            } catch (err) {
+              // fallback to empty list on error
+              return [];
+            }
+          })()}
           defaultLayout={validatedLayout}
           defaultCollapsed={defaultCollapsed}
           navCollapsedSize={8}

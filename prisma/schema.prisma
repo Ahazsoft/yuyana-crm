@@ -701,6 +701,7 @@ model Users {
   watching_accounts     AccountWatchers[]
   crmMarketingCampaigns crm_marketing_campaigns[]
   emailTemplates        email_templates[]
+  emailAccounts         EmailAccount[]
 
   @@index([email])
   @@index([userStatus])
@@ -747,6 +748,24 @@ model systemServices {
   servicePassword String?
   servicePort     String?
   description     String?
+}
+
+model EmailAccount {
+  id         String   @id @default(uuid()) @db.Uuid
+  v          Int      @map("__v")
+  user       String   @db.Uuid
+  email      String
+  host       String?
+  port       Int?
+  secure     Boolean? @default(true)
+  password   String?
+  mailbox    String?  @default("INBOX")
+  sentMailbox String?
+  createdAt  DateTime @default(now())
+
+  accountUser Users?  @relation(fields: [user], references: [id])
+
+  @@index([user])
 }
 
 model gpt_models {
