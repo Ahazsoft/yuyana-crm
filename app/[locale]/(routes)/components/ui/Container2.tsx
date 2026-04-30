@@ -9,6 +9,7 @@ interface ContainerProps {
   visibility?: string;
   buttonText?: string;
   buttonHref?: string;
+  buttonComponent?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ const Container = ({
   visibility,
   buttonText,
   buttonHref,
+  buttonComponent,
   children,
 }: ContainerProps) => {
   return (
@@ -28,12 +30,18 @@ const Container = ({
           description={description}
           visibility={visibility}
         />
-        {buttonText && buttonHref && <Link
-          href={buttonHref ? buttonHref : "#"}
-          className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md transition-colors"
-        >
-          {buttonText}
-        </Link>}
+        {buttonComponent ? (
+          buttonComponent
+        ) : (
+          buttonText && buttonHref && (
+            <Link
+              href={buttonHref ? buttonHref : "#"}
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              {buttonText}
+            </Link>
+          )
+        )}
       </div>
       <Separator className="my-4" />
       <div className="flex-1 min-h-0 w-full">{children}</div>

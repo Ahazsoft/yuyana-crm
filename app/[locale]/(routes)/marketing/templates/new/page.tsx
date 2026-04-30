@@ -7,48 +7,48 @@ import { ChevronRight, Copy } from "lucide-react";
 
 // This represents your imported JSON
 const CRM_SCHEMA = {
-  crm_Accounts: {
-    label: "Company",
-    attributes: {
-      name: { label: "Company Name", type: "String" },
-      status: { label: "Company Status", type: "String" },
-      email: { label: "Company Email", type: "String" },
-      office_phone: { label: "Office Phone", type: "String" },
-      website: { label: "Website", type: "String" },
-      assigned_to: { label: "Assigned User", type: "Uuid" },
-      createdAt: { label: "Created Date", type: "DateTime" },
-    },
-  },
-  crm_Leads: {
-    label: "Leads",
-    attributes: {
-      firstName: { label: "First Name", type: "String" },
-      lastName: { label: "Last Name", type: "String" },
-      company: { label: "Company Name", type: "String" },
-      jobTitle: { label: "Job Title", type: "String" },
-      email: { label: "Email Address", type: "String" },
-      phone: { label: "Phone Number", type: "String" },
-      status: { label: "Lead Status", type: "String" },
-      type: { label: "Lead Type", type: "String" },
-      lead_source: { label: "Lead Source", type: "String" },
-      campaign: { label: "Campaign", type: "String" },
-      assigned_to: { label: "Assigned User", type: "Uuid" },
-      description: { label: "Description", type: "String" },
-    },
-  },
-  crm_Opportunities: {
-    label: "Opportunities",
-    attributes: {
-      name: { label: "Opportunity Name", type: "String" },
-      budget: { label: "Budget", type: "BigInt" },
-      expected_revenue: { label: "Expected Revenue", type: "BigInt" },
-      status: { label: "Opportunity Status", type: "Enum" },
-      close_date: { label: "Close Date", type: "DateTime" },
-      next_step: { label: "Next Step", type: "String" },
-      account: { label: "Company Name", type: "Uuid" },
-      assigned_to: { label: "Assigned User", type: "Uuid" },
-    },
-  },
+  // crm_Accounts: {
+  //   label: "Company",
+  //   attributes: {
+  //     name: { label: "Company Name", type: "String" },
+  //     status: { label: "Company Status", type: "String" },
+  //     email: { label: "Company Email", type: "String" },
+  //     office_phone: { label: "Office Phone", type: "String" },
+  //     website: { label: "Website", type: "String" },
+  //     assigned_to: { label: "Assigned User", type: "Uuid" },
+  //     createdAt: { label: "Created Date", type: "DateTime" },
+  //   },
+  // },
+  // crm_Leads: {
+  //   label: "Leads",
+  //   attributes: {
+  //     firstName: { label: "First Name", type: "String" },
+  //     lastName: { label: "Last Name", type: "String" },
+  //     company: { label: "Company Name", type: "String" },
+  //     jobTitle: { label: "Job Title", type: "String" },
+  //     email: { label: "Email Address", type: "String" },
+  //     phone: { label: "Phone Number", type: "String" },
+  //     status: { label: "Lead Status", type: "String" },
+  //     type: { label: "Lead Type", type: "String" },
+  //     lead_source: { label: "Lead Source", type: "String" },
+  //     campaign: { label: "Campaign", type: "String" },
+  //     assigned_to: { label: "Assigned User", type: "Uuid" },
+  //     description: { label: "Description", type: "String" },
+  //   },
+  // },
+  // crm_Opportunities: {
+  //   label: "Opportunities",
+  //   attributes: {
+  //     name: { label: "Opportunity Name", type: "String" },
+  //     budget: { label: "Budget", type: "BigInt" },
+  //     expected_revenue: { label: "Expected Revenue", type: "BigInt" },
+  //     status: { label: "Opportunity Status", type: "Enum" },
+  //     close_date: { label: "Close Date", type: "DateTime" },
+  //     next_step: { label: "Next Step", type: "String" },
+  //     account: { label: "Company Name", type: "Uuid" },
+  //     assigned_to: { label: "Assigned User", type: "Uuid" },
+  //   },
+  // },
   crm_Contacts: {
     label: "Contacts",
     attributes: {

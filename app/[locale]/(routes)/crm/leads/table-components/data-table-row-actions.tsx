@@ -8,13 +8,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -46,6 +41,7 @@ export function DataTableRowActions<TData>({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
+  const [archiveLoading, setArchiveLoading] = useState(false);
 
   const { toast } = useToast();
 
@@ -71,6 +67,32 @@ export function DataTableRowActions<TData>({
     }
   };
 
+  const onArchive = async () => {
+    setArchiveLoading(true);
+    const newStatus = lead.isArchived === "archived" ? "active" : "archived";
+    try {
+      await axios.patch(`/api/crm/leads/${lead?.id}`, {
+        isArchived: newStatus,
+      });
+      toast({
+        title: "Success",
+        description:
+          newStatus === "archived"
+            ? "Lead has been archived"
+            : "Lead has been unarchived",
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update archive status. Please try again.",
+      });
+    } finally {
+      setArchiveLoading(false);
+    }
+  };
+
   return (
     <>
       <AlertModal
@@ -82,11 +104,16 @@ export function DataTableRowActions<TData>({
       <Sheet open={updateOpen} onOpenChange={setUpdateOpen}>
         <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Update lead - {lead?.firstName} {lead?.lastName}</SheetTitle>
+            <SheetTitle>
+              Update lead - {lead?.firstName} {lead?.lastName}
+            </SheetTitle>
             <SheetDescription>Update lead details</SheetDescription>
           </SheetHeader>
           <div className="mt-6 space-y-4">
-            <UpdateLeadForm initialData={row.original} setOpen={setUpdateOpen} />
+            <UpdateLeadForm
+              initialData={row.original}
+              setOpen={setUpdateOpen}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -109,10 +136,16 @@ export function DataTableRowActions<TData>({
           <DropdownMenuItem onClick={() => setUpdateOpen(true)}>
             Update
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={onArchive} disabled={archiveLoading}>
+            {archiveLoading
+              ? "Loading..."
+              : lead.isArchived === "archived"
+                ? "Unarchive"
+                : "Archive"}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setOpen(true)}>
-            Delete
-            <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+            <span className="text-red-500 hover:text-red-700">Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

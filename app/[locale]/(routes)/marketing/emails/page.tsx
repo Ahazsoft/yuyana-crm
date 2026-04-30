@@ -5,6 +5,7 @@ import { MailComponent } from "./components/mail";
 import { accounts } from "@/app/[locale]/(routes)/marketing/emails/data";
 import { fetchRecentEmails } from "@/lib/imap";
 import Container from "../../components/ui/Container2";
+import ComposeLauncher from "./components/ComposeLauncher";
 import SuspenseLoading from "@/components/loadings/suspense";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -53,9 +54,7 @@ const EmailRoute = async () => {
       description={
         "Manage your emails with dedicated inbox and sent folders."
       }
-
-      buttonHref="/marketing/emails/compose"
-      buttonText="Compose Email"
+      buttonComponent={<ComposeLauncher initialTemplates={[]} />}
       
     >
       <Suspense fallback={<SuspenseLoading />}>

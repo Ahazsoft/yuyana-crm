@@ -1,8 +1,9 @@
 import { getLead } from "@/actions/crm/get-lead";
-import Container from "@/app/[locale]/(routes)/components/ui/Container";
+import Container from "@/app/[locale]/(routes)/components/ui/Container2";
 import React from "react";
 import { BasicView } from "./components/BasicView";
 import DocumentsView from "../../components/DocumentsView";
+import { BackButton } from "./components/BackButton";
 
 interface LeadDetailPageProps {
   params: Promise<{
@@ -21,6 +22,7 @@ const LeadDetailPage = async (props: LeadDetailPageProps) => {
     <Container
       title={`Lead: ${lead?.firstName} ${lead?.lastName}`}
       description={"Everything you need to know about sales potential"}
+      buttonComponent={<BackButton/>}
     >
       <div className="space-y-5">
         <BasicView data={lead} />
@@ -31,3 +33,5 @@ const LeadDetailPage = async (props: LeadDetailPageProps) => {
 };
 
 export default LeadDetailPage;
+
+ 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -9,8 +9,6 @@ import axios from "axios";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
-
-import { cn } from "@/lib/utils";
 
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -52,12 +50,13 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   const c = useTranslations("Common");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaignsLoading, setCampaignsLoading] = useState(true);
 
   const formSchema = z.object({
-    first_name: z.string(),
-    last_name: z.string().min(3).max(30).nonempty(),
+    first_name: z.string().min(3).max(30).nonempty(),
+    last_name: z.string().optional(),
     company: z.string().optional(),
-    // jobTitle: z.string().optional(),
     email: z.string().email().optional(),
     phone: z.string().min(0).max(15).optional(),
     description: z.string().optional(),
@@ -65,7 +64,9 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
     refered_by: z.string().optional(),
     campaign: z.string().optional(),
     assigned_to: z.string().optional(),
-    accountIDs: z.string().optional(),
+    service: z.string(),
+    status: z.string(),
+    followup_date: z.string().optional(),
   });
 
   type NewLeadFormValues = z.infer<typeof formSchema>;
@@ -77,6 +78,7 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   const onSubmit = async (data: NewLeadFormValues) => {
     setIsLoading(true);
     try {
+      // Ensure followup_date is sent in ISO format if present
       await axios.post("/api/crm/leads", data);
       toast({
         title: c("success"),
@@ -94,7 +96,6 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
         first_name: "",
         last_name: "",
         company: "",
-        // jobTitle: "",
         email: "",
         phone: "",
         description: "",
@@ -102,24 +103,69 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
         refered_by: "",
         campaign: "",
         assigned_to: "",
-        accountIDs: "",
+        status: "",
+        service: "",
+        followup_date: "",
       });
       router.refresh();
       onFinish?.();
     }
   };
 
+  useEffect(() => {
+    const loadCampaigns = async () => {
+      try {
+        const res = await fetch("/api/marketing/campaigns");
+        if (!res.ok) throw new Error("Failed to fetch campaigns");
+        const data = await res.json();
+        setCampaigns(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setCampaignsLoading(false);
+      }
+    };
+    loadCampaigns();
+  }, []);
+
+  const leadStatus = [
+    { name: "New", id: "NEW" },
+    { name: "Contacted", id: "CONTACTED" },
+    { name: "Qualified", id: "QUALIFIED" },
+    { name: "Lost", id: "LOST" },
+  ];
+
+  const leadSource = [
+    { name: "Cold Call", id: "COLD_CALL" },
+    { name: "Existing Customer", id: "EXISTING_CUSTOMER" },
+    { name: "Self Generated", id: "SELF_GENERATED" },
+    { name: "Employee", id: "EMPLOYEE" },
+    { name: "Partner", id: "PARTNER" },
+    { name: "Public Relations", id: "PUBLIC_RELATIONS" },
+    { name: "Direct Mail", id: "DIRECT_MAIL" },
+    { name: "Conference", id: "CONFERENCE" },
+    { name: "Trade Show", id: "TRADE_SHOW" },
+    { name: "Website", id: "WEBSITE" },
+    { name: "Word of mouth", id: "WORD_OF_MOUTH" },
+    { name: "Email", id: "EMAIL" },
+    { name: "Campaign", id: "CAMPAIGN" },
+    { name: "Other", id: "OTHER" },
+  ];
+
+  const leadService = [
+    { name: "Out-Bound", id: "OUTBOUND" },
+    { name: "In-Bound", id: "INBOUND" },
+  ];
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full px-4 md:px-10">
-        {/*        <div>
-          <pre>
-            <code>{JSON.stringify(form.watch(), null, 2)}</code>
-            <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
-          </pre>
-        </div> */}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="h-full px-4 md:px-10"
+      >
         <div className="w-full text-sm">
           <div className="pb-5 space-y-4">
+            {/* ---- first & last name ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -156,6 +202,8 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 )}
               />
             </div>
+
+            {/* ---- company & lead source ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -179,32 +227,31 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 name="lead_source"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("leadSource")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isLoading}
-                        placeholder="Website"
-                        {...field}
-                      />
-                    </FormControl>
+                    <FormLabel>Lead source</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select lead source" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {leadSource.map((src) => (
+                          <SelectItem key={src.id} value={src.id}>
+                            {src.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {/* <FormField
-                control={form.control}
-                name="jobTitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("jobTitle")}</FormLabel>
-                    <FormControl>
-                      <Input disabled={isLoading} placeholder="CTO" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
             </div>
+
+            {/* ---- email & phone ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -240,9 +287,10 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                   </FormItem>
                 )}
               />
-            </div>            
+            </div>
+
+            {/* ---- referred by & lead status ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
               <FormField
                 control={form.control}
                 name="refered_by"
@@ -261,33 +309,35 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 )}
               />
               <FormField
-              control={form.control}
-              name="accountIDs"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("assignAccount")}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("assignAccountPlaceholder")} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
-                          {account.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lead status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select lead status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {leadStatus.map((status) => (
+                          <SelectItem key={status.id} value={status.id}>
+                            {status.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+
+            {/* ---- campaign & assigned to ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -295,13 +345,24 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("campaign")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isLoading}
-                        placeholder="Social networks"
-                        {...field}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isLoading || campaignsLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a campaign" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {campaigns.map((campaign) => (
+                          <SelectItem key={campaign.id} value={campaign.id}>
+                            {campaign.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -311,7 +372,7 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 name="assigned_to"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{c("assignedTo")}</FormLabel>
+                    <FormLabel>Assigned Sales Person</FormLabel>
                     <FormControl>
                       <UserSearchCombobox
                         value={field.value ?? ""}
@@ -325,6 +386,83 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 )}
               />
             </div>
+
+            {/* ---- followup date (new) ---- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="followup_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Follow‑up Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            disabled={isLoading}
+                            className={`justify-start text-left font-normal ${
+                              !field.value ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(new Date(field.value), "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date) => {
+                            field.onChange(date ? date.toISOString() : "");
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Placeholder for another field if desired, or leave empty */}
+              <FormField
+                control={form.control}
+                name="service"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lead Service</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select lead source" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {leadService.map((src) => (
+                          <SelectItem key={src.id} value={src.id}>
+                            {src.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div />
+            </div>
+
+            {/* ---- description ---- */}
             <FormField
               control={form.control}
               name="description"
@@ -342,9 +480,9 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                 </FormItem>
               )}
             />
-            
           </div>
         </div>
+
         <div className="grid gap-2 py-5">
           <Button disabled={isLoading} type="submit">
             {isLoading ? (

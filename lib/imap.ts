@@ -48,14 +48,7 @@ async function getConfigFromDb(userId?: string): Promise<StoredImap | null> {
   }
 }
 
-// {
-//   "host":"imap.example.com",
-//   "port":993,
-//   "secure":true,
-//   "user":"you@example.com",
-//   "password":"app-password",
-//   "mailbox":"INBOX"
-// }
+
 
 export async function getImapConfig(userId?: string) {
   const db = await getConfigFromDb(userId);
@@ -114,6 +107,13 @@ export async function fetchRecentEmails({
     auth: {
       user: cfg.user!,
       pass: cfg.password!,
+    },
+    // Provide a no-op logger to suppress verbose IMAP/imapflow logs in production
+    logger: {
+      debug: () => {},
+      info: () => {},
+      warn: () => {},
+      error: () => {},
     },
   });
 
@@ -174,10 +174,7 @@ export async function fetchRecentEmails({
   try {
     const inboxResults = await fetchMailbox('INBOX');
     const sentResults = await fetchMailbox('Sent');
-    // const [inboxResults, sentResults] = await Promise.all([
-    //   fetchMailbox(inboxName),
-    //   fetchMailbox(sentName),
-    // ]);
+  
     return {
       INBOX: inboxResults,
       SENT: sentResults,

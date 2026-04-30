@@ -31,6 +31,9 @@ export async function POST(req: Request) {
       campaign,
       assigned_to,
       accountIDs,
+      followup_date,
+      service,
+      status
     } = body;
 
     //console.log(req.body, "req.body");
@@ -50,9 +53,11 @@ export async function POST(req: Request) {
         lead_source,
         refered_by,
         campaign,
+        followup_date: followup_date ?? null,
+        service: service,
         assigned_to: assigned_to || userId,
         accountsIDs: accountIDs,
-        status: "NEW",
+        status: status || "New",
         type: "DEMO",
       },
     });
@@ -118,6 +123,8 @@ export async function PUT(req: Request) {
       assigned_to,
       accountIDs,
       status,
+      service,
+      followup_date,
       type,
     } = body;
 
@@ -138,6 +145,8 @@ export async function PUT(req: Request) {
         lead_source,
         refered_by,
         campaign,
+        service:service,
+        followup_date: followup_date ?? null,
         assigned_to: assigned_to || userId,
         accountsIDs: accountIDs,
         status,
