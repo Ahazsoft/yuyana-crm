@@ -7,8 +7,9 @@ export const leadSchema = z.object({
   id: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  firstName: z.string().optional().nullable(),
-  lastName: z.string().min(3).max(30).nonempty(),
+  lastName: z.string().optional().nullable(),
+  firstName: z.string().min(3).max(30).nonempty(),
+  isArchived:z.string().optional(),
 });
 
 export type Lead = z.infer<typeof leadSchema>;

@@ -60,16 +60,20 @@ export function TemplateSearchCombobox({
 
   const selectedInList = accumulated.find((t) => t.id === value);
   const { data: single } = useSWR(
-    value && !selectedInList ? `/api/marketing/templates?id=${value}` : null,
+    value && !selectedInList ? `/api/marketing/templates/${value}` : null,
     fetcher
   );
 
   useEffect(() => {
-    if (listData?.templates) {
+    const templates = Array.isArray(listData)
+      ? listData
+      : listData?.templates ?? [];
+
+    if (templates.length) {
       if (skip === 0) {
-        setAccumulated(listData.templates);
+        setAccumulated(templates);
       } else {
-        setAccumulated((prev) => [...prev, ...listData.templates]);
+        setAccumulated((prev) => [...prev, ...templates]);
       }
     }
   }, [listData, skip]);

@@ -37,9 +37,11 @@ import {
 const TiptapEditor = ({
   value,
   onChange,
+  onChangeHtml,
 }: {
   value: any;
   onChange: (val: any) => void;
+  onChangeHtml?: (html: string) => void;
 }) => {
   const editor = useEditor({
     extensions: [
@@ -65,6 +67,7 @@ const TiptapEditor = ({
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON());
+      if (onChangeHtml) onChangeHtml(editor.getHTML());
     },
     editorProps: {
       attributes: {
@@ -107,6 +110,13 @@ const TiptapEditor = ({
     const current = editor.getJSON();
     if (JSON.stringify(current) !== JSON.stringify(value)) {
       editor.commands.setContent(value);
+    }
+    if (onChangeHtml) {
+      try {
+        onChangeHtml(editor.getHTML());
+      } catch (e) {
+        // ignore
+      }
     }
   }, [editor, value]);
   

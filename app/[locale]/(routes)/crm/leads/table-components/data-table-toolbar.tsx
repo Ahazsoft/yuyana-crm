@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
 
-import { statuses } from "../table-data/data";
+import { archiveddata, statuses } from "../table-data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 
 interface DataTableToolbarProps<TData> {
@@ -22,14 +22,14 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        <Input
+        {/* <Input
           placeholder="Filter leads ..."
           value={(table.getColumn("company")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("company")?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
-        />
+        /> */}
         {/*         <Input
           placeholder="Filter by assigned user ..."
           value={
@@ -50,6 +50,13 @@ export function DataTableToolbar<TData>({
             options={statuses}
           />
         )}
+         {/* { table.getColumn("isArchived") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("isArchived")}
+            title="Archived"
+            options={archiveddata}
+          />
+        )} */}
         {/*        {table.getColumn("priority") && (
           <DataTableFacetedFilter
             column={table.getColumn("priority")}

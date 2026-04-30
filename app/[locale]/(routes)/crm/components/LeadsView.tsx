@@ -30,11 +30,12 @@ import type { getAllCrmData } from "@/actions/crm/get-crm-data";
 type CrmData = Awaited<ReturnType<typeof getAllCrmData>>;
 
 interface LeadsViewProps {
+  title:string;
   data: any[];
   crmData: CrmData;
 }
 
-const LeadsView = ({ data, crmData }: LeadsViewProps) => {
+const LeadsView = ({title, data, crmData }: LeadsViewProps) => {
   const { accounts } = crmData;
   const [open, setOpen] = useState(false);
   const t = useTranslations("CrmPage");
@@ -46,7 +47,7 @@ const LeadsView = ({ data, crmData }: LeadsViewProps) => {
           <div>
             <CardTitle>
               <Link href="/crm/leads" className="hover:underline">
-                {t("leads.viewTitle")}
+                {title}
               </Link>
             </CardTitle>
           </div>

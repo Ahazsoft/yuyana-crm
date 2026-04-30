@@ -4,6 +4,7 @@ import {
   QuestionMarkCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons";
+import { ArchiveIcon, ArchiveRestore } from "lucide-react";
 
 export const statuses = [
   {
@@ -25,5 +26,18 @@ export const statuses = [
     value: "LOST",
     label: "Lost",
     icon: CrossCircledIcon,
+  },
+];
+
+export const archiveddata = [
+  { 
+    value: "archived", 
+    label: "Archived", 
+    icon: ArchiveIcon 
+  },
+  { 
+    value: "active", 
+    label: "Active", 
+    icon: ArchiveRestore 
   },
 ];

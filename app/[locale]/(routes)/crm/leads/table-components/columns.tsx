@@ -13,35 +13,25 @@ import moment from "moment";
 
 export const columns: ColumnDef<Lead>[] = [
   {
-    accessorKey: "createdAt",
+    accessorKey: "firstName",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Expected close" />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
+
     cell: ({ row }) => (
-      <div className="w-[80px]">
-        {moment(row.getValue("createdAt")).format("YY-MM-DD")}
+      <div className="w-[150px]">
+        {row.original.firstName
+          ? row.getValue("firstName")
+          : "" + " " + row.original.lastName}
       </div>
     ),
     enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "updatedAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Last update" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[80px]">
-        {moment(row.getValue("updatedAt")).format("YY-MM-DD")}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
+    enableHiding: true,
   },
   {
     accessorKey: "assigned_to_user",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Assigned to" />
+      <DataTableColumnHeader column={column} title="Assigned Sales Person" />
     ),
 
     cell: ({ row }) => (
@@ -56,61 +46,7 @@ export const columns: ColumnDef<Lead>[] = [
     enableSorting: true,
     enableHiding: true,
   },
-  {
-    accessorKey: "company",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Company" />
-    ),
 
-    cell: ({ row }) => (
-      <div className="">
-        {
-          //@ts-ignore
-          //TODO: fix this
-          row.getValue("company") ?? "Unassigned"
-        }
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "firstName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-
-    cell: ({ row }) => (
-      <div>
-        {row.original.firstName
-          ? row.getValue("firstName")
-          : "" + " " + row.original.lastName}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="E-mail" />
-    ),
-
-    cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue("email")}</div>,  
-    enableSorting: true,
-    enableHiding: true,
-    // size:200
-  },
-  {
-    accessorKey: "phone",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Phone" />
-    ),
-
-    cell: ({ row }) => <div className="w-[150px]">{row.getValue("phone")}</div>,
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "status",
     header: ({ column }) => (
@@ -118,7 +54,7 @@ export const columns: ColumnDef<Lead>[] = [
     ),
     cell: ({ row }) => {
       const status = statuses.find(
-        (status) => status.value === row.getValue("status")
+        (status) => status.value === row.getValue("status"),
       );
 
       if (!status) {
@@ -138,6 +74,106 @@ export const columns: ColumnDef<Lead>[] = [
       return value.includes(row.getValue(id));
     },
   },
+  {
+    accessorKey: "phone",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Phone" />
+    ),
+
+    cell: ({ row }) => <div className="w-[150px]">{row.getValue("phone")}</div>,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  //  {
+  //   accessorKey: "email",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="E-mail" />
+  //   ),
+
+  //   cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue("email")}</div>,
+  //   enableSorting: true,
+  //   enableHiding: true,
+  //   // size:200
+  // },
+  {
+    accessorKey: "description",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Description" />
+    ),
+
+    cell: ({ row }) => (
+      <div className="w-[200px]">
+        {
+          row.getValue("description")
+        }
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: true,
+  },
+   {
+    accessorKey: "followup_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Follow up Date" />
+    ),
+
+    cell: ({ row }) => (
+      <div className="w-[80px]">
+         {row.getValue("followup_date") ?         
+         moment(row.getValue("followup_date")).format("DD-MM-YY") : "" }
+       </div>
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+  // {
+  //   accessorKey: "isArchived",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Archived" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Badge
+  //       variant={
+  //         row.getValue("isArchived") === "archived" ? "secondary" : "outline"
+  //       }
+  //     >
+  //       {row.getValue("isArchived") === "active" ? "Active" : "Archive"}
+  //     </Badge>
+  //   ),
+  //   filterFn: (row, id, value) => {
+  //     console.log("isArchived row value:", row.getValue(id));
+  //     console.log("isArchived filter value:", value);
+  //     return value.includes(row.getValue(id));
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: true,
+  // },
+  // {
+  //   accessorKey: "createdAt",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Expected close" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className="w-[80px]">
+  //       {moment(row.getValue("createdAt")).format("YY-MM-DD")}
+  //     </div>
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
+  // {
+  //   accessorKey: "updatedAt",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Last update" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className="w-[80px]">
+  //       {moment(row.getValue("updatedAt")).format("YY-MM-DD")}
+  //     </div>
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
