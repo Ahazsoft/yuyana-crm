@@ -78,28 +78,28 @@ export const columns: ColumnDef<Campaign>[] = [
     enableSorting: true,
     enableHiding: true,
   },
-  {
-    accessorKey: "budget",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Budget" />,
-    cell: ({ row }) => {
-      const b = row.getValue("budget");
-      const num = typeof b === "string" ? parseFloat(b) : b;
-      return <div>{num ? `$${num.toFixed(2)}` : "$0.00"}</div>;
-    },
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "spent",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Spent" />,
-    cell: ({ row }) => {
-      const s = row.getValue("spent");
-      const num = typeof s === "string" ? parseFloat(s) : s;
-      return <div>{num ? `$${num.toFixed(2)}` : "$0.00"}</div>;
-    },
-    enableSorting: true,
-    enableHiding: true,
-  },
+  // {
+  //   accessorKey: "budget",
+  //   header: ({ column }) => <DataTableColumnHeader column={column} title="Budget" />,
+  //   cell: ({ row }) => {
+  //     const b = row.getValue("budget");
+  //     const num = typeof b === "string" ? parseFloat(b) : b;
+  //     return <div>{num ? `$${num.toFixed(2)}` : "$0.00"}</div>;
+  //   },
+  //   enableSorting: true,
+  //   enableHiding: true,
+  // },
+  // {
+  //   accessorKey: "spent",
+  //   header: ({ column }) => <DataTableColumnHeader column={column} title="Spent" />,
+  //   cell: ({ row }) => {
+  //     const s = row.getValue("spent");
+  //     const num = typeof s === "string" ? parseFloat(s) : s;
+  //     return <div>{num ? `$${num.toFixed(2)}` : "$0.00"}</div>;
+  //   },
+  //   enableSorting: true,
+  //   enableHiding: true,
+  // },
   {
     accessorKey: "createdAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,

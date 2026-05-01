@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prismadb } from "@/lib/prisma";

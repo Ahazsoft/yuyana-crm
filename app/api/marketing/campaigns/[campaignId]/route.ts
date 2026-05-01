@@ -3,20 +3,18 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prismadb } from "@/lib/prisma";
 
-export async function GET(req: Request) {
+export async function GET(
+  req: Request,
+  props: { params: Promise<{ campaignId: string }> }
+) {
+  const params = await props.params;
+  const { campaignId } = params;
+
   try {
     const session = await getServerSession(authOptions);
 
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
-    const campaignId = pathParts[pathParts.length - 1];
-
-    if (!campaignId) {
-      return new NextResponse("Campaign ID is required", { status: 400 });
     }
 
     const campaign = await prismadb.crm_marketing_campaigns.findUnique({
@@ -30,11 +28,33 @@ export async function GET(req: Request) {
 
     const normalized: any = {
       ...campaign,
-      budget: campaign.budget && typeof campaign.budget === "object" && typeof campaign.budget.toNumber === "function" ? campaign.budget.toNumber() : campaign.budget ?? null,
-      spent: campaign.spent && typeof campaign.spent === "object" && typeof campaign.spent.toNumber === "function" ? campaign.spent.toNumber() : campaign.spent ?? null,
-      startDate: campaign.startDate ? (campaign.startDate instanceof Date ? campaign.startDate.toISOString() : campaign.startDate) : null,
-      endDate: campaign.endDate ? (campaign.endDate instanceof Date ? campaign.endDate.toISOString() : campaign.endDate) : null,
-      createdAt: campaign.createdAt ? (campaign.createdAt instanceof Date ? campaign.createdAt.toISOString() : campaign.createdAt) : null,
+      budget:
+        campaign.budget &&
+        typeof campaign.budget === "object" &&
+        typeof campaign.budget.toNumber === "function"
+          ? campaign.budget.toNumber()
+          : campaign.budget ?? null,
+      spent:
+        campaign.spent &&
+        typeof campaign.spent === "object" &&
+        typeof campaign.spent.toNumber === "function"
+          ? campaign.spent.toNumber()
+          : campaign.spent ?? null,
+      startDate: campaign.startDate
+        ? campaign.startDate instanceof Date
+          ? campaign.startDate.toISOString()
+          : campaign.startDate
+        : null,
+      endDate: campaign.endDate
+        ? campaign.endDate instanceof Date
+          ? campaign.endDate.toISOString()
+          : campaign.endDate
+        : null,
+      createdAt: campaign.createdAt
+        ? campaign.createdAt instanceof Date
+          ? campaign.createdAt.toISOString()
+          : campaign.createdAt
+        : null,
     };
 
     return NextResponse.json(normalized);
@@ -44,20 +64,18 @@ export async function GET(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(
+  req: Request,
+  props: { params: Promise<{ campaignId: string }> }
+) {
+  const params = await props.params;
+  const { campaignId } = params;
+
   try {
     const session = await getServerSession(authOptions);
 
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
-    const campaignId = pathParts[pathParts.length - 1];
-
-    if (!campaignId) {
-      return new NextResponse("Campaign ID is required", { status: 400 });
     }
 
     const body = await req.json();
@@ -68,6 +86,7 @@ export async function PATCH(req: Request) {
       startDate,
       endDate,
       budget,
+      spent,
       targetAudience,
       emailSubject,
       emailContent,
@@ -80,20 +99,49 @@ export async function PATCH(req: Request) {
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
       budget: budget ?? undefined,
+      spent: spent ?? undefined,
       targetAudience: targetAudience ?? undefined,
       emailSubject,
-      emailContent: typeof emailContent === "object" ? JSON.stringify(emailContent) : emailContent,
+      emailContent:
+        typeof emailContent === "object"
+          ? JSON.stringify(emailContent)
+          : emailContent,
     };
 
-    const result = await prismadb.crm_marketing_campaigns.update({ where: { id: campaignId }, data });
+    const result = await prismadb.crm_marketing_campaigns.update({
+      where: { id: campaignId },
+      data,
+    });
 
     const normalizedResult: any = {
       ...result,
-      budget: result.budget && typeof result.budget === "object" && typeof result.budget.toNumber === "function" ? result.budget.toNumber() : result.budget ?? null,
-      spent: result.spent && typeof result.spent === "object" && typeof result.spent.toNumber === "function" ? result.spent.toNumber() : result.spent ?? null,
-      startDate: result.startDate ? (result.startDate instanceof Date ? result.startDate.toISOString() : result.startDate) : null,
-      endDate: result.endDate ? (result.endDate instanceof Date ? result.endDate.toISOString() : result.endDate) : null,
-      createdAt: result.createdAt ? (result.createdAt instanceof Date ? result.createdAt.toISOString() : result.createdAt) : null,
+      budget:
+        result.budget &&
+        typeof result.budget === "object" &&
+        typeof result.budget.toNumber === "function"
+          ? result.budget.toNumber()
+          : result.budget ?? null,
+      spent:
+        result.spent &&
+        typeof result.spent === "object" &&
+        typeof result.spent.toNumber === "function"
+          ? result.spent.toNumber()
+          : result.spent ?? null,
+      startDate: result.startDate
+        ? result.startDate instanceof Date
+          ? result.startDate.toISOString()
+          : result.startDate
+        : null,
+      endDate: result.endDate
+        ? result.endDate instanceof Date
+          ? result.endDate.toISOString()
+          : result.endDate
+        : null,
+      createdAt: result.createdAt
+        ? result.createdAt instanceof Date
+          ? result.createdAt.toISOString()
+          : result.createdAt
+        : null,
     };
 
     return NextResponse.json(normalizedResult);
@@ -103,7 +151,13 @@ export async function PATCH(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(
+  req: Request,
+  props: { params: Promise<{ campaignId: string }> }
+) {
+  const params = await props.params;
+  const { campaignId } = params;
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -111,15 +165,9 @@ export async function DELETE(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
-    const campaignId = pathParts[pathParts.length - 1];
-
-    if (!campaignId) {
-      return new NextResponse("Campaign ID is required", { status: 400 });
-    }
-
-    await prismadb.crm_marketing_campaigns.delete({ where: { id: campaignId } });
+    await prismadb.crm_marketing_campaigns.delete({
+      where: { id: campaignId },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

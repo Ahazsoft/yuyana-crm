@@ -19,8 +19,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import TiptapEditor from "@/components/marketing/TipTapEditor";
-import { TemplateSearchCombobox } from "@/components/ui/template-search-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -31,19 +36,23 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Campaign name must be at least 2 characters." }),
+  name: z
+    .string()
+    .min(2, { message: "Campaign name must be at least 2 characters." }),
   description: z.string().optional(),
   status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "INACTIVE"]),
-  templateId: z.string().optional(),
+  // templateId: z.string().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   budget: z.preprocess(
     (val) => (val === "" ? undefined : val),
-    z.coerce.number().optional()
+    z.coerce.number().optional(),
   ),
-  targetAudience: z.string().optional(),
-  emailSubject: z.string().optional(),
-  emailContent: z.any().optional(),
+  spent: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.coerce.number().optional(),
+  ),
+  targetAudience: z.string().optional(), // Segment ID (UUID)
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,7 +69,8 @@ export const MarketingCampaignAddForm = ({
   templates,
 }: MarketingCampaignAddFormProps) => {
   const [loading, setLoading] = useState(false);
-  const [templateLoading, setTemplateLoading] = useState(false);
+  const [segments, setSegments] = useState<any[]>([]);
+  const [segmentsLoading, setSegmentsLoading] = useState(true);
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -72,58 +82,26 @@ export const MarketingCampaignAddForm = ({
       startDate: undefined,
       endDate: undefined,
       budget: undefined,
-      targetAudience: "",
-      emailSubject: "",
-      emailContent: null,
-      templateId: "",
+      spent: undefined,
+      targetAudience: undefined,
     },
   });
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState("");
-
-  // Fetch template data when a template is selected
+  // Fetch segments on mount
   useEffect(() => {
-    if (!selectedTemplateId) {
-      form.setValue("emailSubject", "");
-      form.setValue("emailContent", null);
-      form.setValue("templateId", "");
-      return;
-    }
-
-    let cancelled = false;
-    const fetchTemplate = async () => {
-      setTemplateLoading(true);
+    const loadSegments = async () => {
       try {
-        const res = await fetch(`/api/marketing/templates/${selectedTemplateId}`);
-        if (!res.ok) return;
-
-        const template = await res.json();
-        if (cancelled) return;
-
-        let parsedBody = template.body;
-        if (typeof template.body === "string") {
-          try {
-            parsedBody = JSON.parse(template.body);
-          } catch {
-            parsedBody = null;
-          }
-        }
-
-        form.setValue("emailSubject", template.subject || "");
-        form.setValue("emailContent", parsedBody);
-        form.setValue("templateId", template.id);
-      } catch (err) {
-        console.error("Failed to fetch template:", err);
+        const res = await fetch("/api/marketing/segments");
+        const data = await res.json();
+        setSegments(data.data || []);
+      } catch (error) {
+        console.error("Failed to load segments:", error);
       } finally {
-        if (!cancelled) setTemplateLoading(false);
+        setSegmentsLoading(false);
       }
     };
-
-    fetchTemplate();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedTemplateId, form]);
+    loadSegments();
+  }, []);
 
   const onSubmit = async (values: FormValues) => {
     setLoading(true);
@@ -135,7 +113,6 @@ export const MarketingCampaignAddForm = ({
       });
 
       if (!response.ok) throw new Error("Failed to create campaign");
-      // Refresh server data and notify parent
       router.refresh();
       onSuccess();
     } catch (error) {
@@ -171,7 +148,11 @@ export const MarketingCampaignAddForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Describe your campaign" rows={3} {...field} />
+                <Textarea
+                  placeholder="Describe your campaign"
+                  rows={3}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -195,7 +176,11 @@ export const MarketingCampaignAddForm = ({
                           !field.value && "text-muted-foreground"
                         }`}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -229,7 +214,11 @@ export const MarketingCampaignAddForm = ({
                           !field.value && "text-muted-foreground"
                         }`}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -250,16 +239,70 @@ export const MarketingCampaignAddForm = ({
           />
         </div>
 
-        {/* Budget */}
+        {/* Budget & Spent */}
+        {/* <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="budget"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Budget ($)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="spent"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Spent ($)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div> */}
+
+        {/* Target Audience Segment */}
         <FormField
           control={form.control}
-          name="budget"
+          name="targetAudience"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Budget ($)</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" placeholder="0.00" {...field} />
-              </FormControl>
+              <FormLabel>Campaign Segment</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}             
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Segment" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {segments.map((segment) => (
+                    <SelectItem key={segment.id} value={segment.id}>
+                      {segment.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -292,65 +335,21 @@ export const MarketingCampaignAddForm = ({
           )}
         />
 
-        {/* Template Selection
-        <FormField
-          control={form.control}
-          name="templateId"
-          render={() => (
-            <FormItem>
-              <FormLabel>Use Template</FormLabel>
-              <FormControl>
-                <TemplateSearchCombobox
-                  value={selectedTemplateId}
-                  onChange={(id) => setSelectedTemplateId(id)}
-                  initialTemplates={templates}
-                />
-              </FormControl>
-              <FormDescription>Choose a template to prefill subject and body.</FormDescription>
-              {templateLoading && (
-                <p className="text-sm text-muted-foreground">Loading template...</p>
-              )}
-            </FormItem>
-          )}
-        /> */}
-
-        {/* Email Subject
-        <FormField
-          control={form.control}
-          name="emailSubject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Subject</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter email subject" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
-        {/* Email Content
-        <FormField
-          control={form.control}
-          name="emailContent"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Content</FormLabel>
-              <FormControl>
-                <TiptapEditor value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormDescription>This will be the content of the email sent to your audience.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         {/* Actions */}
         <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </Button>
-          <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={loading}>
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary/90"
+            disabled={loading}
+          >
             {loading ? "Saving..." : "Create Campaign"}
           </Button>
         </div>

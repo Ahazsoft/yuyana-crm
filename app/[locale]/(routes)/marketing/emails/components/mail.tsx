@@ -270,12 +270,12 @@ export function MailComponent({
                 >
                   Sent {sentMailsCount}
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="unread"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
                   Unread {unreadMailsCount  }
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
             </div>
             <Separator />

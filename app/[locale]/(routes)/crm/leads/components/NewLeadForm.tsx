@@ -60,7 +60,7 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
     email: z.string().email().optional(),
     phone: z.string().min(0).max(15).optional(),
     description: z.string().optional(),
-    lead_source: z.string().optional(),
+    lead_source: z.string(),
     refered_by: z.string().optional(),
     campaign: z.string().optional(),
     assigned_to: z.string().optional(),
