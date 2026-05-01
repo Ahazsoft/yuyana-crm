@@ -52,15 +52,15 @@ export async function POST(req: Request) {
       startDate,
       endDate,
       budget,
-      targetAudience,
-      emailSubject,
-      emailContent,
+      spent,
+      // targetAudience,
     } = body;
 
     if (!name) {
       return new NextResponse("Name is required", { status: 400 });
     }
 
+    console.log("Creating campaign with data: ", body);
     // Normalize payload for Prisma
     const data: any = {
       name,
@@ -68,10 +68,9 @@ export async function POST(req: Request) {
       status,
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
-      budget: budget ?? undefined,
-      targetAudience: targetAudience ?? undefined,
-      emailSubject,
-      emailContent: typeof emailContent === "object" ? JSON.stringify(emailContent) : emailContent,
+      budget: budget ?? 0,
+      spent: spent ?? 0,
+      // targetAudience: targetAudience ?? undefined,
       createdById: session.user.id,
     };
 

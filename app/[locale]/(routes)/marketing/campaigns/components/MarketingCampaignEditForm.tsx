@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,8 +18,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import TiptapEditor from "@/components/marketing/TipTapEditor";
-import { TemplateSearchCombobox } from "@/components/ui/template-search-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -31,39 +35,37 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Campaign name must be at least 2 characters." }),
+  name: z
+    .string()
+    .min(2, { message: "Campaign name must be at least 2 characters." }),
   description: z.string().optional(),
   status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "INACTIVE"]),
-  templateId: z.string().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  budget: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z.coerce.number().optional()
-  ),
   targetAudience: z.string().optional(),
-  emailSubject: z.string().optional(),
-  emailContent: z.any().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface MarketingCampaignEditFormProps {
-  initialData: FormValues & { id: string };
+  initialData: any & { id: string };
   onCancel: () => void;
   onSuccess: () => void;
-  templates?: any[];
 }
 
 export const MarketingCampaignEditForm = ({
   initialData,
   onCancel,
   onSuccess,
-  templates,
 }: MarketingCampaignEditFormProps) => {
   const [loading, setLoading] = useState(false);
-  const [templateLoading, setTemplateLoading] = useState(false);
+  const [segments, setSegments] = useState<any[]>([]);
+  const [segmentsLoading, setSegmentsLoading] = useState(true);
   const router = useRouter();
+
+  // Debug: Log initialData to see what we're getting
+  console.log("EditForm initialData:", initialData);
+  console.log("EditForm targetAudience:", initialData.targetAudience);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -71,73 +73,60 @@ export const MarketingCampaignEditForm = ({
       name: initialData.name || "",
       description: initialData.description || "",
       status: initialData.status || "DRAFT",
-      startDate: initialData.startDate ? new Date(initialData.startDate) : undefined,
+      startDate: initialData.startDate
+        ? new Date(initialData.startDate)
+        : undefined,
       endDate: initialData.endDate ? new Date(initialData.endDate) : undefined,
-      budget: initialData.budget || undefined,
-      targetAudience: initialData.targetAudience || "",
-      emailSubject: initialData.emailSubject || "",
-      emailContent: initialData.emailContent || null,
-      templateId: initialData.templateId || "",
+      targetAudience: initialData.targetAudience || undefined, // ✅ Keep as undefined if null/empty
     },
   });
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState(initialData.templateId || "");
+  // Watch targetAudience for debugging
+  const watchedTarget = form.watch("targetAudience");
+  console.log("Form targetAudience value:", watchedTarget);
 
-  // Fetch template data when a template is selected (also runs on mount if templateId exists)
+  // Fetch segments on mount
   useEffect(() => {
-    if (!selectedTemplateId) {
-      form.setValue("emailSubject", "");
-      form.setValue("emailContent", null);
-      form.setValue("templateId", "");
-      return;
-    }
-
-    let cancelled = false;
-    const fetchTemplate = async () => {
-      setTemplateLoading(true);
+    const loadSegments = async () => {
       try {
-        const res = await fetch(`/api/marketing/templates/${selectedTemplateId}`);
-        if (!res.ok) return;
-
-        const template = await res.json();
-        if (cancelled) return;
-
-        let parsedBody = template.body;
-        if (typeof template.body === "string") {
-          try {
-            parsedBody = JSON.parse(template.body);
-          } catch {
-            parsedBody = null;
-          }
-        }
-
-        form.setValue("emailSubject", template.subject || "");
-        form.setValue("emailContent", parsedBody);
-        form.setValue("templateId", template.id);
-      } catch (err) {
-        console.error("Failed to fetch template:", err);
+        const res = await fetch("/api/marketing/segments");
+        const data = await res.json();
+        console.log("Loaded segments:", data.data); // Debug
+        setSegments(data.data || []);
+      } catch (error) {
+        console.error("Failed to load segments:", error);
       } finally {
-        if (!cancelled) setTemplateLoading(false);
+        setSegmentsLoading(false);
       }
     };
-
-    fetchTemplate();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedTemplateId, form]);
+    loadSegments();
+  }, []);
 
   const onSubmit = async (values: FormValues) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/marketing/campaigns/${initialData.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
+      const payload = {
+        ...values,
+        targetAudience: values.targetAudience || undefined,
+      };
 
-      if (!response.ok) throw new Error("Failed to update campaign");
-      // Refresh server data and notify parent
+      console.log("Submitting payload:", payload); // Debug
+
+      const response = await fetch(
+        `/api/marketing/campaigns/${initialData.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error:", errorText);
+        throw new Error("Failed to update campaign");
+      }
+
       router.refresh();
       onSuccess();
     } catch (error) {
@@ -173,7 +162,11 @@ export const MarketingCampaignEditForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Describe your campaign" rows={3} {...field} />
+                <Textarea
+                  placeholder="Describe your campaign"
+                  rows={3}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -197,7 +190,11 @@ export const MarketingCampaignEditForm = ({
                           !field.value && "text-muted-foreground"
                         }`}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -230,7 +227,11 @@ export const MarketingCampaignEditForm = ({
                           !field.value && "text-muted-foreground"
                         }`}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -240,7 +241,6 @@ export const MarketingCampaignEditForm = ({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
                       initialFocus
                     />
                   </PopoverContent>
@@ -251,16 +251,31 @@ export const MarketingCampaignEditForm = ({
           />
         </div>
 
-        {/* Budget */}
+        {/* Target Audience Segment */}
         <FormField
           control={form.control}
-          name="budget"
+          name="targetAudience"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Budget ($)</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" placeholder="0.00" {...field} />
-              </FormControl>
+              <FormLabel>Campaign Segment</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || ""} // ✅ Use empty string for "none selected"
+                disabled={loading || segmentsLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Segment" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {segments.map((segment) => (
+                    <SelectItem key={segment.id} value={segment.id}>
+                      {segment.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -293,65 +308,21 @@ export const MarketingCampaignEditForm = ({
           )}
         />
 
-        {/* Template Selection
-        <FormField
-          control={form.control}
-          name="templateId"
-          render={() => (
-            <FormItem>
-              <FormLabel>Use Template</FormLabel>
-              <FormControl>
-                <TemplateSearchCombobox
-                  value={selectedTemplateId}
-                  onChange={(id) => setSelectedTemplateId(id)}
-                  initialTemplates={templates}
-                />
-              </FormControl>
-              <FormDescription>Choose a template to prefill subject and body.</FormDescription>
-              {templateLoading && (
-                <p className="text-sm text-muted-foreground">Loading template...</p>
-              )}
-            </FormItem>
-          )}
-        /> */}
-
-        {/* Email Subject
-        <FormField
-          control={form.control}
-          name="emailSubject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Subject</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter email subject" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
-        {/* Email Content
-        <FormField
-          control={form.control}
-          name="emailContent"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Content</FormLabel>
-              <FormControl>
-                <TiptapEditor value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormDescription>This will be the content of the email sent to your audience.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         {/* Actions */}
         <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </Button>
-          <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={loading}>
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary/90"
+            disabled={loading}
+          >
             {loading ? "Saving..." : "Update Campaign"}
           </Button>
         </div>

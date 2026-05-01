@@ -11,7 +11,7 @@ export const campaignSchema = z.object({
   budget: z.number().nullable().optional(),
   spent: z.number().nullable().optional(),
   targetAudience: z.any().optional(),
-  emailSubject: z.string().optional(),
+  emailSubject: z.string().nullable().optional(),
   emailContent: z.string().nullable().optional(),
   templateId: z.string().nullable().optional(),
   createdAt: z.union([z.string(), z.instanceof(Date)]).optional(),
