@@ -33,7 +33,7 @@ const MainPageView = async () => {
       <div className="mt-6"></div>
       <LeadsView title="Leads" crmData={crmData} data={leads} />
       <div className="mt-6"></div>
-      <ContractsView crmData={crmData} data={contracts} />
+      <ContractsView crmData={crmData} data={contracts} contacts={contacts}/>
     </>
   );
 };

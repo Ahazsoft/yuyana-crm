@@ -2,13 +2,13 @@ import { z } from "zod";
 
 export const CreateNewContract = z.object({
   title: z.string().min(3).max(255),
-  value: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
-  renewalReminderDate: z.date(),
-  customerSignedDate: z.date(),
-  companySignedDate: z.date(),
+  value: z.string().nullable().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  renewalReminderDate: z.date().optional(),
+  customerSignedDate: z.date().optional().nullable(),
+  companySignedDate: z.date().optional().nullable(),
   description: z.string().max(255),
-  account: z.string(),
-  assigned_to: z.string(),
+  account: z.string().optional().nullable(),
+  assigned_to: z.string().optional(),
 });

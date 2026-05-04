@@ -96,40 +96,7 @@ model crm_Leads {
   @@index([createdAt])
 }
 
-/// Marketing segments: support static and dynamic segments backed by lead filters
-model MarketingSegment {
-  name                  String
-  description           String?
-  type                  String                    @default("DYNAMIC")
-  filters               Json?
-  cachedCount           Int?                      @default(0)
-  lastEvaluatedAt       DateTime?
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
-  id                    String                    @id @default(uuid()) @db.Uuid
-  ownerId               String?                   @db.Uuid
-  accountFilters        Json?
-  contactFilters        Json?
-  leadFilters           Json?
-  segmentationType      String?
-  members               MarketingSegmentMember[]
-  crmMarketingCampaigns crm_marketing_campaigns[]
 
-  @@index([ownerId])
-}
-
-model MarketingSegmentMember {
-  id        String           @id @default(uuid())
-  addedAt   DateTime         @default(now())
-  segmentId String           @db.Uuid
-  leadId    String           @db.Uuid
-  lead      crm_Leads        @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  segment   MarketingSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
-
-  @@unique([segmentId, leadId])
-  @@index([segmentId])
-  @@index([leadId])
-}
 
 model crm_Opportunities {
   id                   String                          @id @default(uuid()) @db.Uuid
@@ -260,7 +227,7 @@ model crm_Contracts {
   id                   String                 @id @default(uuid()) @db.Uuid
   v                    Int                    @map("__v")
   title                String
-  value                Int
+  value                Int?
   startDate            DateTime?              @default(now())
   endDate              DateTime?
   renewalReminderDate  DateTime?
@@ -871,6 +838,49 @@ model crm_marketing_campaigns {
   emailTemplates   email_templates?  @relation(fields: [templateId], references: [id])
 
   @@map("crm_marketing_campaigns")
+}
+
+/// Marketing segments: support static and dynamic segments backed by lead filters
+model MarketingSegment {
+  name                  String
+  description           String?
+  type                  String                    @default("DYNAMIC")
+  filters               Json?
+  cachedCount           Int?                      @default(0)
+  lastEvaluatedAt       DateTime?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  id                    String                    @id @default(uuid()) @db.Uuid
+  ownerId               String?                   @db.Uuid
+  accountFilters        Json?
+  contactFilters        Json?
+  emails                Json?
+  leadFilters           Json?
+  segmentationType      String?
+  members               MarketingSegmentMember[]
+  crmMarketingCampaigns crm_marketing_campaigns[]
+
+  @@index([ownerId])
+}
+
+model MarketingSegmentMember {
+  id        String           @id @default(uuid())
+  addedAt   DateTime         @default(now())
+  segmentId String           @db.Uuid
+  leadId    String           @db.Uuid
+  lead      crm_Leads        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  segment   MarketingSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@unique([segmentId, leadId])
+  @@index([segmentId])
+  @@index([leadId])
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  source    String?
+  createdAt DateTime @default(now())
 }
 
 model email_templates {

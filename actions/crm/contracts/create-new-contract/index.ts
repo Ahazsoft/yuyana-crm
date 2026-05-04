@@ -1,3 +1,4 @@
+//@ts-nocheck
 "use server";
 
 import { prismadb } from "@/lib/prisma";
@@ -31,7 +32,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   const {
     title,
-    value,
+    // value,
     startDate,
     endDate,
     renewalReminderDate,
@@ -42,7 +43,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     assigned_to,
   } = data;
 
-  if (!title || !value) {
+  if (!title ) {  // || !value){
     return {
       error: "Please fill in all the required fields.",
     };
@@ -53,7 +54,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       data: {
         v: 0,
         title,
-        value: parseFloat(value),
+        // value: parseFloat(value),
         startDate,
         endDate,
         renewalReminderDate,

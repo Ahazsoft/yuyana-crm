@@ -11,25 +11,41 @@ type Props = {
 export default function SegmentModal({ open, onClose, onCreate }: Props) {
   const [name, setName] = useState("");
   const [segType, setSegType] = useState<"LEAD" | "ACCOUNT" | "CONTACT" | "">(
-    ""
+    "",
+  );
+  const [segmentMode, setSegmentMode] = useState<"DYNAMIC" | "STATIC">(
+    "STATIC",
   );
   const [leadStatus, setLeadStatus] = useState("NEW");
   const [companySize, setCompanySize] = useState("");
   const [contactStatus, setContactStatus] = useState("ACTIVE");
+  const [emails, setEmails] = useState<string[]>([]);
+  const [csvError, setCsvError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 1. Name must not be empty
   // 2. Segmentation type must be selected
   // 3. If ACCOUNT, a company size must be chosen
+  // Allow submission either with CSV emails (CUSTOM) OR with segmentation filters (DYNAMIC)
   const canSubmit =
     name.trim() !== "" &&
-    segType !== "" &&
-    (segType !== "ACCOUNT" || companySize !== "");
+    ((segmentMode === "DYNAMIC" && emails.length > 0) ||
+      (segmentMode === "STATIC" &&
+        segType !== "" &&
+        (segType !== "ACCOUNT" || companySize !== "")));
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setIsSubmitting(true);
-    const payload: any = { name, segmentationType: segType };
+    const payload: any = { name };
+    if (segmentMode === "DYNAMIC") {
+      payload.type = "DYNAMIC";
+      payload.emails = emails;
+      payload.segmentationType = "LEAD";
+    } else {
+      payload.type = "STATIC";
+      payload.segmentationType = segType;
+    }
     if (segType === "LEAD")
       payload.leadFilters = [
         { field: "status", operator: "equals", value: leadStatus },
@@ -68,9 +84,94 @@ export default function SegmentModal({ open, onClose, onCreate }: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <div className="flex gap-4 items-center">
+            <div>
+              <div className="text-xs mb-1">Segment Mode</div>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="segmentMode"
+                    value="STATIC"
+                    checked={segmentMode === "STATIC"}
+                    onChange={() => setSegmentMode("STATIC")}
+                  />
+                  <span className="text-sm">Static</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="segmentMode"
+                    value="DYNAMIC"
+                    checked={segmentMode === "DYNAMIC"}
+                    onChange={() => setSegmentMode("DYNAMIC")}
+                  />
+                  <span className="text-sm">Dynamic</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          {segmentMode === "DYNAMIC" && (
+            <div className="border rounded p-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs mb-1">Upload CSV File</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Each lines first column should contain an email.
+                  </div>
+                </div>
+                <div>
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    onChange={async (e) => {
+                      setCsvError(null);
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const txt = await file.text();
+                        const lines = txt
+                          .split(/\r?\n/)
+                          .map((l) => l.trim())
+                          .filter(Boolean);
+                        const parsed: string[] = [];
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        for (const line of lines) {
+                          // take first comma-separated value
+                          const first = line
+                            .split(",")[0]
+                            .trim()
+                            .replace(/^"|"$/g, "");
+                          if (!first) continue;
+                          if (!emailRegex.test(first)) continue;
+                          parsed.push(first.toLowerCase());
+                        }
+                        const unique = Array.from(new Set(parsed));
+                        if (unique.length === 0)
+                          setCsvError("No valid emails found in CSV.");
+                        setEmails(unique);
+                      } catch (err) {
+                        setCsvError("Failed to read CSV file.");
+                        setEmails([]);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
 
-          <div className="flex gap-2">
-            <label className="flex-1">
+              {csvError && (
+                <div className="text-xs text-red-500 mt-2">{csvError}</div>
+              )}
+              {emails.length > 0 && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  Parsed {emails.length} unique emails
+                </div>
+              )}
+            </div>
+          )}
+
+          {segmentMode === "STATIC" && (
+            <div>
               <div className="text-xs mb-1">Segmentation type</div>
               <select
                 className="w-full border p-2 rounded"
@@ -82,10 +183,10 @@ export default function SegmentModal({ open, onClose, onCreate }: Props) {
                 <option value="ACCOUNT">Company</option>
                 <option value="CONTACT">Contact</option>
               </select>
-            </label>
-          </div>
+            </div>
+          )}
 
-          {segType === "LEAD" && (
+          {segmentMode === "STATIC" && segType === "LEAD" && (
             <div>
               <div className="text-xs mb-1">Lead status</div>
               <select
@@ -103,7 +204,7 @@ export default function SegmentModal({ open, onClose, onCreate }: Props) {
             </div>
           )}
 
-          {segType === "ACCOUNT" && (
+          {segmentMode === "STATIC" && segType === "ACCOUNT" && (
             <div>
               <div className="text-xs mb-1">Company size</div>
               <select
@@ -124,7 +225,7 @@ export default function SegmentModal({ open, onClose, onCreate }: Props) {
             </div>
           )}
 
-          {segType === "CONTACT" && (
+          {segmentMode === "STATIC" && segType === "CONTACT" && (
             <div>
               <div className="text-xs mb-1">Contact status</div>
               <select
