@@ -17,7 +17,7 @@ interface InputType {
   email?: string;
   office_phone?: string;
   industry?: string;
-  employees?: string;
+  companyType?: string;
   annual_revenue?: string;
   billing_city?: string;
   billing_country?: string;
@@ -54,7 +54,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  const { id, v, name, email, office_phone, industry, employees, annual_revenue, 
+  const { id, v, name, email, office_phone, industry, companyType, annual_revenue, 
          billing_city, billing_country, status, type, description } = data;
 
   if (!id) {
@@ -105,7 +105,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
           email: email || undefined,
           office_phone: office_phone || undefined,
           industry: industry || undefined,
-          employees: employees || undefined,
+          companyType: companyType || undefined,
           annual_revenue: annual_revenue || undefined,
           billing_city: billing_city || undefined,
           billing_country: billing_country || undefined,

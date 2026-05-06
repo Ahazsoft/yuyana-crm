@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { statuses } from "../table-data/data";
+import { contractType, statuses } from "../table-data/data";
 import { Lead } from "../table-data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -79,6 +79,31 @@ export const columns: ColumnDef<Lead>[] = [
     enableHiding: true,
   },
 
+  {
+    accessorKey: "type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="type" />
+    ),
+    cell: ({ row }) => {
+      const contracttype = contractType.find(
+        (contracttype) => contracttype.value === row.getValue("type"),
+      );
+      if (!contracttype) {
+        return null;
+      }
+      return (
+        <div className="flex w-[100px] items-center">
+          {contracttype.icon && (
+            <contracttype.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{contracttype.label}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
   {
     accessorKey: "status",
     header: ({ column }) => (

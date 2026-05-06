@@ -614,6 +614,7 @@ model Users {
   name                  String?
   password              String?
   username              String?
+  phone_number          String?
   userStatus            ActiveStatus              @default(PENDING)
   userLanguage          Language                  @default(en)
   watching_accounts     AccountWatchers[]
