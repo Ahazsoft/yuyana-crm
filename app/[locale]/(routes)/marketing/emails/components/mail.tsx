@@ -87,7 +87,7 @@ export function MailComponent({
 
         const mapped: MailType[] = [
           ...inbox.map((m: any) => ({
-             id: `inbox_${m.id}`,
+            id: `inbox_${m.id}`,
             name: (m.from || m.to?.[0] || "Unknown")
               .split(" <")[0]
               .replace(/(^\"+|\"+$)/g, "")
@@ -104,24 +104,28 @@ export function MailComponent({
             labels: [],
             type: "inbox",
           })),
-          ...sent.map((m: any) => ({
-            id: `sent_${m.id}`,
-            name: (m.from || m.to?.[0] || "Unknown")
+          ...sent.map((m: any) => {
+            const rawTo = Array.isArray(m.to) ? m.to[0] : m.to || "";
+            const toName = rawTo
               .split(" <")[0]
               .replace(/(^\"+|\"+$)/g, "")
-              .trim(),
-            email:
-              (m.from || "").match(/<(.*)>/)?.[1] || m.from || m.to?.[0] || "",
-            subject: (m.subject || "(no subject)")
-              .replace(/(^\"+|\"+$)/g, "")
-              .trim(),
-            text: m.text || m.html || "",
-            date: m.date || new Date().toISOString(),
-            // sent messages don't require opened/read state; mark as read
-            read: true,
-            labels: [],
-            type: "sent",
-          })),
+              .trim();
+            const toEmail = rawTo.match(/<(.*)>/)?.[1] || rawTo || "";
+
+            return {
+              id: `sent_${m.id}`,
+              name: toName || "Unknown",
+              email: toEmail,
+              subject: (m.subject || "(no subject)")
+                .replace(/(^\"+|\"+$)/g, "")
+                .trim(),
+              text: m.text || m.html || "",
+              date: m.date || new Date().toISOString(),
+              read: true,
+              labels: [],
+              type: "sent",
+            };
+          }),
         ];
 
         if (mounted) setLocalMails(mapped);

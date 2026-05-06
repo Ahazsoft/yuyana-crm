@@ -3,19 +3,15 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
 import { useRouter } from "next/navigation";
 
-import { crm_Accounts } from "@prisma/client";
+import { crm_Accounts, crm_Contacts } from "@prisma/client";
 
 import { useAction } from "@/hooks/use-action";
-
 import { updateContract } from "@/actions/crm/contracts/update-contract";
 
 import FormSheetNoTrigger from "@/components/sheets/form-sheet-no-trigger";
-
 import { FormInput } from "@/components/form/form-input";
-
 import { FormSubmit } from "@/components/form/form-submit";
 import { FormDatePicker } from "@/components/form/form-datepicker";
 import { FormTextarea } from "@/components/form/form-textarea";
@@ -26,16 +22,23 @@ const UpdateContractForm = ({
   onOpen,
   setOpen,
   accounts,
+  contacts,
   data,
 }: {
   onOpen: boolean;
   setOpen: (open: boolean) => void;
   accounts: crm_Accounts[];
-  //TODO: fix type for data
+  contacts: crm_Contacts[];
   data: any;
 }) => {
   const router = useRouter();
+
   const [assignedTo, setAssignedTo] = useState<string>(data.assigned_to ?? "");
+
+  // ✅ FIXED: correct contract type
+  const contractType: "customer" | "company" =
+    data.type === "customer" ? "customer" : "company";
+
 
   const contractStatuses = [
     { id: "NOTSTARTED", name: "Not started" },
@@ -43,46 +46,50 @@ const UpdateContractForm = ({
     { id: "SIGNED", name: "Signed" },
   ];
 
-  const valueString = data && data.value ? data.value.toString() : "";
-
-  //console.log("Data", data);
-
   const { execute, fieldErrors, isLoading } = useAction(updateContract, {
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Contract updated successfully!");
-      //closeRef.current?.click();
       setOpen(false);
       router.refresh();
     },
     onError: (error) => {
+      console.log(fieldErrors);
       toast.error(error);
     },
   });
 
   const onAction = async (formData: FormData) => {
     const title = formData.get("title") as string;
-    const value = formData.get("value") as string;
+
     const startDate = new Date(formData.get("startDate") as string);
     const endDate = new Date(formData.get("endDate") as string);
     const renewalReminderDate = new Date(
-      formData.get("renewalReminderDate") as string
+      formData.get("renewalReminderDate") as string,
     );
-    const customerSignedDate = new Date(
-      formData.get("customerSignedDate") as string
-    );
-    const companySignedDate = new Date(
-      formData.get("companySignedDate") as string
-    );
+
     const description = formData.get("description") as string;
-    const status = formData.get("status") as any;
+    const status = formData.get("status") as string;
+
     const account = formData.get("account") as string;
+    const contact = formData.get("contact") as string;
     const assigned_to = formData.get("assigned_to") as string;
+
+    const customerSignedDate =
+      contractType === "customer"
+        ? new Date(formData.get("customerSignedDate") as string)
+        : undefined;
+
+    const companySignedDate =
+      contractType === "company"
+        ? new Date(formData.get("companySignedDate") as string)
+        : undefined;
+
+    console.log("data", data.v);
 
     await execute({
       id: data.id,
       v: data.v,
       title,
-      value,
       startDate,
       endDate,
       renewalReminderDate,
@@ -91,12 +98,15 @@ const UpdateContractForm = ({
       description,
       status,
       account,
+      contact,
       assigned_to,
     });
   };
 
-  isLoading ? <Loader2 className="h-6 w-6  animate-spin" /> : null;
-
+  const contactOptions = contacts.map((contact) => ({
+    id: contact.id,
+    name: `${contact.first_name} ${contact.last_name}`,
+  }));
   return (
     <FormSheetNoTrigger
       title="Update contract"
@@ -105,6 +115,7 @@ const UpdateContractForm = ({
       setOpen={setOpen}
     >
       <form action={onAction} className="space-y-4">
+        {/* Title */}
         <FormInput
           id="title"
           label="Title"
@@ -112,54 +123,93 @@ const UpdateContractForm = ({
           errors={fieldErrors}
           defaultValue={data.title}
         />
-        <FormInput
-          id="value"
-          label="Value"
-          type="text"
-          errors={fieldErrors}
-          defaultValue={valueString}
-        />
-        <FormDatePicker
-          id="startDate"
-          label="Start Date"
-          type="hidden"
-          errors={fieldErrors}
-          defaultValue={data.startDate}
-        />
-        <FormDatePicker
-          id="endDate"
-          label="End Date"
-          type="hidden"
-          errors={fieldErrors}
-          defaultValue={data.endDate}
-        />
-        <FormDatePicker
-          id="renewalReminderDate"
-          label="Renewal Reminder Date"
-          type="hidden"
-          errors={fieldErrors}
-          defaultValue={data.renewalReminderDate}
-        />
-        <FormDatePicker
-          id="customerSignedDate"
-          label="Customer Signed Date"
-          type="hidden"
-          errors={fieldErrors}
-          defaultValue={data.customerSignedDate}
-        />
-        <FormDatePicker
-          id="companySignedDate"
-          label="Company Signed Date"
-          type="hidden"
-          errors={fieldErrors}
-          defaultValue={data.companySignedDate}
-        />
-        <FormTextarea
-          id="description"
-          label="Description"
-          errors={fieldErrors}
-          defaultValue={data.description}
-        />
+
+        {/* Dates */}
+        <div className="flex gap-5">
+          <FormDatePicker
+            id="startDate"
+            label="Start Date"
+            type="hidden"
+            errors={fieldErrors}
+            defaultValue={data.startDate}
+          />
+
+          <FormDatePicker
+            id="endDate"
+            label="End Date"
+            type="hidden"
+            errors={fieldErrors}
+            defaultValue={data.endDate}
+          />
+        </div>
+
+        {/* Contract Type (locked) */}
+        <div>
+          <label className="text-sm font-medium">Contract Type</label>
+          <div className="text-sm text-muted-foreground">
+            {contractType === "customer" ? "Customer" : "Company"}
+          </div>
+        </div>
+
+        {/* Renewal + Signed */}
+        <div className="flex gap-5">
+          <FormDatePicker
+            id="renewalReminderDate"
+            label="Renewal Reminder Date"
+            type="hidden"
+            errors={fieldErrors}
+            defaultValue={data.renewalReminderDate}
+          />
+
+          {contractType === "customer" ? (
+            <FormDatePicker
+              id="customerSignedDate"
+              label="Customer Signed Date"
+              type="hidden"
+              errors={fieldErrors}
+              defaultValue={data.customerSignedDate}
+            />
+          ) : (
+            <FormDatePicker
+              id="companySignedDate"
+              label="Company Signed Date"
+              type="hidden"
+              errors={fieldErrors}
+              defaultValue={data.companySignedDate}
+            />
+          )}
+        </div>
+
+        {/* ✅ ENTITY SELECT (FIXED) */}
+        {contractType === "company" && (
+          <>
+            <label className="text-sm font-medium">Company</label>
+            <FormSelect
+              id="account"
+              type="hidden"
+              data={accounts}
+              errors={fieldErrors}
+              defaultValue={data.account}
+              placeholder="Select company"
+            />
+          </>
+        )}
+
+        {contractType === "customer" && (
+          <>
+            <label className="text-sm font-medium">Customer</label>
+            <FormSelect
+              id="contact"
+              type="hidden"
+              data={contactOptions}
+              errors={fieldErrors}
+              defaultValue={data.contact}
+              placeholder="Select customer"
+            />
+          </>
+        )}
+
+        {/* Status */}
         <FormSelect
           id="status"
           label="Status"
@@ -168,18 +218,10 @@ const UpdateContractForm = ({
           errors={fieldErrors}
           defaultValue={data.status}
         />
-        <FormSelect
-          id="account"
-          label="Account"
-          type="hidden"
-          data={accounts}
-          errors={fieldErrors}
-          defaultValue={data.account}
-        />
+
+        {/* Assigned */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-neutral-700">
-            Assigned To
-          </label>
+          <label className="text-xs font-semibold">Assigned To</label>
           <UserSearchCombobox
             value={assignedTo}
             onChange={setAssignedTo}
@@ -187,8 +229,18 @@ const UpdateContractForm = ({
             name="assigned_to"
           />
         </div>
+
+        {/* Description */}
+        <FormTextarea
+          id="description"
+          label="Description"
+          errors={fieldErrors}
+          defaultValue={data.description}
+        />
+
+        {/* Submit */}
         <FormSubmit className="w-full">
-          {isLoading ? <Loader2 className="h-6 w-6  animate-spin" /> : "Update"}
+          {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Update"}
         </FormSubmit>
       </form>
     </FormSheetNoTrigger>

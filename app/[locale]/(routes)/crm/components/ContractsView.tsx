@@ -23,9 +23,10 @@ interface ContractsViewProps {
   data: any[];
   crmData: CrmData;
   accountId?: string;
+  contacts:any[]
 }
 
-const ContractsView = ({ data, crmData, accountId }: ContractsViewProps) => {
+const ContractsView = ({ data, crmData, accountId, contacts }: ContractsViewProps) => {
   const { accounts } = crmData;
   const t = useTranslations("CrmPage");
 
@@ -43,6 +44,7 @@ const ContractsView = ({ data, crmData, accountId }: ContractsViewProps) => {
             <CreateContractForm
               accounts={accounts}
               accountId={accountId ?? ""}
+              contacts={contacts}
             />
           </div>
         </div>

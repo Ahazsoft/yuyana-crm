@@ -44,7 +44,7 @@ export async function PUT(
       status,
       annual_revenue,
       member_of,
-      employees, // ← Use employees instead of industry
+      companyType, 
     } = body;
 
     // Basic validation
@@ -80,7 +80,7 @@ export async function PUT(
         status: status || undefined,
         annual_revenue: annual_revenue || undefined,
         member_of: member_of || undefined,
-        employees: employees || undefined, // ← Save employees
+        companyType: companyType || undefined, 
       },
     });
 

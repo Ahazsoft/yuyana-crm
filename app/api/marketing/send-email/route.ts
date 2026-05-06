@@ -35,8 +35,11 @@ export async function POST(req: Request) {
 
     // === Template replacement ===
     let processedHtml = html || text || "";
-    if (processedHtml && processedHtml.includes("{{")) {
-      processedHtml = await replaceTemplates(processedHtml, to);
+    // if request asks to skip template replacement (dynamic segment), do not replace
+    if (!(body as any)?.skipTemplate) {
+      if (processedHtml && processedHtml.includes("{{")) {
+        processedHtml = await replaceTemplates(processedHtml, to);
+      }
     }
 
     // 4. Attempt to send via Resend

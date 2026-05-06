@@ -5,18 +5,20 @@ import { getAllCrmData } from "@/actions/crm/get-crm-data";
 import { getContractsWithIncludes } from "@/actions/crm/get-contracts";
 import ContractsView from "../components/ContractsView";
 import { getTranslations } from "next-intl/server";
+import { getContacts } from "@/actions/crm/get-contacts";
 
 const ContractsPage = async () => {
   const t = await getTranslations("CrmPage");
   const crmData = await getAllCrmData();
   const contracts = await getContractsWithIncludes();
+  const contacts = await getContacts();
   return (
     <Container
       title={t("contracts.pageTitle")}
       description={t("contracts.pageDescription")}
     >
       <Suspense fallback={<SuspenseLoading />}>
-        <ContractsView crmData={crmData} data={contracts} />
+        <ContractsView crmData={crmData} data={contracts} contacts={contacts} />
       </Suspense>
     </Container>
   );

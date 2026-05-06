@@ -3,7 +3,7 @@ import {
   QuestionMarkCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons";
-import { PenLineIcon, Rotate3D } from "lucide-react";
+import { BriefcaseBusiness, PenLineIcon, Rotate3D, User } from "lucide-react";
 
 export const statuses = [
   {
@@ -21,4 +21,17 @@ export const statuses = [
     label: "Signed",
     icon: PenLineIcon,
   },
+];
+
+export const contractType = [
+  {
+    value: "customer",
+    label: "Customer",
+    icon: User,
+  },
+  {
+    value: "company",
+    label: "Company",
+    icon: BriefcaseBusiness,
+  }
 ];

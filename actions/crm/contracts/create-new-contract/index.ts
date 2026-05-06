@@ -12,25 +12,20 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const session: Session | null = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
-    return {
-      error: "User not logged in.",
-    };
+    return { error: "User not logged in." };
   }
 
   const user = await prismadb.users.findUnique({
-    where: {
-      email: session?.user?.email,
-    },
+    where: { email: session.user.email },
   });
 
   if (!user) {
-    return {
-      error: "User not found.",
-    };
+    return { error: "User not found." };
   }
 
   const {
     title,
+    type,
     value,
     startDate,
     endDate,
@@ -39,38 +34,53 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     companySignedDate,
     description,
     account,
+    contact,
     assigned_to,
+    // status,
   } = data;
 
-  if (!title || !value) {
-    return {
-      error: "Please fill in all the required fields.",
-    };
+  if (!title) {
+    return { error: "Please fill in all the required fields." };
+  }
+
+  // enforce server-side requirement consistent with frontend rules
+  if (type === "customer" && !contact) {
+    return { error: "Customer contract requires a contact selection." };
+  }
+  if (type === "company" && !account) {
+    return { error: "Company contract requires an account selection." };
   }
 
   try {
-    const result = await prismadb.crm_Contracts.create({
-      data: {
-        v: 0,
-        title,
-        value: parseFloat(value),
-        startDate,
-        endDate,
-        renewalReminderDate,
-        customerSignedDate,
-        companySignedDate,
-        description,
-        account: account || undefined,
-        assigned_to: assigned_to || undefined,
-        createdBy: user.id,
-      },
-    });
-    //console.log(result, "result");
+    const createData: any = {
+      v: 0,
+      title,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      renewalReminderDate: renewalReminderDate || undefined,
+      customerSignedDate: customerSignedDate || undefined,
+      companySignedDate: companySignedDate || undefined,
+      description: description || undefined,
+      type: type || undefined,
+      // scalars for relations (schema now includes `account` and `contact`)
+      account: type === "company" ? account || undefined : undefined,
+      contact: type === "customer" ? contact || undefined : undefined,
+      assigned_to: assigned_to || undefined,
+      status: "NOTSTARTED",
+      createdBy: user.id,
+    };
+
+    if (value) {
+      // ensure numeric if provided
+      createData.value = Number(value);
+    }
+
+    await prismadb.crm_Contracts.create({ data: createData });
   } catch (error) {
-    console.log(error);
+    console.error("CreateNewContract error:", error);
     return {
       error:
-        "Something went wrong while trying to run CreateNewContract action. Please try again.",
+        "Something went wrong while trying to create the contract. Please try again.",
     };
   }
 

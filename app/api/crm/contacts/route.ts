@@ -242,3 +242,19 @@ export async function PUT(req: Request) {
     return new NextResponse("Initial error", { status: 500 });
   }
 }
+
+//GET all accounts route
+export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return new NextResponse("Unauthenticated", { status: 401 });
+  }
+  try {
+    const contacts = await prismadb.crm_Contacts.findMany({});
+
+    return NextResponse.json(contacts, { status: 200 });
+  } catch (error) {
+    console.log("[ACCOUNTS_GET]", error);
+    return new NextResponse("Initial error", { status: 500 });
+  }
+}

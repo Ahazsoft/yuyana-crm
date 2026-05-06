@@ -35,7 +35,6 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     id,
     v,
     title,
-    value,
     startDate,
     endDate,
     renewalReminderDate,
@@ -44,6 +43,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     description,
     status,
     account,
+    contact,
     assigned_to,
   } = data;
 
@@ -53,7 +53,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  if (!title || !value) {
+  if (!title) {
     return {
       error: "Please fill in all the required fields.",
     };
@@ -70,9 +70,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   try {
     const result = await prismadb.$transaction(async (tx) => {
       // First, fetch the current record to check the version
-      const currentContract = await tx.crm_Contracts.findUnique({
-        where: { id },
-      });
+      const currentContract = await tx.crm_Contracts.findUnique({ where: { id } });
 
       if (!currentContract) {
         throw new Error("Contract not found");
@@ -83,31 +81,53 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         throw new OptimisticLockError();
       }
 
-      // Perform the update with incremented version
-      return await tx.crm_Contracts.update({
-        where: {
-          id: data.id,
-          v: data.v, // Include version in WHERE clause for optimistic locking
-        },
-        data: {
-          v: data.v + 1, // Increment version
-          title,
-          value: parseFloat(value),
-          startDate,
-          endDate,
-          renewalReminderDate,
-          customerSignedDate,
-          companySignedDate,
-          description,
-          status,
-          account: account || undefined,
-          assigned_to: assigned_to || undefined,
-          updatedBy: user.id,
-        },
+      // Build update payload depending on contract type
+      const updatePayload: any = {
+        v: data.v + 1,
+        title,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        renewalReminderDate: renewalReminderDate || undefined,
+        customerSignedDate: customerSignedDate || undefined,
+        companySignedDate: companySignedDate || undefined,
+        description: description || undefined,
+        // status is now a string field in schema
+        status: status || undefined,
+        updatedBy: user.id,
+      };
+
+      // If existing contract is customer-type, only allow contact updates
+      if (currentContract.type === "customer") {
+        //@ts-ignore
+        updatePayload.contact = contact || currentContract.contact || undefined;
+        // ensure account is not set
+        updatePayload.account = undefined;
+      } else if (currentContract.type === "company") {
+        updatePayload.account = account || currentContract.account || undefined;
+        updatePayload.contact = undefined;
+      } else {
+        // If no type set, use provided values preferentially
+        updatePayload.contact = contact || undefined;
+        updatePayload.account = account || undefined;
+      }
+
+      // assigned_to stored as scalar
+      if (assigned_to) updatePayload.assigned_to = assigned_to;
+
+      // Use updateMany for optimistic locking (match id + v)
+      const updated = await tx.crm_Contracts.updateMany({
+        where: { id, v },
+        data: updatePayload,
       });
+
+      if (updated.count === 0) {
+        throw new OptimisticLockError();
+      }
+
+      return true;
     });
 
-    //console.log("Result: ", result);
+    // result isn't used beyond success
   } catch (error) {
     if (error instanceof OptimisticLockError) {
       return {

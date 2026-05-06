@@ -46,6 +46,13 @@ export const listSegments = async () => {
       }
 
       try {
+        // If segment stores emails (DYNAMIC), use that count first
+        if (Array.isArray((seg as any).emails) && (seg as any).emails.length > 0) {
+          const emailCount = (seg as any).emails.length;
+          console.log(`[DEBUG] Segment ${seg.id} - using stored emails count:`, emailCount);
+          count = emailCount;
+          return { ...seg, cachedCount: count };
+        }
         if (segType === "LEAD") {
           if (seg.leadFilters) {
             const where = buildWhereFromFilters(seg.leadFilters as any[], "lead");

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
         accountFilters,
         contactFilters,
         ownerId,
+        emails,
       } = body;
 
       const seg = await createSegment({
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
         accountFilters,
         contactFilters,
         ownerId,
+        emails,
       });
 
       return NextResponse.json({ segment: seg }, { status: 200 });

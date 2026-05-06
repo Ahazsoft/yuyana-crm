@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SegmentModal from "./SegmentModal";
+import { useRouter } from "next/navigation";
 
 type Segment = {
   id: string;
@@ -19,6 +20,7 @@ export default function SegmentManager() {
   const [statusFilter, setStatusFilter] = useState("NEW");
   const [preview, setPreview] = useState<any>(null);
   const [openModal, setOpenModal] = useState(false);
+  const router = useRouter();
 
   const load = async () => {
     try {
@@ -34,23 +36,14 @@ export default function SegmentManager() {
     load();
   }, []);
 
-  const create = async () => {
-    const body = { name, type: "DYNAMIC", filters: [{ field: "status", operator: "equals", value: statusFilter }] };
-    await axios.post("/api/marketing/segments", body);
-    setName("");
-    load();
-  };
+  
 
   const handleCreateFromModal = async (payload: any) => {
     await axios.post("/api/marketing/segments", payload);
     load();
   };
 
-  const evaluate = async () => {
-    const body = { action: "evaluate", filters: [{ field: "status", operator: "equals", value: statusFilter }] };
-    const res = await axios.post("/api/marketing/segments", body);
-    setPreview(res.data.result);
-  };
+ 
 
   return (
     <div className="p-4">
@@ -58,38 +51,74 @@ export default function SegmentManager() {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Segments</h3>
           <div>
-            <button className="mr-2 px-3 py-1 rounded border" onClick={() => setOpenModal(true)}>New Segment</button>
-            <button className="px-3 py-1 rounded border" onClick={load}>Refresh</button>
+            <button
+              className="mr-2 px-3 py-1 rounded border"
+              onClick={() => setOpenModal(true)}
+            >
+              New Segment
+            </button>
+            <button className="px-3 py-1 rounded border" onClick={load}>
+              Refresh
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
           {segments.map((s) => (
-            <div key={s.id} className="p-4 border rounded-lg hover:shadow transition-shadow">
+            <div
+              key={s.id}
+              className="p-4 border rounded-lg hover:shadow transition-shadow"
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <div className="font-medium">{s.name}</div>
-                  <div className="text-sm text-muted-foreground">{s.description}</div>
-                  <div className="text-xs mt-2 text-muted-foreground">Type: {(s as any).segmentationType ?? s.type}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {s.description}
+                  </div>
+                  <div className="text-xs mt-2 text-muted-foreground">
+                    Type: {s.type === "STATIC" ? "Static" : "Dynamic"}
+                  </div>
                 </div>
                 <div className="text-sm">{s.cachedCount ?? "-"}</div>
               </div>
 
-              <div className="mt-3 flex justify-between items-center">
-                <div className="text-xs text-muted-foreground">Preview</div>
-                <button className="text-sm px-2 py-1 rounded border" onClick={() => {
-                  setStatusFilter("NEW");
-                  evaluate();
-                }}>Run</button>
+              <div className="mt-3 flex justify-end items-center">
+                <div className="flex items-center gap-2">
+                  {s.type === 'DYNAMIC' && (
+                    <button
+                      className="text-sm px-2 py-1 rounded border"
+                      onClick={() => router.push(`/marketing/segments/${s.id}`)}
+                    >
+                      View
+                    </button>
+                  )}
+                  <button
+                    className="text-sm px-2 py-1 rounded border text-red-600"
+                    onClick={async () => {
+                      if (!confirm(`Delete segment "${s.name}"? This cannot be undone.`)) return;
+                      try {
+                        await axios.delete(`/api/marketing/segments/${s.id}`);
+                        load();
+                      } catch (e) {
+                        console.error(e);
+                        alert('Delete failed');
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <SegmentModal open={openModal} onClose={() => setOpenModal(false)} onCreate={handleCreateFromModal} />
-
-    
+      <SegmentModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onCreate={handleCreateFromModal}
+      />
     </div>
   );
 }

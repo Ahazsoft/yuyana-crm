@@ -11,34 +11,6 @@ import Link from "next/link";
 
 export const columns: ColumnDef<Account>[] = [
   {
-    accessorKey: "createdAt",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
-    ),
-    cell: ({ row }) => (
-      <div className="">
-        {moment(row.getValue("createdAt")).format("YY/MM/DD-HH:mm")}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "assigned_to_user",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Assigned to" />
-    ),
-
-    cell: ({ row }) => (
-      <div className="w-[150px]">
-        {(row.getValue("assigned_to_user") as { name?: string } | null)?.name ??
-          "Unassigned"}
-      </div>
-    ),
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
     accessorKey: "name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
@@ -46,12 +18,29 @@ export const columns: ColumnDef<Account>[] = [
 
     cell: ({ row }) => (
       <Link href={`/crm/accounts/${row.original?.id}`}>
-        <div className="w-[250px]">{row.original.name}</div>
+        <div className="max-w-[250px]">{row.original.name}</div>
       </Link>
     ),
     enableSorting: false,
     enableHiding: true,
   },
+  
+  {
+    accessorKey: "assigned_to_user",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Assigned to" />
+    ),
+
+    cell: ({ row }) => (
+      <div className="w-[100px]">
+        {(row.getValue("assigned_to_user") as { name?: string } | null)?.name ??
+          "Unassigned"}
+      </div>
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+  
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -65,7 +54,7 @@ export const columns: ColumnDef<Account>[] = [
   {
     accessorKey: "contacts",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Account contact" />
+      <DataTableColumnHeader column={column} title="Contact Person" />
     ),
 
     cell: ({ row }) => (
@@ -104,6 +93,20 @@ export const columns: ColumnDef<Account>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
+  },
+  {
+    
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created" />
+    ),
+    cell: ({ row }) => (
+      <div className="">
+        {moment(row.getValue("createdAt")).format("YY/MM/DD-HH:mm")}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "actions",

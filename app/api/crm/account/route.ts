@@ -107,7 +107,7 @@ export async function PUT(req: Request) {
       status,
       annual_revenue,
       member_of,
-      industry,
+      companyType,
     } = body;
 
     const newAccount = await prismadb.crm_Accounts.update({
@@ -139,7 +139,7 @@ export async function PUT(req: Request) {
         status: status,
         annual_revenue,
         member_of,
-        industry,
+        companyType,
       },
     });
 

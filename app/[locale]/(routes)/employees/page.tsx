@@ -1,21 +1,28 @@
-import Heading from "@/components/ui/heading";
-import { Separator } from "@/components/ui/separator";
-import React from "react";
 import Container from "../components/ui/Container";
 import { getTranslations } from "next-intl/server";
+import EmailCreatorForm from "./components/EmailCreatorForm";
 
 type Props = {};
 
-const CrmPage = async (props: Props) => {
+const Employees = async (props: Props) => {
   const t = await getTranslations("EmployeesPage");
+  
   return (
     <Container
-      title={t("title")}
-      description={t("description")}
+      title="Employees"
+      description="Manage your employees"
     >
-      <div>{t("moduleContent")}</div>
+      <div className="space-y-6">
+        <div>Employees module content</div>
+        
+        {/* Email Creation Form Section */}
+        <div className="max-w-md border p-4 rounded-lg bg-white shadow-sm">
+          <h2 className="text-lg font-semibold mb-3">Create Employee Work Email</h2>
+          <EmailCreatorForm />
+        </div>
+      </div>
     </Container>
   );
 };
 
-export default CrmPage;
+export default Employees;

@@ -46,8 +46,10 @@ export function DataTableRowActions<TData>({
 
   const { data: accounts, isLoading: isLoadingAccounts } = useSWR(
     "/api/crm/account",
-    fetcher
+    fetcher,
   );
+
+  const { data: contactsData } = useSWR("/api/crm/contacts", fetcher);
 
   const { toast } = useToast();
 
@@ -86,6 +88,7 @@ export function DataTableRowActions<TData>({
         onOpen={updateOpen}
         setOpen={setUpdateOpen}
         accounts={accounts}
+        contacts={contactsData || []}
         data={contract}
       />
 

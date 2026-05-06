@@ -5,13 +5,130 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { statuses } from "../table-data/data";
+import { contractType, statuses } from "../table-data/data";
 import { Lead } from "../table-data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import moment from "moment";
 
 export const columns: ColumnDef<Lead>[] = [
+  {
+    accessorKey: "title",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Title" />
+    ),
+
+    cell: ({ row }) => <div className="w-[150px]">{row.getValue("title")}</div>,
+    enableSorting: true,
+    enableHiding: true,
+  },
+  {
+    accessorKey: "contact",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Contact" />
+    ),
+    cell: ({ row }) => (
+      <div>
+        {row.original.type === "company"
+          ? (row.original.assigned_account?.name ?? "Not assigned")
+          : (row.original.assigned_contact
+              ? [row.original.assigned_contact.first_name, row.original.assigned_contact.last_name].filter(Boolean).join(" ")
+              : "Not assigned")}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: true,
+  },
+  {
+    accessorKey: "signedDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Signed Date" />
+    ),
+    cell: ({ row }) => {
+      const type = row.original.type;
+      let dateValue = null;
+      if (type === "company") {
+        dateValue = row.original.companySignedDate || row.getValue("companySignedDate");
+      } else if (type === "customer") {
+        dateValue = row.original.customerSignedDate || row.getValue("customerSignedDate");
+      }
+      return (
+        <div>
+          {dateValue ? moment(dateValue).format("YY-MM-DD") : "Not signed yet"}
+        </div>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
+
+  {
+    accessorKey: "assigned_to_user",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Assigned to" />
+    ),
+
+    cell: ({ row }) => (
+      <div className="w-[150px]">
+        {row.original.assigned_to_user
+          ? row.original.assigned_to_user.name
+          : "Unassigned"}
+      </div>
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+
+  {
+    accessorKey: "type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="type" />
+    ),
+    cell: ({ row }) => {
+      const contracttype = contractType.find(
+        (contracttype) => contracttype.value === row.getValue("type"),
+      );
+      if (!contracttype) {
+        return null;
+      }
+      return (
+        <div className="flex w-[100px] items-center">
+          {contracttype.icon && (
+            <contracttype.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{contracttype.label}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ row }) => {
+      const status = statuses.find(
+        (status) => status.value === row.getValue("status"),
+      );
+      if (!status) {
+        return null;
+      }
+      return (
+        <div className="flex w-[100px] items-center">
+          {status.icon && (
+            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{status.label}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
@@ -37,88 +154,6 @@ export const columns: ColumnDef<Lead>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "customerSignedDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Customer signed" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[150px]">
-        {row.getValue("customerSignedDate")
-          ? moment(row.getValue("customerSignedDate")).format("YY-MM-DD")
-          : "Not signed yet"}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "title",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
-    ),
-
-    cell: ({ row }) => <div className="w-[150px]">{row.getValue("title")}</div>,
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "assigned_to_user",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Assigned to" />
-    ),
-
-    cell: ({ row }) => (
-      <div className="w-[150px]">
-        {row.original.assigned_to_user
-          ? row.original.assigned_to_user.name
-          : "Unassigned"}
-      </div>
-    ),
-    enableSorting: true,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "company",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Company" />
-    ),
-
-    cell: ({ row }) => (
-      <div className="">
-        {row.original.assigned_account
-          ? row.original.assigned_account.name
-          : "Unassigned"}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: true,
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
-    cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.getValue("status")
-      );
-      if (!status) {
-        return null;
-      }
-      return (
-        <div className="flex w-[100px] items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{status.label}</span>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
   },
   {
     id: "actions",

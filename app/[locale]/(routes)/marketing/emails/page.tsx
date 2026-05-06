@@ -26,7 +26,7 @@ const EmailRoute = async () => {
   // Parse layout with validation - ensure left panel is visible
   const FALLBACK_LAYOUT = [20, 35, 45];
   let validatedLayout: number[] | undefined;
-  
+
   if (layout) {
     try {
       const parsed = JSON.parse(layout.value);
@@ -51,11 +51,8 @@ const EmailRoute = async () => {
   return (
     <Container
       title={t("emails")}
-      description={
-        "Manage your emails with dedicated inbox and sent folders."
-      }
+      description={"Manage your emails with dedicated inbox and sent folders."}
       buttonComponent={<ComposeLauncher initialTemplates={[]} />}
-      
     >
       <Suspense fallback={<SuspenseLoading />}>
         {/* Fetch IMAP emails server-side and pass to client MailComponent */}
@@ -67,25 +64,45 @@ const EmailRoute = async () => {
           // fetch on server to provide initial render
           mails={await (async () => {
             try {
-              const fetched = await fetchRecentEmails({ limit: 50, userId: session.user?.id });
+              const fetched = await fetchRecentEmails({
+                limit: 50,
+                userId: session.user?.id,
+              });
 
               // Map fetched emails to UI Mail shape — use mailbox source to set type
               const inbox = fetched?.INBOX || [];
               const sent = fetched?.SENT || [];
 
-              const mapMsg = (m: any, type: string) => ({
-                id: m.id,
-                name: m.from ? m.from.split(" <")[0] : (m.to?.[0] || "Unknown"),
-                email: (m.from || "").match(/<(.*)>/)?.[1] || (m.from || m.to?.[0] || ""),
-                subject: m.subject || "(no subject)",
-                text: m.text || m.html || "",
-                date: m.date || new Date().toISOString(),
-                read: false,
-                labels: [],
-                type,
-              });
+              const mapMsg = (m: any, type: string) => {
+                const isSent = type === "sent";
+                const displayName = isSent
+                  ? (Array.isArray(m.to) ? m.to[0] : m.to || "")
+                      .split(" <")[0]
+                      .trim()
+                  : (m.from || "").split(" <")[0].trim();
+                const displayEmail = isSent
+                  ? (Array.isArray(m.to) ? m.to[0] : m.to || "").match(
+                      /<(.*)>/,
+                    )?.[1] || (Array.isArray(m.to) ? m.to[0] : m.to || "")
+                  : (m.from || "").match(/<(.*)>/)?.[1] || m.from || "";
 
-              return [...inbox.map((m: any) => mapMsg(m, "inbox")), ...sent.map((m: any) => mapMsg(m, "sent"))];
+                return {
+                  id: m.id,
+                  name: displayName || "Unknown",
+                  email: displayEmail || "",
+                  subject: m.subject || "(no subject)",
+                  text: m.text || m.html || "",
+                  date: m.date || new Date().toISOString(),
+                  read: isSent ? true : false,
+                  labels: [],
+                  type,
+                };
+              };
+
+              return [
+                ...inbox.map((m: any) => mapMsg(m, "inbox")),
+                ...sent.map((m: any) => mapMsg(m, "sent")),
+              ];
             } catch (err) {
               // fallback to empty list on error
               return [];

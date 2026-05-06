@@ -38,7 +38,7 @@ const FormSheet = ({
           {trigger}
         </Button>
       </SheetTrigger>
-      <SheetContent side={position || "right"} className="max-w-3xl overflow-y-auto">
+      <SheetContent side={position || "right"} className="max-w-3xl min-w-2xl flex-col justify-around overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>

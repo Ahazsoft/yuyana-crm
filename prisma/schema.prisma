@@ -23,7 +23,7 @@ model crm_Accounts {
   company_id           String?
   description          String?
   email                String?
-  employees            String?
+  companyType          String?
   fax                  String?
   industry             String?               @db.Uuid
   member_of            String?
@@ -94,41 +94,6 @@ model crm_Leads {
   @@index([status])
   @@index([type])
   @@index([createdAt])
-}
-
-/// Marketing segments: support static and dynamic segments backed by lead filters
-model MarketingSegment {
-  name                  String
-  description           String?
-  type                  String                    @default("DYNAMIC")
-  filters               Json?
-  cachedCount           Int?                      @default(0)
-  lastEvaluatedAt       DateTime?
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
-  id                    String                    @id @default(uuid()) @db.Uuid
-  ownerId               String?                   @db.Uuid
-  accountFilters        Json?
-  contactFilters        Json?
-  leadFilters           Json?
-  segmentationType      String?
-  members               MarketingSegmentMember[]
-  crmMarketingCampaigns crm_marketing_campaigns[]
-
-  @@index([ownerId])
-}
-
-model MarketingSegmentMember {
-  id        String           @id @default(uuid())
-  addedAt   DateTime         @default(now())
-  segmentId String           @db.Uuid
-  leadId    String           @db.Uuid
-  lead      crm_Leads        @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  segment   MarketingSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
-
-  @@unique([segmentId, leadId])
-  @@index([segmentId])
-  @@index([leadId])
 }
 
 model crm_Opportunities {
@@ -244,6 +209,7 @@ model crm_Contacts {
   assigned_accounts crm_Accounts?             @relation(fields: [accountsIDs], references: [id])
   assigned_to_user  Users?                    @relation("assigned_contacts", fields: [assigned_to], references: [id])
   crate_by_user     Users?                    @relation("created_contacts", fields: [created_by], references: [id])
+  crmContracts      crm_Contracts[]
 
   @@index([assigned_to])
   @@index([created_by])
@@ -260,7 +226,7 @@ model crm_Contracts {
   id                   String                 @id @default(uuid()) @db.Uuid
   v                    Int                    @map("__v")
   title                String
-  value                Int
+  value                Int?
   startDate            DateTime?              @default(now())
   endDate              DateTime?
   renewalReminderDate  DateTime?
@@ -275,10 +241,12 @@ model crm_Contracts {
   updatedBy            String?                @db.Uuid
   status               crm_Contracts_Status   @default(NOTSTARTED)
   type                 String?
+  contact              String?                @db.Uuid
   documentsToContracts DocumentsToContracts[]
   crmAccountsTasks     crm_Accounts_Tasks[]
   assigned_account     crm_Accounts?          @relation(fields: [account], references: [id])
   assigned_to_user     Users?                 @relation(fields: [assigned_to], references: [id])
+  assigned_contact     crm_Contacts?          @relation(fields: [contact], references: [id])
 
   @@index([account])
   @@index([assigned_to])
@@ -646,6 +614,7 @@ model Users {
   name                  String?
   password              String?
   username              String?
+  phone_number          String?
   userStatus            ActiveStatus              @default(PENDING)
   userLanguage          Language                  @default(en)
   watching_accounts     AccountWatchers[]
@@ -871,6 +840,49 @@ model crm_marketing_campaigns {
   emailTemplates   email_templates?  @relation(fields: [templateId], references: [id])
 
   @@map("crm_marketing_campaigns")
+}
+
+/// Marketing segments: support static and dynamic segments backed by lead filters
+model MarketingSegment {
+  name                  String
+  description           String?
+  type                  String                    @default("DYNAMIC")
+  filters               Json?
+  cachedCount           Int?                      @default(0)
+  lastEvaluatedAt       DateTime?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  id                    String                    @id @default(uuid()) @db.Uuid
+  ownerId               String?                   @db.Uuid
+  accountFilters        Json?
+  contactFilters        Json?
+  leadFilters           Json?
+  segmentationType      String?
+  emails                Json?
+  members               MarketingSegmentMember[]
+  crmMarketingCampaigns crm_marketing_campaigns[]
+
+  @@index([ownerId])
+}
+
+model MarketingSegmentMember {
+  id        String           @id @default(uuid())
+  addedAt   DateTime         @default(now())
+  segmentId String           @db.Uuid
+  leadId    String           @db.Uuid
+  lead      crm_Leads        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  segment   MarketingSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@unique([segmentId, leadId])
+  @@index([segmentId])
+  @@index([leadId])
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  source    String?
+  createdAt DateTime @default(now())
 }
 
 model email_templates {

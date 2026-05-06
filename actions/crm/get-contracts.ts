@@ -16,6 +16,12 @@ export const getContractsWithIncludes = cache(async () => {
           name: true,
         },
       },
+      assigned_contact: {
+        select: {
+          first_name: true,
+          last_name: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -38,6 +44,12 @@ export const getContractsByAccountId = async (accountId: string) => {
       assigned_account: {
         select: {
           name: true,
+        },
+      },
+      assigned_contact: {
+        select: {
+          first_name: true,
+          last_name: true,
         },
       },
     },
