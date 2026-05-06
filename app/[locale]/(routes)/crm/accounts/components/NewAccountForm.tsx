@@ -66,7 +66,7 @@ export function NewAccountForm({ industries, onFinish }: Props) {
     status: z.string().min(3).max(50).optional(),
     annual_revenue: z.string().min(3).max(50).optional(),
     member_of: z.string().min(3).max(50).optional(),
-    employees: z.string().min(1).max(50),
+    companyType: z.string().min(1).max(50),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -204,10 +204,10 @@ export function NewAccountForm({ industries, onFinish }: Props) {
             <div className="grid grid-cols-2 gap-4 pb-5">
               <FormField
                 control={form.control}
-                name="employees"
+                name="companyType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company size</FormLabel>
+                    <FormLabel>Company Type</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -218,10 +218,9 @@ export function NewAccountForm({ industries, onFinish }: Props) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="flex overflow-y-auto h-56">
-                        <SelectItem value="1-10">1-10 employees</SelectItem>
-                        <SelectItem value="11-50">11-50 employees</SelectItem>
-                        <SelectItem value="51-500">51-500 employees</SelectItem>
-                        <SelectItem value="501+">501+ employees</SelectItem>
+                        <SelectItem value="embassy">Embassy</SelectItem>
+                        <SelectItem value="international">International</SelectItem>
+                        <SelectItem value="locale">Locale</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

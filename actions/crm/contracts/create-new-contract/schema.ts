@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const CreateNewContract = z.object({
   title: z.string().min(3).max(255),
+  type: z.enum(["customer", "company"]).optional(),
   value: z.string().nullable().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
@@ -10,5 +11,6 @@ export const CreateNewContract = z.object({
   companySignedDate: z.date().optional().nullable(),
   description: z.string().max(255),
   account: z.string().optional().nullable(),
+  contact: z.string().optional().nullable(),
   assigned_to: z.string().optional(),
 });

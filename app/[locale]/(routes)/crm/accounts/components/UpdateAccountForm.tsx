@@ -68,7 +68,7 @@ export function UpdateAccountForm({
     status: z.string().nullable().optional(),
     annual_revenue: z.string().nullable().optional(),
     member_of: z.string().nullable().optional(),
-    employees: z.string().nullable().optional(),
+    companyType: z.string().nullable().optional(),
   });
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
@@ -97,7 +97,7 @@ export function UpdateAccountForm({
           status: initialData.status ?? "",
           annual_revenue: initialData.annual_revenue ?? "",
           member_of: initialData.member_of ?? "",
-          employees: initialData.employees ?? "",
+          companyType: initialData.companyType ?? "",
         }
       : {
           id: "",
@@ -123,7 +123,7 @@ export function UpdateAccountForm({
           status: "",
           annual_revenue: "",
           member_of: "",
-          employees: "",
+          companyType: "",
         },
   });
 
@@ -267,10 +267,10 @@ export function UpdateAccountForm({
               {/* Employees Dropdown */}
               <FormField
                 control={form.control}
-                name="employees"
+                name="companyType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Size</FormLabel>
+                    <FormLabel>Company Type</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value ?? ""}
@@ -281,10 +281,11 @@ export function UpdateAccountForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1-10">1-10 employees</SelectItem>
-                        <SelectItem value="11-50">11-50 employees</SelectItem>
-                        <SelectItem value="51-500">51-500 employees</SelectItem>
-                        <SelectItem value="501+">501+ employees</SelectItem>
+                        <SelectItem value="embassy">Embassy</SelectItem>
+                        <SelectItem value="international">
+                          International
+                        </SelectItem>
+                        <SelectItem value="locale">Locale</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

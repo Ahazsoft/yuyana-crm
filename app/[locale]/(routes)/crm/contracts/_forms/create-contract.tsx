@@ -22,11 +22,11 @@ import { FormSelect } from "@/components/form/from-select";
 const CreateContractForm = ({
   accounts,
   accountId,
-  contacts
+  contacts,
 }: {
   accounts: crm_Accounts[];
   accountId: string;
-  contacts:crm_Contacts[];
+  contacts: crm_Contacts[];
 }) => {
   const router = useRouter();
   const closeRef = useRef<ElementRef<"button">>(null);
@@ -57,6 +57,7 @@ const CreateContractForm = ({
     );
     const description = formData.get("description") as string;
     const account = formData.get("account") as string;
+    const contact = formData.get("contact") as string;
     const assigned_to = formData.get("assigned_to") as string;
 
     // Only pick the date from the visible radio‑selected field
@@ -77,11 +78,19 @@ const CreateContractForm = ({
       customerSignedDate,
       companySignedDate,
       description,
+      type: contractType,
       account,
+      contact,
       assigned_to,
     });
   };
 
+  const contactOptions = contacts.map((contact) => ({
+    id: contact.id,
+    name: `${contact.first_name} ${contact.last_name}`,
+  }));
+
+  console.log(`Accounts ${accounts}`);
   return (
     <FormSheet
       trigger={"New"}
@@ -119,6 +128,7 @@ const CreateContractForm = ({
           />
         </div>
         {/* ── Radio group: Customer / Company ── */}
+
         <div className="space-y-2 px-4">
           <label className="text-sm font-medium">Contract Type</label>
           <div className="flex items-center gap-4">
@@ -171,24 +181,44 @@ const CreateContractForm = ({
           )}
         </div>
 
-        <FormSelect
-          id="account"
-          label="Company"
-          type="hidden"
-          data={accounts}
-          errors={fieldErrors}
-          defaultValue={accountId || undefined}
-          placeholder="select Company"
-        />
+        {contractType === "company" && (
+          <>
+            <label className="text-sm font-medium">Company</label>
+            <FormSelect
+              id="account"
+              // label="Company"
+              type="hidden"
+              data={accounts}
+              errors={fieldErrors}
+              defaultValue={accountId || undefined}
+              placeholder="select company"
+            />
+          </>
+        )}
+
+        {contractType === "customer" && (
+          <>
+            <label className="text-sm font-medium">Customer</label>
+            <FormSelect
+              id="contact"
+              // label="Contacts"
+              type="hidden"
+              data={contactOptions}
+              errors={fieldErrors}
+              // defaultValue={accountId || undefined}
+              placeholder="select customers"
+            />
+          </>
+        )}
         <>
-        <label className="text-sm font-medium">{c("assignedTo")}</label>
-        <UserSearchCombobox
-          value={assignedTo}
-          onChange={setAssignedTo}
-          placeholder={c("selectUser")}
-          disabled={isLoading}
-          name="assigned_to"
-        />
+          <label className="text-sm font-medium">{c("assignedTo")}</label>
+          <UserSearchCombobox
+            value={assignedTo}
+            onChange={setAssignedTo}
+            placeholder={c("selectUser")}
+            disabled={isLoading}
+            name="assigned_to"
+          />
         </>
         <div className="space-y-2 flex flex-row justify-between">
           <FormTextarea
