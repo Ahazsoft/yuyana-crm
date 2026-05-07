@@ -7,7 +7,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: UserId;
     isAdmin: boolean;
-    role?: string;
+    role?: "ADMIN" | "SALES" | "MARKETING";
   }
 }
 
@@ -18,7 +18,7 @@ declare module "next-auth" {
       _id: UserId;
       avatar?: string | null | undefined;
       isAdmin: boolean;
-      role?: string;
+      role?: "ADMIN" | "SALES" | "MARKETING";
       userLanguage: string;
       userStatus: string;
     };
