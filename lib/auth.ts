@@ -30,16 +30,7 @@ export const authOptions: NextAuthOptions = {
   },
 
   providers: [
-    // GoogleProvider({
-    //   clientId: getGoogleCredentials().clientId,
-    //   clientSecret: getGoogleCredentials().clientSecret,
-    // }),
-
-    // GitHubProvider({
-    //   name: "github",
-    //   clientId: process.env.GITHUB_ID!,
-    //   clientSecret: process.env.GITHUB_SECRET!,
-    // }),
+  
 
     CredentialsProvider({
       name: "credentials",
@@ -86,6 +77,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.isAdmin = user.is_admin ?? false;
+        token.role = user.role;
       }
       return token;
     },
@@ -123,6 +115,7 @@ export const authOptions: NextAuthOptions = {
           session.user.avatar = newUser.avatar;
           session.user.image = newUser.avatar;
           session.user.isAdmin = false;
+          session.user.role = newUser.role; 
           session.user.userLanguage = newUser.userLanguage;
           session.user.userStatus = newUser.userStatus;
           session.user.lastLoginAt = newUser.lastLoginAt;
@@ -146,6 +139,7 @@ export const authOptions: NextAuthOptions = {
         session.user.avatar = user.avatar;
         session.user.image = user.avatar;
         session.user.isAdmin = user.is_admin;
+        session.user.role = user.role; 
         session.user.userLanguage = user.userLanguage;
         session.user.userStatus = user.userStatus;
         session.user.lastLoginAt = user.lastLoginAt;
