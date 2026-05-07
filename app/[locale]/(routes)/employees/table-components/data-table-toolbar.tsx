@@ -17,26 +17,20 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-  // Choose a sensible default filter column. Contacts use 'last_name'.
-  const preferred = ["name", "username", "email"];
-  const filterColumnId =
-    preferred.find((id) => !!table.getColumn(id)) ||
-    table.getAllLeafColumns()?.[0]?.id ||
-    null;
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {filterColumnId ? (
-          <Input
-            value={(table.getColumn(filterColumnId)?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn(filterColumnId)?.setFilterValue(event.target.value)
-            }
-            className="h-8 w-[150px] lg:w-[250px]"
-          />
-        ) : null}
-
+        <Input
+          placeholder="Filter in last name ..."
+          value={
+            (table.getColumn("name")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          className="h-8 w-[150px] lg:w-[250px]"
+        />
         {isFiltered && (
           <Button
             variant="ghost"
