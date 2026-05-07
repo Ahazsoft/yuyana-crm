@@ -616,6 +616,9 @@ model Users {
   username              String?
   userStatus            ActiveStatus              @default(PENDING)
   userLanguage          Language                  @default(en)
+  phone                 String?                   
+  role                  UserRole                  @default(SALES)
+
   watching_accounts     AccountWatchers[]
   watching_boards       BoardWatchers[]
   boards                Boards[]                  @relation("assigned_user")
@@ -689,7 +692,7 @@ model EmailAccount {
   mailbox     String?  @default("INBOX")
   sentMailbox String?
   createdAt   DateTime @default(now())
-  accountUser Users    @relation(fields: [user], references: [id])
+  accountUser Users    @relation(fields: [user], references: [id], onDelete: Cascade)
 
   @@index([user])
 }
@@ -973,4 +976,10 @@ enum Language {
 enum gptStatus {
   ACTIVE
   INACTIVE
+}
+
+enum UserRole {
+  ADMIN
+  SALES
+  MARKETING
 }
