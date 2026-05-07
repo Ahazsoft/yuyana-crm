@@ -67,7 +67,7 @@ interface Module {
   enabled: boolean;
   position?: number;
 }
-
+type UserRole = "ADMIN" | "SALES" | "MARKETING";
 interface User {
   id: string;
   name?: string | null;
@@ -75,6 +75,7 @@ interface User {
   image?: string | null;
   isAdmin?: boolean;
   userStatus?: string;
+  role?: UserRole;
   userLanguage?: string;
   lastLoginAt?: Date;
 }
@@ -104,39 +105,46 @@ export function AppSidebar({
   const navItems = [];
 
   // Dashboard menu item (always visible)
-  const dashboardItem = getDashboardMenuItem({
-    title: dict?.dashboard || "Dashboard",
-  });
-  navItems.push(dashboardItem);
+  if (session?.user?.role === "ADMIN") {
+    const dashboardItem = getDashboardMenuItem({
+      title: dict?.dashboard || "Dashboard",
+    });
+    navItems.push(dashboardItem);
+  }
 
   // Task 2.3: CRM module navigation (with module filtering)
   // Only show if CRM module is enabled
-  const crmModule = modules.find(
-    (menuItem: any) => menuItem.name === "crm" && menuItem.enabled
-  );
-  if (crmModule && dict?.crm) {
-    const crmItem = getCrmMenuItem({
-      localizations: dict.crm,
-    });
-    navItems.push(crmItem);
+
+  if (session?.user?.role === "ADMIN" || session?.user?.role === "SALES") {
+    const crmModule = modules.find(
+      (menuItem: any) => menuItem.name === "crm" && menuItem.enabled,
+    );
+    if (crmModule && dict?.crm) {
+      const crmItem = getCrmMenuItem({
+        localizations: dict.crm,
+      });
+      navItems.push(crmItem);
+    }
   }
 
   // Marketing module navigation (with module filtering)
   // Only show if Marketing module is enabled
-  const marketingModule = modules.find(
-    (menuItem: any) => menuItem.name === "marketing" && menuItem.enabled
-  );
-  if (marketingModule && dict?.marketing) {
-    const marketingItem = getMarketingMenuItem({
-      localizations: dict.marketing,
-    });
-    navItems.push(marketingItem);
+  if (session?.user?.role === "ADMIN" || session?.user?.role === "MARKETING") {
+    const marketingModule = modules.find(
+      (menuItem: any) => menuItem.name === "marketing" && menuItem.enabled,
+    );
+    if (marketingModule && dict?.marketing) {
+      const marketingItem = getMarketingMenuItem({
+        localizations: dict.marketing,
+      });
+      navItems.push(marketingItem);
+    }
   }
 
   // Task 2.4: Projects module navigation (with module filtering)
   // Only show if Projects module is enabled
   const projectsModule = modules.find(
-    (menuItem: any) => menuItem.name === "projects" /* && menuItem.enabled */
+    (menuItem: any) => menuItem.name === "projects" /* && menuItem.enabled */,
   );
   if (projectsModule /* && dict?.projects */) {
     const projectsItem = getProjectsMenuItem({
@@ -147,31 +155,36 @@ export function AppSidebar({
 
   // Task 2.5: Emails module navigation (with module filtering)
   // Only show if Emails module is enabled
-  // const emailsModule = modules.find(
-  //   (menuItem: any) => menuItem.name === "emails" && menuItem.enabled
-  // );
-  // if (emailsModule && dict?.emails) {
-  //   const emailsItem = getEmailsMenuItem({
-  //     title: dict.emails,
-  //   });
-  //   navItems.push(emailsItem);
-  // }
+  if (session?.user?.role === "ADMIN" || session?.user?.role === "SALES") {
+    const emailsModule = modules.find(
+      (menuItem: any) => menuItem.name === "emails" && menuItem.enabled,
+    );
+    if (emailsModule && dict?.emails) {
+      const emailsItem = getEmailsMenuItem({
+        title: dict.emails,
+      });
+      navItems.push(emailsItem);
+    }
+  }
 
   // Task 2.6.2: Employees module navigation (with module filtering)
   // Only show if Employees module is enabled
-  const employeesModule = modules.find(
-    (menuItem: any) => menuItem.name === "employee" && menuItem.enabled
-  );
-  if (employeesModule) {
-    const employeesItem = getEmployeesMenuItem({
-      title: "Employees", // No translation in dict.ModuleMenu, using default
-    });
-    navItems.push(employeesItem);
+
+  if (session?.user?.role === "ADMIN") {
+    const employeesModule = modules.find(
+      (menuItem: any) => menuItem.name === "employee" && menuItem.enabled,
+    );
+    if (employeesModule) {
+      const employeesItem = getEmployeesMenuItem({
+        title: "Employees", // No translation in dict.ModuleMenu, using default
+      });
+      navItems.push(employeesItem);
+    }
   }
 
   // Task 2.6.3: Invoices module navigation (with module filtering)
   // Only show if Invoices module is enabled
-/*   const invoicesModule = modules.find(
+  /*   const invoicesModule = modules.find(
     (menuItem: any) => menuItem.name === "invoice" && menuItem.enabled
   );
   if (invoicesModule && dict?.invoices) {
@@ -183,14 +196,16 @@ export function AppSidebar({
 
   // Task 2.6.4: Reports module navigation (with module filtering)
   // Only show if Reports module is enabled
-  const reportsModule = modules.find(
-    (menuItem: any) => menuItem.name === "reports" && menuItem.enabled
-  );
-  if (reportsModule && dict?.reports) {
-    const reportsItem = getReportsMenuItem({
-      title: dict.reports,
-    });
-    navItems.push(reportsItem);
+  if (session?.user?.role === "ADMIN") {
+    const reportsModule = modules.find(
+      (menuItem: any) => menuItem.name === "reports" && menuItem.enabled,
+    );
+    if (session?.user?.role === "ADMIN" && reportsModule && dict?.reports) {
+      const reportsItem = getReportsMenuItem({
+        title: dict.reports,
+      });
+      navItems.push(reportsItem);
+    }
   }
 
   // Task 2.6.5: Documents module navigation (with module filtering)
@@ -222,7 +237,7 @@ export function AppSidebar({
   */
   // Task 2.7: Administration menu navigation (with role-based visibility)
   // Only show if user is an admin (session.user.isAdmin === true)
-  if (session?.user?.isAdmin && dict?.settings) {
+  if (session?.user?.role === "ADMIN" && dict?.settings) {
     const administrationItem = getAdministrationMenuItem({
       title: dict.settings,
     });
@@ -244,7 +259,7 @@ export function AppSidebar({
         <div
           className={cn(
             "flex items-center py-1",
-            isExpanded ? "gap-x-4" : "justify-center"
+            isExpanded ? "gap-x-4" : "justify-center",
           )}
         >
           {/* Branding image with rotation animation */}
@@ -254,19 +269,18 @@ export function AppSidebar({
               isExpanded && "rotate-[360deg]"
             )}
           > */}
-            <img
-              src="/images/yuyanalogo.png"
-              
-              alt={process.env.NEXT_PUBLIC_APP_NAME || "Yuyana"}
-              className={cn("h-16 w-20 object-cover", isExpanded ? "" : "")}
-            />
+          <img
+            src="/images/yuyanalogo.png"
+            alt={process.env.NEXT_PUBLIC_APP_NAME || "Yuyana"}
+            className={cn("h-16 w-20 object-cover", isExpanded ? "" : "")}
+          />
           {/* </div> */}
 
           {/* App Name - visible when expanded, hidden when collapsed */}
           <h1
             className={cn(
               "origin-left font-medium text-xl transition-all overflow-hidden whitespace-nowrap",
-              !isExpanded ? "w-0 opacity-0" : "w-auto opacity-100"
+              !isExpanded ? "w-0 opacity-0" : "w-auto opacity-100",
             )}
           >
             {process.env.NEXT_PUBLIC_APP_NAME || "Yuyana CRM"}
@@ -291,9 +305,7 @@ export function AppSidebar({
           className={cn("flex justify-center items-center w-full", {
             hidden: !isExpanded,
           })}
-        >
-         
-        </div>
+        ></div>
       </SidebarFooter>
 
       {/* Rail for toggling sidebar on desktop */}
