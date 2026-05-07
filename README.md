@@ -1,5 +1,5 @@
-<a href="https://nextcrm.app/">
-  <h1 align="center">NextCRM</h1>
+<a href="https://Yuyana-crm.vercel.app/">
+  <h1 align="center">Yuyana CRM</h1>
 </a>
 
 <p align="center">
@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-NextCRM is an open-source CRM built with Next.js 16, React 19, TypeScript, PostgreSQL (Prisma 7), and shadcn/ui. Features CRM, project management, invoicing, document storage, email client, and AI-powered features.
+Yuyana CRM is an open-source CRM built with Next.js 16, React 19, TypeScript, PostgreSQL (Prisma 7), and shadcn/ui. Features CRM, project management, invoicing, document storage, email client, and AI-powered features.
 </p>
 
 <p align="center">
