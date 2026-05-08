@@ -309,7 +309,7 @@ export function AppSidebar({
       {/* Footer with NavUser and Build Version */}
       <SidebarFooter>
         {/* Task 3.1: NavUser component with user profile and actions */}
-        <NavUser user={userData} />
+        {/* <NavUser user={userData} /> */}
 
         {/* Build version display (when sidebar expanded) */}
         {/* Task 5.4: Changed text-gray-500 to text-muted-foreground for theme support */}
