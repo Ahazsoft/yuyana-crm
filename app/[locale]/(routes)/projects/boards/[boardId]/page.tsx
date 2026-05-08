@@ -24,6 +24,7 @@ const BoardPage = async (props: BoardDetailProps) => {
   const params = await props.params;
   const session = await getServerSession(authOptions);
   const user = session?.user;
+  const isAdmin = session?.user.role === 'ADMIN';
   const { boardId } = params;
   const board: any = await getBoard(boardId);
   const boards = await getBoards(user?.id!);
@@ -37,7 +38,7 @@ const BoardPage = async (props: BoardDetailProps) => {
       description={board?.board?.description}
       visibility={board?.board?.visibility}
     >
-      <div className="flex justify-between py-5 w-full">
+      {isAdmin && (<div className="flex justify-between py-5 w-full">
         <div className="space-x-2">
           <NewSectionDialog boardId={boardId} />
           <NewTaskInProjectDialog
@@ -51,7 +52,7 @@ const BoardPage = async (props: BoardDetailProps) => {
             boardName={board.board.title}
           />
         </div>
-      </div>
+      </div>)}
       <Kanban
         data={kanbanData.sections}
         boardId={boardId}

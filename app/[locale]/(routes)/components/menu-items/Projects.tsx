@@ -15,14 +15,55 @@ import { NavItem } from "../nav-main";
  */
 
 type Props = {
-  title: string;
+  localizations: {
+    title: string;
+    overview: string;
+    projects: string;
+    allTasks: string;
+    // myTasks: string;
+  };
+  userId?: string;
 };
 
-export const getProjectsMenuItem = ({ title }: Props): NavItem => {
+export const getProjectsMenuItem = ({ localizations, userId }: Props): NavItem => {
   return {
-    title,
-    url: "/projects",
+    title: localizations.title,
     icon: ServerIcon,
+    items: [
+      // {
+      //   title: "projects",
+      //   // url: "/crm/dashboard",
+      //   url: "/projects",
+      // },
+      // {
+      //   title: "My Dashboard",
+      //   url: "/crm/dashboard/user",
+      // },
+      // {
+      //   title: "Overview",
+      //   url: "/crm",
+      // },
+      {
+        title: localizations.overview,
+        url: "/projects/dashboard",
+      },
+      {
+        title: localizations.projects,
+        url: "/projects",
+      },
+      {
+        title: localizations.allTasks,
+        url: "/projects/tasks",
+      },
+      // {
+      //   title: localizations.myTasks,
+      //   url: userId ? `/projects/tasks/${userId}` : "/projects/tasks",
+      // },
+      // {
+      //   title: localizations.contracts,
+      //   url: "/projects/contracts",
+      // },
+    ],
   };
 };
 

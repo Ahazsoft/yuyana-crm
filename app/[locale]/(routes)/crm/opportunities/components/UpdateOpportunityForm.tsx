@@ -41,7 +41,6 @@ import SuspenseLoading from "@/components/loadings/suspense";
 import fetcher from "@/lib/fetcher";
 import useSWR from "swr";
 
-//TODO: fix all the types
 type NewTaskFormProps = {
   initialData: any;
   setOpen: (value: boolean) => void;
@@ -60,14 +59,15 @@ export function UpdateOpportunityForm({
 
   const { data: opportunities, isLoading: isLoadingOpportunities } = useSWR(
     "/api/crm/opportunity",
-    fetcher,
+    fetcher, // fetcher simply returns res.json() – see below
   );
 
+  // ----- 1. SCHEMA (unchanged) -----
   const formSchema = z.object({
-    id: z.string().min(5).max(30),
+    id: z.string().min(5),
     name: z.string(),
     close_date: z.date({
-      message: "A expected close date is required.",
+      message: "An expected close date is required.",
     }),
     description: z.string(),
     type: z.string(),
@@ -84,19 +84,42 @@ export function UpdateOpportunityForm({
 
   type NewAccountFormValues = z.infer<typeof formSchema>;
 
+  // ----- 2. FLATTEN INITIAL DATA (the fix!) -----
+  // We extract just the ID from any relationship that might be an object.
+  const flattenRelation = (val: any) => {
+    if (typeof val === "object" && val !== null && "id" in val) return val.id;
+    if (typeof val === "string") return val;
+    return ""; // fallback empty string
+  };
+
+  const defaultFormValues = {
+    id: initialData.id ?? "",
+    name: initialData.name ?? "",
+    description: initialData.description ?? "",
+    type: flattenRelation(initialData.type),
+    sales_stage: flattenRelation(initialData.sales_stage),
+    budget: String(initialData.budget ?? ""),
+    currency: initialData.currency ?? "",
+    expected_revenue: String(initialData.expected_revenue ?? ""),
+    next_step: initialData.next_step ?? "",
+    assigned_to: flattenRelation(initialData.assigned_to),
+    account: flattenRelation(initialData.account),
+    contact: flattenRelation(initialData.contact),
+    campaign: flattenRelation(initialData.campaign) || null,
+    close_date: initialData.close_date
+      ? new Date(initialData.close_date)
+      : undefined,
+  };
+
   const form = useForm<any>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      ...initialData,
-      budget: String(initialData.budget),
-      expected_revenue: String(initialData.expected_revenue),
-    },
+    defaultValues: defaultFormValues,
   });
 
+  // ----- 3. SUBMIT (unchanged) -----
   const onSubmit = async (data: NewAccountFormValues) => {
     setIsLoading(true);
     try {
-      //Convert data.budget and data.expected_revenue to number
       await axios.put("/api/crm/opportunity", data);
       toast({
         title: c("success"),
@@ -121,96 +144,99 @@ export function UpdateOpportunityForm({
         <SuspenseLoading />
       </div>
     );
-  //console.log(opportunities, "opportunities");
+
   const { users, accounts, contacts, saleTypes, saleStages, campaigns } =
     opportunities || {};
 
   if (!users || !accounts || !initialData) {
-    console.log("users : ", users);
-    console.log("accounts: ", accounts);
-    console.log("inital data: ", initialData);
+    console.warn("Missing data:", { users, accounts, initialData });
     return <div>{c("somethingWentWrong")}</div>;
   }
 
+  // Optional debug: confirm flattened values are strings
+  console.log("Flattened default values:", defaultFormValues);
+
+  // ----- 4. RENDER (Selects use value={field.value}) -----
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="h-full px-4 md:px-10"
       >
-        {/*        <div>
+        {/* Show validation errors for debugging (remove later) */}
+        {/* <div>
           <pre>
             <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
           </pre>
         </div> */}
-        {/*     <pre>
-          <code>{JSON.stringify(initialData, null, 2)}</code>
-        </pre> */}
-        {/*        <div>
-          <pre>
-            <code>{JSON.stringify(form.watch(), null, 2)}</code>
-          </pre>
-        </div> */}
+
         <div className="w-full text-sm">
           <div className="pb-5 space-y-2">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("name")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="New NextCRM functionality"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="close_date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>{t("closeDate")}</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>{t("closeDatePlaceholder")}</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        //@ts-ignore
-                        //TODO: fix this
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date("1900-01-01")}
-                        initialFocus
+            {/* Name & Close Date*/}
+
+            <div className="grid grid-cols-2 gap-6">
+              {/* Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("name")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="New NextCRM functionality"
+                        {...field}
                       />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Close Date */}
+              <FormField
+                control={form.control}
+                name="close_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{t("closeDate")}</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>{t("closeDatePlaceholder")}</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date("1900-01-01")}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Description */}
             <FormField
               control={form.control}
               name="description"
@@ -228,8 +254,11 @@ export function UpdateOpportunityForm({
                 </FormItem>
               )}
             />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left column */}
               <div className="space-y-2">
+                {/* Type */}
                 <FormField
                   control={form.control}
                   name="type"
@@ -238,7 +267,7 @@ export function UpdateOpportunityForm({
                       <FormLabel>{t("salesType")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        // defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -259,6 +288,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Sales Stage */}
                 <FormField
                   control={form.control}
                   name="sales_stage"
@@ -267,7 +298,7 @@ export function UpdateOpportunityForm({
                       <FormLabel>{t("saleStage")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -288,6 +319,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Budget */}
                 <FormField
                   control={form.control}
                   name="budget"
@@ -306,6 +339,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Currency */}
                 <FormField
                   control={form.control}
                   name="currency"
@@ -323,6 +358,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Expected Revenue */}
                 <FormField
                   control={form.control}
                   name="expected_revenue"
@@ -341,6 +378,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Next Step */}
                 <FormField
                   control={form.control}
                   name="next_step"
@@ -359,7 +398,10 @@ export function UpdateOpportunityForm({
                   )}
                 />
               </div>
+
+              {/* Right column */}
               <div className="space-y-2">
+                {/* Assigned To */}
                 <FormField
                   control={form.control}
                   name="assigned_to"
@@ -368,7 +410,7 @@ export function UpdateOpportunityForm({
                       <FormLabel>{c("assignedTo")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -387,6 +429,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Account */}
                 <FormField
                   control={form.control}
                   name="account"
@@ -395,7 +439,7 @@ export function UpdateOpportunityForm({
                       <FormLabel>{t("assignedAccount")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -414,6 +458,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Contact */}
                 <FormField
                   control={form.control}
                   name="contact"
@@ -422,11 +468,11 @@ export function UpdateOpportunityForm({
                       <FormLabel>Assigned Contact</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a user to assign the account" />
+                            <SelectValue placeholder="Select a contact" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">
@@ -441,6 +487,8 @@ export function UpdateOpportunityForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Campaign */}
                 <FormField
                   control={form.control}
                   name="campaign"
@@ -449,7 +497,7 @@ export function UpdateOpportunityForm({
                       <FormLabel>From campaign</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -472,6 +520,7 @@ export function UpdateOpportunityForm({
             </div>
           </div>
         </div>
+
         <div className="grid gap-2 py-5">
           <Button disabled={isLoading} type="submit">
             {isLoading ? (

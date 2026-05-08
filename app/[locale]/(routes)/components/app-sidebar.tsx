@@ -144,14 +144,26 @@ export function AppSidebar({
   // Task 2.4: Projects module navigation (with module filtering)
   // Only show if Projects module is enabled
   const projectsModule = modules.find(
-    (menuItem: any) => menuItem.name === "projects" /* && menuItem.enabled */,
+    (menuItem: any) => menuItem.name === "projects",
   );
-  if (projectsModule /* && dict?.projects */) {
+  if (projectsModule  && dict?.projects ) {
     const projectsItem = getProjectsMenuItem({
-      title: "Projects",
+      localizations: dict.projects,
+      userId: session.user.id,
     });
     navItems.push(projectsItem);
   }
+
+  //  const marketingModule = modules.find(
+  //     (menuItem: any) => menuItem.name === "marketing" && menuItem.enabled,
+  //   );
+  //   if (marketingModule && dict?.marketing) {
+  //     const marketingItem = getMarketingMenuItem({
+  //       localizations: dict.marketing,
+  //     });
+  //     navItems.push(marketingItem);
+  //   }
+
 
   // Task 2.5: Emails module navigation (with module filtering)
   // Only show if Emails module is enabled

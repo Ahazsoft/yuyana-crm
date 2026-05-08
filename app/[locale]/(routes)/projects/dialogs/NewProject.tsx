@@ -95,7 +95,7 @@ const NewProjectDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="px-2">{t("newProject.trigger")}</Button>
+        <Button className="px-5">New</Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>

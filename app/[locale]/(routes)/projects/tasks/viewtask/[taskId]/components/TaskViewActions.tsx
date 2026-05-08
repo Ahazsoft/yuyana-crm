@@ -63,7 +63,7 @@ const TaskViewActions = ({
       Task Actions:
       <Separator className="mb-5" />
       {initialData.taskStatus !== "COMPLETE" && (
-        <Badge
+        <Button
           variant={"outline"}
           onClick={onDone}
           className="cursor-pointer"
@@ -75,16 +75,16 @@ const TaskViewActions = ({
           ) : (
             "Mark as done"
           )}
-        </Badge>
+        </Button>
       )}
-      <Badge
+      {/* <Badge
         variant={"outline"}
         className="cursor-pointer"
         onClick={() => setOpenEdit(true)}
       >
         <Pencil className="w-4 h-4 mr-2" />
         Edit
-      </Badge>
+      </Badge> */}
       <Sheet open={openEdit} onOpenChange={() => setOpenEdit(false)}>
         <SheetContent className="max-w-3xl overflow-y-auto">
           <SheetHeader>

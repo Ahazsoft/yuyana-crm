@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import Container from "../components/ui/Container";
+import Container from "../components/ui/Container2";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { Session } from "next-auth";
 import ProjectsView from "./_components/ProjectsView";
 import SuspenseLoading from "@/components/loadings/suspense";
 import { getTranslations } from "next-intl/server";
+import NewProjectDialog from "./dialogs/NewProject";
 
 export const maxDuration = 300;
 
@@ -22,6 +23,7 @@ const ProjectsPage = async () => {
     <Container
       title={t("title")}
       description={t("description")}
+      buttonComponent={<NewProjectDialog />}
     >
       <Suspense fallback={<SuspenseLoading />}>
         <ProjectsView />
