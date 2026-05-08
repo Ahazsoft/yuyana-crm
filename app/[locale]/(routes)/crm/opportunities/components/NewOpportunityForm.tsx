@@ -175,6 +175,19 @@ export function NewOpportunityForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full h-full px-4 md:px-10"
       >
+        {/* <div>
+          <pre>
+            <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
+          </pre>
+        </div> */}
+        {/* <pre>
+          <code>{JSON.stringify(initialData, null, 2)}</code>
+        </pre> */}
+        {/* <div>
+          <pre>
+            <code>{JSON.stringify(form.watch(), null, 2)}</code>
+          </pre>
+        </div> */}
         <div className="w-full text-sm">
           <div className="pb-5 space-y-2">
             <div className="grid grid-cols-2 gap-6">

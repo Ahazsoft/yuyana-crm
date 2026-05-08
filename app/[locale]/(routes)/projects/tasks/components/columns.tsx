@@ -139,7 +139,18 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-    id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
-  },
+      id: "actions",
+      cell: ({ row, table }) => {
+        // Unpack the meta we set in TasksDataTable
+        const tableMeta = table.options.meta as { isAdmin: boolean; boards: any };
+  
+        return (
+          <DataTableRowActions
+            row={row}
+            isAdmin={tableMeta?.isAdmin}
+            boards={tableMeta?.boards}
+          />
+        );
+      },
+    },
 ];

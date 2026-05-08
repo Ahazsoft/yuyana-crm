@@ -24,7 +24,7 @@ export async function POST(
       { status: 500 }
     );
   }
-  
+
   const session = await getServerSession(authOptions);
   const body = await req.json();
   const { comment } = body;
@@ -52,103 +52,103 @@ export async function POST(
     }
 
     //console.log(task, "task");
-
-    if (!task.section) {
-      return new NextResponse("Task section not found", { status: 404 });
-    }
+    /* 
+        if (!task.section) {
+          return new NextResponse("Task section not found", { status: 404 });
+        } */
 
     //TODO: this can be done in a single query if there will be boardID in task
-    const section = await prismadb.sections.findUnique({
+    /* const section = await prismadb.sections.findUnique({
       where: { id: task.section },
-    });
+    }); */
 
     //console.log(section, "section");
 
-    if (section) {
-      //If there is a section, it is task from Projects if there is no section it is task from CRM
-      //ADD USER TO WATCHERS - on Board using BoardWatchers junction table
-      await prismadb.boards.update({
-        where: {
-          id: section.board,
-        },
-        data: {
-          watchers: junctionTableHelpers.addWatcher(session.user.id),
-        },
-      });
-
-      const newComment = await prismadb.tasksComments.create({
-        data: {
-          v: 0,
-          comment: comment,
-          task: taskId,
-          user: session.user.id,
-        },
-      });
-
-      // Find all users watching this board through BoardWatchers junction table
-      const boardWatchers = await prismadb.boardWatchers.findMany({
-        where: {
-          board_id: section.board,
-          // Exclude the user who created the comment
-          user_id: {
-            not: session.user.id,
-          },
-        },
-        include: {
-          user: true,
-        },
-      });
-
-      const emailRecipients = boardWatchers.map(w => w.user);
-
-      // Add the task creator to the email recipients
-      if (task.createdBy) {
-        const taskCreator = await prismadb.users.findUnique({
-          where: { id: task.createdBy },
-        });
-        if (taskCreator && taskCreator.id !== session.user.id) {
-          emailRecipients.push(taskCreator); // Add the task creator to the recipients
-        }
-      }
-
-      //Create notifications for every user watching the board except the user who created the comment
-      for (const user of emailRecipients) {
-        //console.log("Comment send to user: ", user?.email);
-
-        await resend.emails.send({
-          from:
-            process.env.NEXT_PUBLIC_APP_NAME +
-            " <" +
-            process.env.EMAIL_FROM +
-            ">",
-          to: user?.email!,
-          subject:
-            session.user.userLanguage === "en"
-              ? `New comment  on task ${task.title}.`
-              : `Nový komentář k úkolu ${task.title}.`,
-          text: "", // Add this line to fix the types issue
-          react: NewTaskCommentEmail({
-            commentFromUser: session.user.name!,
-            username: user?.name!,
-            userLanguage: user?.userLanguage!,
-            taskId: task.id,
-            comment: comment,
-          }),
-        });
-      }
-      return NextResponse.json(newComment, { status: 200 });
-    } else {
-      //
-      const newComment = await prismadb.tasksComments.create({
-        data: {
-          v: 0,
-          comment: comment,
-          task: taskId,
-          user: session.user.id,
-        },
-      });
-      return NextResponse.json(newComment, { status: 200 });
-    }
+    /*     if (section) {
+          //If there is a section, it is task from Projects if there is no section it is task from CRM
+          //ADD USER TO WATCHERS - on Board using BoardWatchers junction table
+          await prismadb.boards.update({
+            where: {
+              id: section.board,
+            },
+            data: {
+              watchers: junctionTableHelpers.addWatcher(session.user.id),
+            },
+          });
+    
+          const newComment = await prismadb.tasksComments.create({
+            data: {
+              v: 0,
+              comment: comment,
+              task: taskId,
+              user: session.user.id,
+            },
+          });
+    
+          // Find all users watching this board through BoardWatchers junction table
+          const boardWatchers = await prismadb.boardWatchers.findMany({
+            where: {
+              board_id: section.board,
+              // Exclude the user who created the comment
+              user_id: {
+                not: session.user.id,
+              },
+            },
+            include: {
+              user: true,
+            },
+          });
+    
+          const emailRecipients = boardWatchers.map(w => w.user);
+    
+          // Add the task creator to the email recipients
+          if (task.createdBy) {
+            const taskCreator = await prismadb.users.findUnique({
+              where: { id: task.createdBy },
+            });
+            if (taskCreator && taskCreator.id !== session.user.id) {
+              emailRecipients.push(taskCreator); // Add the task creator to the recipients
+            }
+          }
+    
+          //Create notifications for every user watching the board except the user who created the comment
+          for (const user of emailRecipients) {
+            //console.log("Comment send to user: ", user?.email);
+    
+            await resend.emails.send({
+              from:
+                process.env.NEXT_PUBLIC_APP_NAME +
+                " <" +
+                process.env.EMAIL_FROM +
+                ">",
+              to: user?.email!,
+              subject:
+                session.user.userLanguage === "en"
+                  ? `New comment  on task ${task.title}.`
+                  : `Nový komentář k úkolu ${task.title}.`,
+              text: "", // Add this line to fix the types issue
+              react: NewTaskCommentEmail({
+                commentFromUser: session.user.name!,
+                username: user?.name!,
+                userLanguage: user?.userLanguage!,
+                taskId: task.id,
+                comment: comment,
+              }),
+            });
+          }
+          return NextResponse.json(newComment, { status: 200 });
+        } else {
+     */      //
+    const newComment = await prismadb.tasksComments.create({
+      data: {
+        v: 0,
+        comment: comment,
+        task: taskId,
+        user: session.user.id,
+      },
+    });
+    return NextResponse.json(newComment, { status: 200 });
+    /* } */
 
     /*      */
   } catch (error) {

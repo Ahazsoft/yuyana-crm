@@ -32,11 +32,15 @@ import { PanelTopClose, PanelTopOpen } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isAdmin: boolean;
+  boards: any;
 }
 
 export function TasksDataTable<TData, TValue>({
   columns,
   data,
+  isAdmin,
+  boards
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -51,6 +55,10 @@ export function TasksDataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    meta: {
+      isAdmin,
+      boards,
+    },
     state: {
       sorting,
       columnVisibility,
