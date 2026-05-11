@@ -15,15 +15,15 @@ export async function POST(req: Request) {
   /*
   Resend.com function init - this is a helper function that will be used to send emails
   */
-  let resend;
-  try {
-    resend = await resendHelper();
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error?.message || "Resend API key is not configured" },
-      { status: 500 }
-    );
-  }
+  // let resend;
+  // try {
+  //   resend = await resendHelper();
+  // } catch (error: any) {
+  //   return NextResponse.json(
+  //     { error: error?.message || "Resend API key is not configured" },
+  //     { status: 500 }
+  //   );
+  // }
   
   const session = await getServerSession(authOptions);
   const body = await req.json();
@@ -92,44 +92,16 @@ export async function POST(req: Request) {
       },
     });
 
-    //Notification to user who is not a task creator
-    if (user !== session.user.id) {
-      try {
-        const notifyRecipient = await prismadb.users.findUnique({
-          where: { id: user },
-        });
-
-        const boardData = await prismadb.boards.findUnique({
-          where: { id: board },
-        });
-
-        //console.log(notifyRecipient, "notifyRecipient");
-
-        await resend.emails.send({
-          from:
-            process.env.NEXT_PUBLIC_APP_NAME +
-            " <" +
-            process.env.EMAIL_FROM +
-            ">",
-          to: notifyRecipient?.email!,
-          subject:
-            session.user.userLanguage === "en"
-              ? `New task -  ${title}.`
-              : `Nový úkol - ${title}.`,
-          text: "", // Add this line to fix the types issue
-          react: NewTaskFromProject({
-            taskFromUser: session.user.name!,
-            username: notifyRecipient?.name!,
-            userLanguage: notifyRecipient?.userLanguage!,
-            taskData: task,
-            boardData: boardData,
-          }),
-        });
-        console.log("Email sent to user: ", notifyRecipient?.email!);
-      } catch (error) {
-        console.log(error);
+    await prismadb.notifications.create({
+      data: {
+        title: `New Task : ${title}`,
+        description: `You have been assigned to a new task : \n${content}.`,
+        receiverId: user,
+        link: `/projects/tasks/viewtask/${task.id}`,
       }
-    }
+    });
+
+
 
     return NextResponse.json({ status: 200 });
   } catch (error) {

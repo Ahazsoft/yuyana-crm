@@ -596,11 +596,11 @@ export async function BasicView({ data }: OppsViewProps) {
   const findUser = (id: string) => users.find((u:any) => u.id === id)?.name || "—";
   const initials = data.name?.slice(0, 2).toUpperCase() || "AC";
 
-  const industryName = await prismadb.crm_Industry_Type.findUnique({
-    where: {
-      id: data.industry,
-    },
-  });
+  // const industryName = await prismadb.crm_Industry_Type.findUnique({
+  //   where: {
+  //     id: data.industry,
+  //   },
+  // });
   return (
     <div className="space-y-6">
       {/* ── Header ─────────────────────────────────────── */}
@@ -644,7 +644,8 @@ export async function BasicView({ data }: OppsViewProps) {
           <Field label="VAT Number" value={data.vat} />
           <Field label="Type" value={data.type} />
 
-          <Field label="Industry" value={industryName?.name} />
+          {/* <Field label="Industry" value={industryName?.name} /> */}
+          <Field label="Industry" value={data?.name} />
           <Field label="Member of" value={data.member_of} />
           <Field label="Status" value={data.status} />
           <Field label="Assigned to" value={data.assigned_to_user?.name} />

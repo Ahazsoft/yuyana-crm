@@ -102,7 +102,7 @@ export const columns: ColumnDef<Lead>[] = [
     ),
 
     cell: ({ row }) => (
-      <div className="w-[200px]">
+      <div className="w-[200px] line-clamp-2">
         {
           row.getValue("description")
         }

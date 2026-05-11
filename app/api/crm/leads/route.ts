@@ -36,7 +36,6 @@ export async function POST(req: Request) {
       status
     } = body;
 
-    //console.log(req.body, "req.body");
 
     const newLead = await prismadb.crm_Leads.create({
       data: {
@@ -62,29 +61,31 @@ export async function POST(req: Request) {
       },
     });
 
-    if (assigned_to !== userId) {
-      const notifyRecipient = await prismadb.users.findFirst({
-        where: {
-          id: assigned_to,
-        },
-      });
-
-      if (!notifyRecipient) {
-        return new NextResponse("No user found", { status: 400 });
+    const authUser = await prismadb.users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
       }
+    });
 
-      await sendEmail({
-        from: process.env.EMAIL_FROM as string,
-        to: notifyRecipient.email || "info@softbase.cz",
-        subject:
-          notifyRecipient.userLanguage === "en"
-            ? `New lead ${first_name} ${last_name} has been added to the system and assigned to you.`
-            : `Nová příležitost ${first_name} ${last_name} byla přidána do systému a přidělena vám.`,
-        text:
-          notifyRecipient.userLanguage === "en"
-            ? `New lead ${first_name} ${last_name} has been added to the system and assigned to you. You can click here for detail: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${newLead.id}`
-            : `Nová příležitost ${first_name} ${last_name} byla přidána do systému a přidělena vám. Detaily naleznete zde: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${newLead.id}`,
-      });
+    const adminUsers = await prismadb.users.findMany({
+      where: {
+        role: "ADMIN",
+      }
+    });
+
+    if (authUser) {
+      if (adminUsers.length > 0) {
+        await prismadb.notifications.createMany({
+          data: adminUsers.map((admin) => ({
+            title: `New Lead Added: ${first_name}`,
+            description: `Lead Contact : ${first_name} has been added by: ${authUser.name}.`,
+            receiverId: admin.id,
+            link: `/crm/leads/${newLead.id}`,
+          })),
+        });
+      }
     }
 
     return NextResponse.json({ newLead }, { status: 200 });
@@ -145,7 +146,7 @@ export async function PUT(req: Request) {
         lead_source,
         refered_by,
         campaign,
-        service:service,
+        service: service,
         followup_date: followup_date ?? null,
         assigned_to: assigned_to || userId,
         accountsIDs: accountIDs,
@@ -154,29 +155,38 @@ export async function PUT(req: Request) {
       },
     });
 
-    if (assigned_to !== userId) {
-      const notifyRecipient = await prismadb.users.findFirst({
-        where: {
-          id: assigned_to,
-        },
-      });
-
-      if (!notifyRecipient) {
-        return new NextResponse("No user found", { status: 400 });
+    const lead = await prismadb.crm_Leads.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
       }
+    });
+     const authUser = await prismadb.users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+      }
+    });
 
-      await sendEmail({
-        from: process.env.EMAIL_FROM as string,
-        to: notifyRecipient.email || "info@softbase.cz",
-        subject:
-          notifyRecipient.userLanguage === "en"
-            ? `New lead ${firstName} ${lastName} has been added to the system and assigned to you.`
-            : `Nová příležitost ${firstName} ${lastName} byla přidána do systému a přidělena vám.`,
-        text:
-          notifyRecipient.userLanguage === "en"
-            ? `New lead ${firstName} ${lastName} has been added to the system and assigned to you. You can click here for detail: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${updatedLead.id}`
-            : `Nová příležitost ${firstName} ${lastName} byla přidána do systému a přidělena vám. Detaily naleznete zde: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${updatedLead.id}`,
-      });
+    const adminUsers = await prismadb.users.findMany({
+      where: {
+        role: "ADMIN",
+      }
+    });
+
+    if (authUser && lead) {
+      if (adminUsers.length > 0) {
+        await prismadb.notifications.createMany({
+          data: adminUsers.map((admin) => ({
+            title: `Lead Updated: ${lead.firstName}`,
+            description: `Lead Contact Updated : ${lead.firstName} has been added by: ${authUser.name}.`,
+            receiverId: admin.id,
+            link: `/crm/leads/${updatedLead.id}`,
+          })),
+        });
+      }
     }
 
     return NextResponse.json({ updatedLead }, { status: 200 });
