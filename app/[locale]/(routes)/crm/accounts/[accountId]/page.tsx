@@ -43,9 +43,9 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
     await getOpportunitiesFullByAccountId(accountId);
   const contacts: crm_Contacts[] = await getContactsByAccountId(accountId);
   const contracts: crm_Contracts[] = await getContractsByAccountId(accountId);
-  const leads: crm_Leads[] = await getLeadsByAccountId(accountId);
-  const documents: Documents[] = await getDocumentsByAccountId(accountId);
-  const tasks: crm_Accounts_Tasks[] = await getAccountsTasks(accountId);
+  // const leads: crm_Leads[] = await getLeadsByAccountId(accountId);
+  // const documents: Documents[] = await getDocumentsByAccountId(accountId);
+  // const tasks: crm_Accounts_Tasks[] = await getAccountsTasks(accountId);
   const crmData = await getAllCrmData();
 
   if (!account) return <div>Account not found</div>;
@@ -57,7 +57,7 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
     // >
       <div className="space-y-5 m-9">
         <BasicView data={account} />
-        <AccountsTasksView data={tasks} account={account} />
+        {/* <AccountsTasksView data={tasks} account={account} /> */}
         <OpportunitiesView
           data={opportunities}
           crmData={crmData}
@@ -70,11 +70,13 @@ const AccountDetailPage = async (props: AccountDetailPageProps) => {
           accountId={accountId}
           contacts={contacts}
         />
-        <LeadsView title="Leads" data={leads} crmData={crmData} />
-        <DocumentsView data={documents} />
+        {/* <LeadsView title="Leads" data={leads} crmData={crmData} /> */}
+      
       </div>
     // </Container>
   );
 };
 
 export default AccountDetailPage;
+
+

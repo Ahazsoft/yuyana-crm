@@ -298,6 +298,21 @@ model Employees {
   status String
 }
 
+model Notifications {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  link        String? 
+  receiverId  String?   @db.Uuid
+  receiver    Users?    @relation(fields: [receiverId], references: [id])
+  isSeen      Boolean   @default(false)
+  createdAt   DateTime? @default(now())
+
+  @@index([receiverId])
+  @@index([createdAt])
+  @@index([receiverId, createdAt])
+}
+
 model ImageUpload {
   id String @id @default(uuid()) @db.Uuid
 }
@@ -602,22 +617,22 @@ model TodoList {
 }
 
 model Users {
-  id                    String                    @id @default(uuid()) @db.Uuid
-  v                     Int                       @default(0) @map("__v")
-  account_name          String?
-  avatar                String?
-  email                 String                    @unique
-  is_account_admin      Boolean                   @default(false)
-  is_admin              Boolean                   @default(false)
-  created_on            DateTime                  @default(now())
-  lastLoginAt           DateTime?
-  name                  String?
-  password              String?
-  username              String?
-  userStatus            ActiveStatus              @default(PENDING)
-  userLanguage          Language                  @default(en)
-  phone                 String?                   
-  role                  UserRole                  @default(SALES)
+  id               String       @id @default(uuid()) @db.Uuid
+  v                Int          @default(0) @map("__v")
+  account_name     String?
+  avatar           String?
+  email            String       @unique
+  is_account_admin Boolean      @default(false)
+  is_admin         Boolean      @default(false)
+  created_on       DateTime     @default(now())
+  lastLoginAt      DateTime?
+  name             String?
+  password         String?
+  username         String?
+  userStatus       ActiveStatus @default(PENDING)
+  userLanguage     Language     @default(en)
+  phone            String?
+  role             UserRole     @default(SALES)
 
   watching_accounts     AccountWatchers[]
   watching_boards       BoardWatchers[]
@@ -639,6 +654,7 @@ model Users {
   emailTemplates        email_templates[]
   openAi_key            openAi_keys[]
   tasksComment          tasksComments[]
+  notifications         Notifications[]
 
   @@index([email])
   @@index([userStatus])

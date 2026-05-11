@@ -68,6 +68,34 @@ export async function POST(req: Request) {
       },
     });
 
+    const authUser = await prismadb.users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+      }
+    });
+
+    const adminUsers = await prismadb.users.findMany({
+      where: {
+        role: "ADMIN",
+      }
+    });
+
+    if (authUser) {
+      if (adminUsers.length > 0) {
+        await prismadb.notifications.createMany({
+          data: adminUsers.map((admin) => ({
+            title: `New Company Added: ${name}`,
+            description: `Company ${name} has been added by: ${authUser.name}.`,
+            receiverId: admin.id,
+            link: `/crm/accounts/${newAccount.id}`,
+          })),
+        });
+      }      
+    }
+
+
     return NextResponse.json({ newAccount }, { status: 200 });
   } catch (error) {
     console.log("[NEW_ACCOUNT_POST]", error);

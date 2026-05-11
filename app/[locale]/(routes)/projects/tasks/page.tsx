@@ -42,9 +42,9 @@ const TasksPage = async () => {
           description={t("tasks.description")}
           buttonComponent={<NewTaskDialog boards={boards} />}
         >
-          <div className="py-5">
+          {/* <div className="py-5">
             <Button>{t("tasks.newTask")}</Button>
-          </div>
+          </div> */}
           <div>
             <TasksDataTable data={tasks} columns={columns} isAdmin={isAdmin}
           boards={boards}/>

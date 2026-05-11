@@ -64,29 +64,31 @@ export async function POST(req: Request) {
       },
     });
 
-    if (assigned_to !== userId) {
-      const notifyRecipient = await prismadb.users.findFirst({
-        where: {
-          id: assigned_to,
-        },
-      });
-
-      if (!notifyRecipient) {
-        return new NextResponse("No user found", { status: 400 });
+   const authUser = await prismadb.users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
       }
+    });
 
-      await sendEmail({
-        from: process.env.EMAIL_FROM as string,
-        to: notifyRecipient.email || "info@softbase.cz",
-        subject:
-          notifyRecipient.userLanguage === "en"
-            ? `New opportunity ${name} has been added to the system and assigned to you.`
-            : `Nová příležitost ${name} byla přidána do systému a přidělena vám.`,
-        text:
-          notifyRecipient.userLanguage === "en"
-            ? `New opportunity ${name} has been added to the system and assigned to you. You can click here for detail: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${newOpportunity.id}`
-            : `Nová příležitost ${name} byla přidána do systému a přidělena vám. Detaily naleznete zde: ${process.env.NEXT_PUBLIC_APP_URL}/crm/opportunities/${newOpportunity.id}`,
-      });
+    const adminUsers = await prismadb.users.findMany({
+      where: {
+        role: "ADMIN",
+      }
+    });
+
+    if (authUser) {
+      if (adminUsers.length > 0) {
+        await prismadb.notifications.createMany({
+          data: adminUsers.map((admin) => ({
+            title: `New Opportunity Added: ${name}`,
+            description: `Opportunity : ${name} has been added by: ${authUser.name}.`,
+            receiverId: admin.id,
+            link: `/crm/opportunities/${newOpportunity.id}`,
+          })),
+        });
+      }      
     }
 
     return NextResponse.json(

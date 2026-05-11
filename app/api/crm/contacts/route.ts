@@ -90,29 +90,31 @@ export async function POST(req: Request) {
       },
     });
 
-    if (assigned_to !== userId) {
-      const notifyRecipient = await prismadb.users.findFirst({
-        where: {
-          id: assigned_to,
-        },
-      });
-
-      if (!notifyRecipient) {
-        return new NextResponse("No user found", { status: 400 });
+    const authUser = await prismadb.users.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
       }
+    });
 
-      await sendEmail({
-        from: process.env.EMAIL_FROM as string,
-        to: notifyRecipient.email || "info@softbase.cz",
-        subject:
-          notifyRecipient.userLanguage === "en"
-            ? `New contact ${first_name} ${last_name} has been added to the system and assigned to you.`
-            : `Nový kontakt ${first_name} ${last_name} byla přidána do systému a přidělena vám.`,
-        text:
-          notifyRecipient.userLanguage === "en"
-            ? `New contact ${first_name} ${last_name} has been added to the system and assigned to you. You can click here for detail: ${process.env.NEXT_PUBLIC_APP_URL}/crm/contacts/${newContact.id}`
-            : `Nový kontakt ${first_name} ${last_name} byla přidán do systému a přidělena vám. Detaily naleznete zde: ${process.env.NEXT_PUBLIC_APP_URL}/crm/contact/${newContact.id}`,
-      });
+    const adminUsers = await prismadb.users.findMany({
+      where: {
+        role: "ADMIN",
+      }
+    });
+
+    if (authUser) {
+      if (adminUsers.length > 0) {
+        await prismadb.notifications.createMany({
+          data: adminUsers.map((admin) => ({
+            title: `New Contacts Added: ${first_name}`,
+            description: `Contact : ${first_name} has been added by: ${authUser.name}.`,
+            receiverId: admin.id,
+            link: `/crm/contacts/${newContact.id}`,
+          })),
+        });
+      }      
     }
 
     return NextResponse.json({ newContact }, { status: 200 });
