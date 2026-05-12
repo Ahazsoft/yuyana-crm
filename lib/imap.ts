@@ -87,6 +87,8 @@ export type FetchedEmail = {
   html?: string;
   attachments?: { filename?: string; contentType?: string; size?: number }[];
   seen?: boolean;
+  messageId?: string;
+  references?: string;
 };
 
 export type MailboxFetchResult = {
@@ -110,10 +112,10 @@ export async function fetchRecentEmails({
     },
     // Provide a no-op logger to suppress verbose IMAP/imapflow logs in production
     logger: {
-      debug: () => {},
-      info: () => {},
-      warn: () => {},
-      error: () => {},
+      debug: () => { },
+      info: () => { },
+      warn: () => { },
+      error: () => { },
     },
   });
 
@@ -146,9 +148,9 @@ export async function fetchRecentEmails({
         results.push({
           id: String(
             msg.uid ??
-              parsed.messageId ??
-              parsed.date?.getTime() ??
-              Math.random(),
+            parsed.messageId ??
+            parsed.date?.getTime() ??
+            Math.random(),
           ),
           subject: parsed.subject,
           from: parsed.from?.text,
@@ -162,6 +164,14 @@ export async function fetchRecentEmails({
             size: a.size,
           })),
           seen,
+          messageId: parsed.messageId,                 
+          references: parsed.references                
+            ? (typeof parsed.references === 'string'
+              ? parsed.references
+              : Array.isArray(parsed.references)
+                ? parsed.references.join(' ')
+                : '')
+            : '',
         });
       }
 
@@ -174,7 +184,7 @@ export async function fetchRecentEmails({
   try {
     const inboxResults = await fetchMailbox('INBOX');
     const sentResults = await fetchMailbox('Sent');
-  
+
     return {
       INBOX: inboxResults,
       SENT: sentResults,

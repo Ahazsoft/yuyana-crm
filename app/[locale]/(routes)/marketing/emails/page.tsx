@@ -96,6 +96,8 @@ const EmailRoute = async () => {
                   read: isSent ? true : false,
                   labels: [],
                   type,
+                  messageId: m.messageId || "",
+                  references: m.references || "",
                 };
               };
 

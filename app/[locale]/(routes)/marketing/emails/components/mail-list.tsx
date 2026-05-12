@@ -22,6 +22,8 @@ type Mail = {
   read?: boolean;
   labels?: string[];
   type?: string;
+  messageId?: string;
+  references?: string;
 };
 
 interface MailListProps {

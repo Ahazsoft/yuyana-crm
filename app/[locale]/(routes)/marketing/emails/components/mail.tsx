@@ -31,6 +31,8 @@ type MailType = {
   read?: boolean;
   labels?: string[];
   type?: string; // 'inbox' | 'sent'
+  messageId?: string;
+  references?: string;
 };
 import { useMail } from "@/app/[locale]/(routes)/marketing/emails/use-mail";
 import { cn } from "@/lib/utils";
@@ -103,6 +105,8 @@ export function MailComponent({
             read: !!m.seen,
             labels: [],
             type: "inbox",
+            messageId: m.messageId || "",
+            references: m.references || "",
           })),
           ...sent.map((m: any) => {
             const rawTo = Array.isArray(m.to) ? m.to[0] : m.to || "";
@@ -124,6 +128,8 @@ export function MailComponent({
               read: true,
               labels: [],
               type: "sent",
+              messageId: m.messageId || "",
+              references: m.references || "",
             };
           }),
         ];
