@@ -25,13 +25,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import AlertModal from "@/components/modals/alert-modal";
-import { taskSchema } from "../data/schema";
+import { Task, taskSchema } from "../data/schema";
 
 // Import your Task Dialog
 import UpdateTaskDialog from "@/app/[locale]/(routes)/projects/dialogs/UpdateTask";
 
 interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
+  row: Row<Task>;
   isAdmin: boolean;
   boards: any;
 }

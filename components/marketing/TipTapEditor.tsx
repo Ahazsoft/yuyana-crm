@@ -249,7 +249,7 @@ const TiptapEditor = ({
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Image Uploader */}
-        <MenuBtn>
+        {/* <MenuBtn>
           <label className="cursor-pointer">
             <ImageDown size={16} />
             <input
@@ -262,7 +262,7 @@ const TiptapEditor = ({
               }}
             />
           </label>
-        </MenuBtn>
+        </MenuBtn> */}
       </div>
 
       {/* V3 BUBBLE MENU */}

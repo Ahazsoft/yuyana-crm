@@ -92,7 +92,8 @@ const UpdateTaskDialog = ({
   }
 
   //Actions
-  console.log("BoardId:", boardId);
+  // console.log("BoardId:", boardId);
+  // console.log("initial Data:", initialData);
 
   const onSubmit = async (data: UpdatedTaskForm) => {
     setIsLoading(true);
@@ -146,7 +147,7 @@ const UpdateTaskDialog = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Task - Id: {initialData.id}</FormLabel>
+                  <FormLabel>Task Title {/* {initialData.id} */}</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isLoading}

@@ -27,11 +27,11 @@ export const getCrmMenuItem = ({ localizations }: Props): NavItem => {
     title: localizations.title,
     icon: Coins,
     items: [
-      {
-        title: "Overview",
-        // url: "/crm/dashboard",
-        url: "/crm",
-      },
+      // {
+      //   title: "Overview",
+      //   // url: "/crm/dashboard",
+      //   url: "/crm",
+      // },
       // {
       //   title: "My Dashboard",
       //   url: "/crm/dashboard/user",

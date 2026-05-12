@@ -68,9 +68,9 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: mail.email,                // the original sender
-          subject: mail.subject,         // will be prefixed by the server if needed
-          html: replyText,               // or could be plain text
+          to: mail.email,                
+          subject: mail.subject,         
+          html: replyText,            
           text: replyText,
           originalMessageId: mail.messageId,
           references: mail.references,

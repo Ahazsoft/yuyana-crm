@@ -36,10 +36,7 @@ type NewTaskFormProps = {
   onFinish: () => void;
 };
 
-export function NewContactForm({
-  accounts,
-  onFinish,
-}: NewTaskFormProps) {
+export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const t = useTranslations("CrmContactForm");
@@ -51,8 +48,8 @@ export function NewContactForm({
     birthday_year: z.string().optional(),
     birthday_month: z.string().optional(),
     birthday_day: z.string().optional(),
-    first_name: z.string().optional(),
-    last_name: z.string(),
+    first_name: z.string(),
+    last_name: z.string().optional(),
     description: z.string().optional(),
     email: z.string(),
     personal_email: z.string().optional(),
@@ -110,7 +107,7 @@ export function NewContactForm({
         mobile_phone: "",
         website: "",
         position: "",
-        status: false,
+        status: true,
         type: "",
         assigned_to: "",
         assigned_account: "",
@@ -134,85 +131,98 @@ export function NewContactForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
         <div className="w-full text-sm">
           <div className="pb-5 space-y-2">
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("firstName")}</FormLabel>
-                  <FormControl>
-                    <Input disabled={isLoading} placeholder="John" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("lastName")}</FormLabel>
-                  <FormControl>
-                    <Input disabled={isLoading} placeholder="Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="mobile_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("mobilePhone")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="+11 1236 77 55"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("firstName")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="John"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("lastName")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="Doe"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="office_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("officePhone")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="+11 1236 77 55"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("email")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="john@domain.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <FormField
+                control={form.control}
+                name="office_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("officePhone")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="+11 1236 77 55"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+              <FormField
+                control={form.control}
+                name="mobile_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("mobilePhone")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="+11 1236 77 55"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("email")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="john@domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* <FormField
               control={form.control}
               name="personal_email"
               render={({ field }) => (
@@ -228,8 +238,8 @@ export function NewContactForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            <FormField
+            /> */}
+            {/* <FormField
               control={form.control}
               name="website"
               render={({ field }) => (
@@ -245,27 +255,34 @@ export function NewContactForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <div>
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{t("birthday")}</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {t("birthday")}
+              </label>
               <div className="flex space-x-3 w-full mt-2">
                 <FormField
                   control={form.control}
-                  name="birthday_year"
+                  name="birthday_day"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("year")} />
+                            <SelectValue placeholder={t("day")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="h-56">
-                          {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          ))}
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map(
+                            (day) => (
+                              <SelectItem key={day} value={day.toString()}>
+                                {day}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -277,7 +294,10 @@ export function NewContactForm({
                   name="birthday_month"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={t("month")} />
@@ -308,21 +328,28 @@ export function NewContactForm({
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
-                  name="birthday_day"
+                  name="birthday_year"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("day")} />
+                            <SelectValue placeholder={t("year")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="h-56">
-                          {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                            <SelectItem key={day} value={day.toString()}>
-                              {day}
+                          {Array.from(
+                            { length: 100 },
+                            (_, i) => new Date().getFullYear() - i,
+                          ).map((year) => (
+                            <SelectItem key={year} value={year.toString()}>
+                              {year}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -351,53 +378,57 @@ export function NewContactForm({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <FormField
-                  control={form.control}
-                  name="assigned_to"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("assignedUser")}</FormLabel>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="assigned_to"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("assignedUser")}</FormLabel>
+                    <FormControl>
+                      <UserSearchCombobox
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        placeholder={t("assignedUserPlaceholder")}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="assigned_account"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("assignAccount")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <UserSearchCombobox
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          placeholder={t("assignedUserPlaceholder")}
-                          disabled={isLoading}
-                        />
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("assignAccountPlaceholder")}
+                          />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="assigned_account"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("assignAccount")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("assignAccountPlaceholder")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="flex overflow-y-auto h-56">
-                          {accounts.map((account) => (
-                            <SelectItem key={account.id} value={account.id}>
-                              {account.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      <SelectContent className="flex overflow-y-auto h-56">
+                        {accounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            {account.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="position"
@@ -417,25 +448,6 @@ export function NewContactForm({
                 />
                 <FormField
                   control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm">
-                          {t("isActive")}
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="type"
                   render={({ field }) => (
                     <FormItem>
@@ -446,7 +458,9 @@ export function NewContactForm({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("contactTypePlaceholder")} />
+                            <SelectValue
+                              placeholder={t("contactTypePlaceholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">
@@ -462,7 +476,28 @@ export function NewContactForm({
                   )}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2">                
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm">
+                          Is contact active?
+                        </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* <div className="space-y-2">
                 <FormField
                   control={form.control}
                   name="social_twitter"
@@ -565,8 +600,7 @@ export function NewContactForm({
                     </FormItem>
                   )}
                 />
-              </div>
-            </div>
+              </div> */}
           </div>
         </div>
         <div className="grid gap-2 py-5">
