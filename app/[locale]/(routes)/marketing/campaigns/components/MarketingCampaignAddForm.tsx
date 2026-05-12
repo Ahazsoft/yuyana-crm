@@ -42,8 +42,8 @@ const formSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "INACTIVE"]),
   // templateId: z.string().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.date(),
+  endDate: z.date(),
   budget: z.preprocess(
     (val) => (val === "" ? undefined : val),
     z.coerce.number().optional(),

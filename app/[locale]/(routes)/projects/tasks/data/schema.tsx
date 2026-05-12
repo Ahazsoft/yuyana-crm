@@ -4,6 +4,7 @@ import { z } from "zod";
 // IRL, you will have a schema for your data models.
 export const taskSchema = z.object({
   id: z.string(),
+  title:z.string(),
   content: z.string(),
   taskStatus: z.string().nullable(),
   dueDateAt: z.date().nullable(),

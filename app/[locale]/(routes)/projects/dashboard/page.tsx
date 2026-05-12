@@ -21,6 +21,8 @@ const ProjectDashboard = async () => {
     return <div>DashBoard data not found</div>;
   }
 
+  const isAdmin = session?.user.role === 'ADMIN';
+
   return (
     <Container
       title={t("dashboardTitle")}
@@ -30,6 +32,7 @@ const ProjectDashboard = async () => {
         dashboardData={dashboardData}
         boards={boards}
         sections={sections}
+        isAdmin={isAdmin}
       />
     </Container>
   );

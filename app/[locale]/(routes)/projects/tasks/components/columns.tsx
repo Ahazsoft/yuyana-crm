@@ -56,7 +56,6 @@ export const columns: ColumnDef<Task>[] = [
       <div className="w-[180px]">
         {
           //@ts-ignore
-          //TODO: fix this
           row.getValue("assigned_user")?.name ?? "Unassigned"
         }
       </div>
@@ -70,6 +69,8 @@ export const columns: ColumnDef<Task>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
+      
+      
       const label = labels.find(
         (label) => label.value === row.original.content
       );
@@ -91,7 +92,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const status = statuses.find(
-        (status) => status.value === row.getValue("taskStatus")
+        (status) => status.value === row.getValue("taskStatus"),
       );
 
       if (!status) {
@@ -118,7 +119,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const priority = priorities.find(
-        (priority) => priority.value === row.getValue("priority")
+        (priority) => priority.value === row.getValue("priority"),
       );
 
       if (!priority) {
@@ -139,18 +140,18 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-      id: "actions",
-      cell: ({ row, table }) => {
-        // Unpack the meta we set in TasksDataTable
-        const tableMeta = table.options.meta as { isAdmin: boolean; boards: any };
-  
-        return (
-          <DataTableRowActions
-            row={row}
-            isAdmin={tableMeta?.isAdmin}
-            boards={tableMeta?.boards}
-          />
-        );
-      },
+    id: "actions",
+    cell: ({ row, table }) => {
+      // Unpack the meta we set in TasksDataTable
+      const tableMeta = table.options.meta as { isAdmin: boolean; boards: any };
+
+      return (
+        <DataTableRowActions
+          row={row}
+          isAdmin={tableMeta?.isAdmin}
+          boards={tableMeta?.boards}
+        />
+      );
     },
+  },
 ];

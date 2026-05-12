@@ -17,7 +17,7 @@ const ContactViewPage = async (props: any) => {
   const { contactId } = params;
   const contact: any = await getContact(contactId);
   const opportunities: any = await getOpportunitiesFullByContactId(contactId);
-  const documents = await getDocumentsByContactId(contactId);
+  // const documents = await getDocumentsByContactId(contactId);
   const accounts = await getAccountsByContactId(contactId);
   const crmData = await getAllCrmData();
 
@@ -30,7 +30,7 @@ const ContactViewPage = async (props: any) => {
         <BasicView data={contact} />
         <AccountsView data={accounts} crmData={crmData} />
         <OpportunitiesView data={opportunities} crmData={crmData} />
-        <DocumentsView data={documents} />
+        {/* <DocumentsView data={documents} /> */}
       </div>
 
     // <Container

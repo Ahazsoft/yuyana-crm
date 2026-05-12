@@ -26,10 +26,10 @@ export const getMarketingMenuItem = ({ localizations }: Props): NavItem => {
     title: localizations.title,
     icon: Megaphone,
     items: [
-      {
-        title: "Overview",
-        url: "/marketing",
-      },
+      // {
+      //   title: "Overview",
+      //   url: "/marketing",
+      // },
       {
         title: localizations.campaigns,
         url: "/marketing/campaigns",

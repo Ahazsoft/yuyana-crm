@@ -23,17 +23,11 @@ const MarketingDashboardPage = async () => {
 
   return (
     <Container
-      title={t("title")}
-      description="Overview of your marketing activities and performance"
+      title="Marketing Overview"
+      description="Key metrics and recent activity from your marketing campaigns"
     >
       <div className="p-6 space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">Marketing Overview</h2>
-          <p className="text-muted-foreground">
-            Key metrics and recent activity from your marketing campaigns
-          </p>
-        </div>
-
+    
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">

@@ -90,13 +90,10 @@ export function NewOpportunityForm({
     () =>
       contacts.filter(
         (contact) =>
-          contact.last_name
+          contact.first_name &&
+          contact.first_name
             .toLowerCase()
-            .includes(searchContactValue.toLowerCase()) ||
-          (contact.first_name &&
-            contact.first_name
-              .toLowerCase()
-              .includes(searchContactValue.toLowerCase())),
+            .includes(searchContactValue.toLowerCase()),
       ),
     [contacts, searchContactValue],
   );

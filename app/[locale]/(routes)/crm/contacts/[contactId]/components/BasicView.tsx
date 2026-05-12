@@ -187,8 +187,8 @@ export async function BasicView({ data }: OppsViewProps) {
             <FieldCell label="Position" value={data.position} />
             <FieldCell label="Birthday" value={formatDate(data.birthday)} />
             <FieldCell label="Type" value={data.type} />
-            <FieldCell label="Member of" value={data.member_of} />
-            <FieldCell label="Industry" value={data.industry} />
+            {/* <FieldCell label="Member of" value={data.member_of} />
+            <FieldCell label="Industry" value={data.industry} /> */}
           </div>
         </section>
 
@@ -240,7 +240,7 @@ export async function BasicView({ data }: OppsViewProps) {
                 ) : undefined
               }
             />
-            <FieldCell label="Billing Country" value={data.billing_country} />
+            {/* <FieldCell label="Billing Country" value={data.billing_country} /> */}
           </div>
         </section>
 

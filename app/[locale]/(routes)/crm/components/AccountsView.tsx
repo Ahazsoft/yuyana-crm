@@ -52,7 +52,7 @@ const AccountsView = ({ data, crmData }: AccountsViewProps) => {
               </Link>
             </CardTitle>
             <div className="text-sm text-muted-foreground mt-1">
-              {data?.length ?? 0} Companies • {industries?.length ?? 0} industries
+              {data?.length ?? 0} Companies {/* • {industries?.length ?? 0} industries */}
             </div>
           </div>
           <div className="flex items-center space-x-2">
