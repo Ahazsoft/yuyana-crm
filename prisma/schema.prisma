@@ -668,7 +668,7 @@ model Users {
 model system_Modules_Enabled {
   id       String  @id @default(uuid()) @db.Uuid
   v        Int     @map("__v")
-  name     String
+  name     String  @unique
   enabled  Boolean
   position Int
 }

@@ -146,7 +146,7 @@ export function AppSidebar({
   const projectsModule = modules.find(
     (menuItem: any) => menuItem.name === "projects",
   );
-  if (projectsModule  && dict?.projects ) {
+  if (projectsModule && dict?.projects) {
     const projectsItem = getProjectsMenuItem({
       localizations: dict.projects,
       userId: session.user.id,
@@ -163,7 +163,6 @@ export function AppSidebar({
   //     });
   //     navItems.push(marketingItem);
   //   }
-
 
   // Task 2.5: Emails module navigation (with module filtering)
   // Only show if Emails module is enabled

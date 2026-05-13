@@ -1,6 +1,10 @@
+import { redirect } from "next/navigation";
 import { RegisterComponent } from "./components/RegisterComponent";
 
 const RegisterPage = async () => {
+  if(true){
+    redirect("/sign-in");
+  }
   return (
     <div className="flex flex-col w-full h-full overflow-auto p-10 space-y-5">
       <div className="">

@@ -44,7 +44,7 @@
   {
     "v": 0,
     "name": "documents",
-    "enabled": true,
+    "enabled": false,
     "position": 8
   },
   {

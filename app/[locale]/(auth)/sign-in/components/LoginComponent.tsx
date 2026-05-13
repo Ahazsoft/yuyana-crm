@@ -177,11 +177,8 @@ export function LoginComponent() {
         <CardDescription>Click here to login with: </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid grid-cols-1 gap-6">
-          {/* <Button variant="outline" onClick={loginWithGitHub}>
-            <Icons.gitHub className="mr-2 h-4 w-4" />
-            Github
-          </Button> */}
+        {/* <div className="grid grid-cols-1 gap-6">
+          
           <Button
             variant="outline"
             onClick={loginWithGoogle}
@@ -194,8 +191,8 @@ export function LoginComponent() {
             )}{" "}
             Google
           </Button>
-        </div>
-        <div className="relative">
+        </div> */}
+        {/* <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
@@ -204,7 +201,7 @@ export function LoginComponent() {
               Or continue with
             </span>
           </div>
-        </div>
+        </div> */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-2">
@@ -281,7 +278,7 @@ export function LoginComponent() {
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col space-y-5">
-        <div className="text-sm text-gray-500">
+        {/* <div className="text-sm text-gray-500">
           Need account? Register{" "}
           <Link href={"/register"} className="text-blue-500">
             here
@@ -289,7 +286,6 @@ export function LoginComponent() {
         </div>
         <div className="text-sm text-gray-500">
           Need password reset? Click
-          {/* Dialog start */}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="text-blue-500">
               <span className="px-2">here</span>
@@ -326,8 +322,7 @@ export function LoginComponent() {
               </DialogTrigger>
             </DialogContent>
           </Dialog>
-          {/* Dialog end */}
-        </div>
+        </div> */}
       </CardFooter>
     </Card>
   );
