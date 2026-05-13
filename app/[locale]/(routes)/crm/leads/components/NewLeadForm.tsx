@@ -53,6 +53,12 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [campaignsLoading, setCampaignsLoading] = useState(true);
 
+  // Local state for custom service
+  const [serviceType, setServiceType] = useState<string>("");
+  const [customService, setCustomService] = useState<string>("");
+  const [leadSourceType, setLeadSourceType] = useState<string>("");
+  const [customLeadSource, setCustomLeadSource] = useState<string>("");
+
   const formSchema = z.object({
     first_name: z.string().min(3).max(30).nonempty(),
     last_name: z.string().optional(),
@@ -76,9 +82,32 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   });
 
   const onSubmit = async (data: NewLeadFormValues) => {
+    // If "Others" is selected, replace service with the custom text
+    if (serviceType === "OTHER") {
+      if (!customService.trim()) {
+        toast({
+          variant: "destructive",
+          title: c("error"),
+          description: "Please enter a custom service name.",
+        });
+        return;
+      }
+      data.service = customService.trim();
+    }
+    if (leadSourceType === "OTHER") {
+      if (!customLeadSource.trim()) {
+        toast({
+          variant: "destructive",
+          title: c("error"),
+          description: "Please enter a custom lead source.",
+        });
+        return;
+      }
+      data.lead_source = customLeadSource.trim();
+    }
+
     setIsLoading(true);
     try {
-      // Ensure followup_date is sent in ISO format if present
       await axios.post("/api/crm/leads", data);
       toast({
         title: c("success"),
@@ -107,6 +136,8 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
         service: "",
         followup_date: "",
       });
+      setServiceType("");
+      setCustomService("");
       router.refresh();
       onFinish?.();
     }
@@ -136,25 +167,25 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   ];
 
   const leadSource = [
+    { name: "Social Media", id: "SOCIAL_MEDIA" },
     { name: "Cold Call", id: "COLD_CALL" },
+    { name: "Word of mouth", id: "WORD_OF_MOUTH" },
+    { name: "Website", id: "WEBSITE" },
+    { name: "Email", id: "EMAIL" },
+    { name: "Campaign", id: "CAMPAIGN" },
     { name: "Existing Customer", id: "EXISTING_CUSTOMER" },
     { name: "Self Generated", id: "SELF_GENERATED" },
     { name: "Employee", id: "EMPLOYEE" },
     { name: "Partner", id: "PARTNER" },
     { name: "Public Relations", id: "PUBLIC_RELATIONS" },
-    { name: "Direct Mail", id: "DIRECT_MAIL" },
     { name: "Conference", id: "CONFERENCE" },
-    { name: "Trade Show", id: "TRADE_SHOW" },
-    { name: "Website", id: "WEBSITE" },
-    { name: "Word of mouth", id: "WORD_OF_MOUTH" },
-    { name: "Email", id: "EMAIL" },
-    { name: "Campaign", id: "CAMPAIGN" },
     { name: "Other", id: "OTHER" },
   ];
 
   const leadService = [
     { name: "Out-Bound", id: "OUTBOUND" },
     { name: "In-Bound", id: "INBOUND" },
+    { name: "Others", id: "OTHER" },
   ];
 
   return (
@@ -222,7 +253,7 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="lead_source"
                 render={({ field }) => (
@@ -245,6 +276,46 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+              <FormField
+                control={form.control}
+                name="lead_source"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lead source</FormLabel>
+                    <Select
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        setLeadSourceType(val);
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select lead source" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {leadSource.map((src) => (
+                          <SelectItem key={src.id} value={src.id}>
+                            {src.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {leadSourceType === "OTHER" && (
+                      <div className="mt-2">
+                        <Input
+                          disabled={isLoading}
+                          value={customLeadSource}
+                          onChange={(e) => setCustomLeadSource(e.target.value)}
+                          placeholder="Enter custom lead source"
+                        />
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -387,7 +458,7 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
               />
             </div>
 
-            {/* ---- followup date (new) ---- */}
+            {/* ---- followup date & service ---- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -431,7 +502,6 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                   </FormItem>
                 )}
               />
-              {/* Placeholder for another field if desired, or leave empty */}
               <FormField
                 control={form.control}
                 name="service"
@@ -439,12 +509,15 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                   <FormItem>
                     <FormLabel>Lead Service</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        setServiceType(val);
+                      }}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select lead source" />
+                          <SelectValue placeholder="Select lead service" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -455,11 +528,20 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    {serviceType === "OTHER" && (
+                      <div className="mt-2">
+                        <Input
+                          disabled={isLoading}
+                          value={customService}
+                          onChange={(e) => setCustomService(e.target.value)}
+                          placeholder="Enter custom service"
+                        />
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div />
             </div>
 
             {/* ---- description ---- */}
