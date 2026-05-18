@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import TiptapEditor from "@/components/marketing/TipTapEditor";
+import CampaignSendButton from "./CampaignSendButton";
 
 export default function CampaignEmailEditor({
   campaignId,
+  campaign,
   initialSubject = "",
   initialBody = null,
   initialTo = "",
 }: {
   campaignId: string;
+  campaign: any;
   initialSubject?: string;
   initialBody?: any;
   initialTo?: string;
@@ -26,22 +29,27 @@ export default function CampaignEmailEditor({
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch('/api/marketing/segments');
+        const res = await fetch("/api/marketing/segments");
         if (!res.ok) return;
         const j = await res.json();
         if (!mounted) return;
         setSegments(j.data || []);
       } catch (e) {
-        console.error('Failed to load segments', e);
+        console.error("Failed to load segments", e);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // persist draft to localStorage on change so Send button can read latest
   useEffect(() => {
     try {
-      localStorage.setItem(`campaign-email-${campaignId}`, JSON.stringify({ subject, body, to }));
+      localStorage.setItem(
+        `campaign-email-${campaignId}`,
+        JSON.stringify({ subject, body, to }),
+      );
     } catch (e) {}
   }, [subject, body, to, campaignId]);
 
@@ -65,7 +73,7 @@ export default function CampaignEmailEditor({
         try {
           localStorage.setItem(
             `campaign-email-${campaignId}`,
-            JSON.stringify({ subject, body, to })
+            JSON.stringify({ subject, body, to }),
           );
         } catch (e) {}
         setStatus("Saved locally (no API)");
@@ -74,7 +82,7 @@ export default function CampaignEmailEditor({
       try {
         localStorage.setItem(
           `campaign-email-${campaignId}`,
-          JSON.stringify({ subject, body, to })
+          JSON.stringify({ subject, body, to }),
         );
       } catch (e) {}
       setStatus("Saved locally (network error)");
@@ -103,7 +111,7 @@ export default function CampaignEmailEditor({
               <option value="">To: (none)</option>
               {segments.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.type === 'STATIC' ? 'Static' : 'Dynamic'})
+                  {s.name} ({s.type === "STATIC" ? "Static" : "Dynamic"})
                 </option>
               ))}
             </select>
@@ -118,14 +126,18 @@ export default function CampaignEmailEditor({
 
       <div className="flex items-center justify-end gap-3">
         <div className="text-sm text-muted-foreground">{status}</div>
-        <button
+        <CampaignSendButton
+          campaignId={campaignId}
+          initialTo={initialTo || ""}
+        />
+        {/* <button
           type="button"
           onClick={save}
           disabled={loading}
           className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 disabled:opacity-50"
         >
           {loading ? "Saving..." : "Save Email"}
-        </button>
+        </button> */}
       </div>
     </div>
   );

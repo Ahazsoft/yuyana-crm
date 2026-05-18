@@ -16,13 +16,15 @@ import { NavItem } from "../nav-main";
 
 type Props = {
   title: string;
+  badge?: number;
 };
 
-export const getEmailsMenuItem = ({ title }: Props): NavItem => {
+export const getEmailsMenuItem = ({ title, badge }: Props): NavItem => {
   return {
     title,
     url: "/emails",
     icon: Mail,
+    badge,
   };
 };
 

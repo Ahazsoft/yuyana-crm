@@ -24,12 +24,13 @@ const LeadsPage = async () => {
   const archivedLeads = await getArchivedLeads();
   const myleads = await getMyOwnLeads();
   const myarchivedLeads = await getMyOwnArchivedLeads();
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/login");
   }
 
   const isAdmin = session?.user.role === "ADMIN";
+
 
   return (
     <Container

@@ -42,10 +42,10 @@ export const getMarketingMenuItem = ({ localizations }: Props): NavItem => {
         title: localizations.templates,
         url: "/marketing/templates",
       },
-      {
-        title: "Emails",
-        url: "/marketing/emails",
-      },
+      // {
+      //   title: "Emails",
+      //   url: "/marketing/emails",
+      // },
       // {
       //   title: localizations.analytics,
       //   url: "/marketing/analytics",

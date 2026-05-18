@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useMail } from "@/app/[locale]/(routes)/marketing/emails/use-mail";
+import { useMail } from "@/app/[locale]/(routes)/emails/use-mail";
 import {
   Tooltip,
   TooltipContent,
@@ -26,9 +26,10 @@ type Mail = {
 
 interface MailListProps {
   items: Mail[];
+  onSelect?: (item: Mail) => void;
 }
 
-export function MailList({ items }: MailListProps) {
+export function MailList({ items, onSelect }: MailListProps) {
   const mail = useMail();
 
   return (
@@ -67,6 +68,10 @@ export function MailList({ items }: MailListProps) {
 
                 mail.setSelected(item.id);
                 mail.setSelectedTab(tab);
+
+                if (onSelect) {
+                  onSelect(item);
+                }
               }}
             >
               <div className="flex w-full flex-col gap-1">

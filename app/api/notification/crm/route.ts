@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     const notifications = await prismadb.notifications.findMany({
         where: {
             receiverId: session.user.id,
+            category: "CRM",
         },
         orderBy: {
             createdAt: "desc",
@@ -21,4 +22,3 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ notifications }, { status: 200 });
 }
-

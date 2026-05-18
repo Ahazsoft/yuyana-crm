@@ -90,6 +90,8 @@ export async function POST(req: Request) {
             description: `Company ${name} has been added by: ${authUser.name}.`,
             receiverId: admin.id,
             link: `/crm/accounts/${newAccount.id}`,
+            category: "CRM",
+            subCategory: "Account",
           })),
         });
       }      

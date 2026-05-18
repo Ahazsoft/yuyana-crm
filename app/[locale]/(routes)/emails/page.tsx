@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { MailComponent } from "./components/mail";
-import { accounts } from "@/app/[locale]/(routes)/marketing/emails/data";
+// import { accounts } from "@/app/[locale]/(routes)/marketing/emails/data";
 import { fetchRecentEmails } from "@/lib/imap";
 import Container from "@/app/[locale]/(routes)/components/ui/Container2";
 import ComposeLauncher from "./components/ComposeLauncher";
@@ -60,7 +60,7 @@ const EmailRoute = async () => {
           // fetchRecentEmails reads IMAP using lib/imap
         }
         <MailComponent
-          accounts={accounts}
+          // accounts={accounts}
           // fetch on server to provide initial render
           mails={await (async () => {
             try {

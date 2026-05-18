@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TiptapEditor from "@/components/marketing/TipTapEditor";
@@ -16,6 +17,7 @@ export default function ComposeLauncher({ initialTemplates = [] }: any) {
   const [bodyHtml, setBodyHtml] = useState<string>("");
   const [sending, setSending] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const router = useRouter();
   const [templateLoading, setTemplateLoading] = useState(false);
   const { toast } = useToast();
 
@@ -95,6 +97,7 @@ export default function ComposeLauncher({ initialTemplates = [] }: any) {
       setEditorValue(null);
       setBodyHtml("");
       toast({ title: "Email sent", description: "Message delivered" });
+      router.refresh();
     } catch (err) {
       console.error(err);
         //@ts-ignore
@@ -107,9 +110,12 @@ export default function ComposeLauncher({ initialTemplates = [] }: any) {
 
   return (
     <>
-      <div>
+      <div className="flex items-center gap-2">
         <Button onClick={() => setOpen(true)} className="bg-primary">
           Compose Email
+        </Button>
+        <Button variant="outline" onClick={() => router.refresh()}>
+          Refresh
         </Button>
       </div>
 
