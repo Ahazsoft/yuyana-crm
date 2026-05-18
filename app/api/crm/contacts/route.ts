@@ -112,6 +112,8 @@ export async function POST(req: Request) {
             description: `Contact : ${first_name} has been added by: ${authUser.name}.`,
             receiverId: admin.id,
             link: `/crm/contacts/${newContact.id}`,
+            category: "CRM",
+            subCategory: "Contact",
           })),
         });
       }      

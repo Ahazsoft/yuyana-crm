@@ -11,6 +11,7 @@ import { Bell, CheckCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { DiscordLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: string;
@@ -22,6 +23,7 @@ interface Notification {
 }
 
 const NotificationComponent = () => {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,6 +63,22 @@ const NotificationComponent = () => {
     return `${years} year${years !== 1 ? "s" : ""} ago`;
   }
 
+  const handleNotificationClick = async (
+    e: React.MouseEvent,
+    notif: Notification,
+  ) => {
+    // If notification has a link, mark as read first, then navigate
+    if (notif.link) {
+      e.preventDefault();
+
+      if (!notif.isSeen) {
+        await markAsRead(notif.id);
+      }
+
+      router.push(notif.link);
+    }
+  };
+
   // Count unread notifications using isSeen
   const unreadCount = notifications.filter((n) => !n.isSeen).length;
 
@@ -80,11 +98,16 @@ const NotificationComponent = () => {
           )}
 
           {notif.link && (
-            <Link href={notif.link}>
+            <Link
+              href={notif.link}
+              onClick={(e) => handleNotificationClick(e, notif)}
+            >
               <h4 className="text-sm font-medium">{notif.title}</h4>
             </Link>
           )}
-          {!notif.link && <h4 className="text-sm font-medium">{notif.title}</h4>}
+          {!notif.link && (
+            <h4 className="text-sm font-medium">{notif.title}</h4>
+          )}
         </div>
 
         {/* Timestamp */}
@@ -103,7 +126,7 @@ const NotificationComponent = () => {
                   <TooltipTrigger asChild>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // prevent card click (if linked)
+                        e.stopPropagation();
                         onMarkRead(notif.id);
                       }}
                       className="p-1 hover:bg-muted rounded"
@@ -123,7 +146,6 @@ const NotificationComponent = () => {
       </div>
     );
 
-   
     return content;
   };
   const markAsRead = async (id: string) => {
@@ -154,7 +176,7 @@ const NotificationComponent = () => {
         align="end"
       >
         <h2 className="font-bold ">Notifications</h2>
-        <hr className="mb-2"/>
+        <hr className="mb-2" />
         {loading ? (
           <p className="text-sm text-muted-foreground px-2">Loading...</p>
         ) : error ? (

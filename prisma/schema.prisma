@@ -306,6 +306,8 @@ model Notifications {
   receiverId  String?   @db.Uuid
   receiver    Users?    @relation(fields: [receiverId], references: [id])
   isSeen      Boolean   @default(false)
+  category   String
+  subCategory String     
   createdAt   DateTime? @default(now())
 
   @@index([receiverId])

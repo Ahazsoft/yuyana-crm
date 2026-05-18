@@ -98,6 +98,8 @@ export async function POST(req: Request) {
         description: `You have been assigned to a new task : \n${content}.`,
         receiverId: user,
         link: `/projects/tasks/viewtask/${task.id}`,
+        category: "Projects",
+        subCategory: "Tasks",      
       }
     });
 

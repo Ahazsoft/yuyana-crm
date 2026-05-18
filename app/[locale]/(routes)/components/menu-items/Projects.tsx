@@ -23,29 +23,27 @@ type Props = {
     // myTasks: string;
   };
   userId?: string;
+  counts?: Record<string, number>;
 };
 
-export const getProjectsMenuItem = ({ localizations, userId }: Props): NavItem => {
+const getBadgeValue = (counts: Record<string, number>, category: string) => {
+  const count = counts?.[category] ?? 0;
+  return count > 0 ? count : undefined;
+};
+
+export const getProjectsMenuItem = ({ localizations, userId, counts = {} }: Props): NavItem => {
+  const projectsCount = getBadgeValue(counts, "Projects");
+  const tasksCount = getBadgeValue(counts, "Tasks");
+
   return {
     title: localizations.title,
     icon: ServerIcon,
+    badge: projectsCount,
     items: [
-      // {
-      //   title: "projects",
-      //   // url: "/crm/dashboard",
-      //   url: "/projects",
-      // },
-      // {
-      //   title: "My Dashboard",
-      //   url: "/crm/dashboard/user",
-      // },
-      // {
-      //   title: "Overview",
-      //   url: "/crm",
-      // },
       {
         title: localizations.overview,
         url: "/projects/dashboard",
+        badge: projectsCount,
       },
       {
         title: localizations.projects,
@@ -54,6 +52,7 @@ export const getProjectsMenuItem = ({ localizations, userId }: Props): NavItem =
       {
         title: localizations.allTasks,
         url: "/projects/tasks",
+        badge: tasksCount,
       },
       // {
       //   title: localizations.myTasks,

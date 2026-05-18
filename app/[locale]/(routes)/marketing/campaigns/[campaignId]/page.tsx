@@ -92,13 +92,7 @@ const CampaignDetailPage = async ({
             </span>
           </div>
         </div>
-        <div className="flex space-x-2">
-          {/* <Button variant="outline">Edit</Button> */}
-          {/* Send button is a client component that reads the editor draft */}
-          <CampaignSendButton
-            campaignId={campaignId}
-            initialTo={campaign.targetAudience || resolvedSegment?.id || ""}
-          />
+        <div className="flex space-x-2">         
           <Button href={"/en/marketing/campaigns/"}>Back</Button>
         </div>
       </div>
@@ -208,8 +202,9 @@ const CampaignDetailPage = async ({
             campaignId={campaignId}
             initialSubject={campaign.emailSubject || ""}
             initialBody={campaign.emailBody || null}
-            initialTo={campaign.targetAudience || resolvedSegment?.id || ""}
+            initialTo={ resolvedSegment?.id || campaign.targetAudience || ""}
           />
+          
         </CardContent>
       </Card>
     </div>

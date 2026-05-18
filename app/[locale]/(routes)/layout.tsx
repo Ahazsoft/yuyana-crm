@@ -8,6 +8,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import getAllCommits from "@/actions/github/get-repo-commits";
 import { getModules } from "@/actions/get-modules";
+import { getUnreadNotificationCounts } from "@/actions/projects/get-project-notification";
+import { getUnreadEmailCount } from "@/actions/emails/get-unread-email-count";
 
 import { Metadata } from "next";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -68,6 +70,15 @@ export default async function AppLayout({
 
   const build = await getAllCommits();
 
+  // Fetch notification counts for sidebar badges
+  const notificationCounts = await getUnreadNotificationCounts();
+  const unreadEmailCount = await getUnreadEmailCount();
+
+  const badgeCounts = {
+    ...(notificationCounts || {}),
+    Emails: unreadEmailCount,
+  };
+
   // Fetch modules data for sidebar
   const modules = await getModules();
 
@@ -120,6 +131,7 @@ export default async function AppLayout({
         dict={translations}
         build={build}
         session={session}
+        notificationCounts={badgeCounts}
       />
       <SidebarInset>
         <Header

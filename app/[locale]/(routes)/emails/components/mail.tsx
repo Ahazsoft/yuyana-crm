@@ -16,13 +16,13 @@ import {
   Users2,
 } from "lucide-react";
 
-import { AccountSwitcher } from "@/app/[locale]/(routes)/marketing/emails/components/account-switcher";
-import { MailDisplay } from "@/app/[locale]/(routes)/marketing/emails/components/mail-display";
-import { MailList } from "@/app/[locale]/(routes)/marketing/emails/components/mail-list";
-import { Nav } from "@/app/[locale]/(routes)/marketing/emails/components/nav";
+import { MailDisplay } from "@/app/[locale]/(routes)/emails/components/mail-display";
+import { MailList } from "@/app/[locale]/(routes)/emails/components/mail-list";
+import { Nav } from "@/app/[locale]/(routes)/emails/components/nav";
 // Mail shape expected by UI
 type MailType = {
   id: string;
+  uid?: string;
   name?: string;
   email?: string;
   subject?: string;
@@ -32,7 +32,7 @@ type MailType = {
   labels?: string[];
   type?: string; // 'inbox' | 'sent'
 };
-import { useMail } from "@/app/[locale]/(routes)/marketing/emails/use-mail";
+import { useMail } from "@/app/[locale]/(routes)/emails/use-mail";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -45,19 +45,14 @@ import {
 } from "@/components/ui/resizable";
 
 interface MailProps {
-  accounts: {
-    label: string;
-    email: string;
-    icon: React.ReactNode;
-  }[];
+  
   mails: MailType[];
   defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
 }
 
-export function MailComponent({
-  accounts,
+export function MailComponent({  
   mails,
   defaultLayout = [20, 35, 45],
   defaultCollapsed = false,
@@ -86,24 +81,28 @@ export function MailComponent({
         const sent = fetched.SENT || [];
 
         const mapped: MailType[] = [
-          ...inbox.map((m: any) => ({
-            id: `inbox_${m.id}`,
-            name: (m.from || m.to?.[0] || "Unknown")
-              .split(" <")[0]
-              .replace(/(^\"+|\"+$)/g, "")
-              .trim(),
-            email:
-              (m.from || "").match(/<(.*)>/)?.[1] || m.from || m.to?.[0] || "",
-            subject: (m.subject || "(no subject)")
-              .replace(/(^\"+|\"+$)/g, "")
-              .trim(),
-            text: m.text || m.html || "",
-            date: m.date || new Date().toISOString(),
-            // use IMAP seen flag for inbox; default to false
-            read: !!m.seen,
-            labels: [],
-            type: "inbox",
-          })),
+          ...inbox.map((m: any) => {
+            const messageId = String(m.id || m.uid || "");
+            return {
+              id: `inbox_${messageId}`,
+              uid: messageId,
+              name: (m.from || m.to?.[0] || "Unknown")
+                .split(" <")[0]
+                .replace(/(^"+|"+$)/g, "")
+                .trim(),
+              email:
+                (m.from || "").match(/<(.*)>/)?.[1] || m.from || m.to?.[0] || "",
+              subject: (m.subject || "(no subject)")
+                .replace(/(^\"+|\"+$)/g, "")
+                .trim(),
+              text: m.text || m.html || "",
+              date: m.date || new Date().toISOString(),
+              // use IMAP seen flag for inbox; default to false
+              read: !!m.seen,
+              labels: [],
+              type: "inbox",
+            };
+          }),
           ...sent.map((m: any) => {
             const rawTo = Array.isArray(m.to) ? m.to[0] : m.to || "";
             const toName = rawTo
@@ -144,15 +143,10 @@ export function MailComponent({
   }, []);
 
   React.useEffect(() => {
-    // prefer any selected, otherwise pick first from localMails then props
-    if (!mail.selected) {
-      if (localMails && localMails.length) {
-        mail.setSelected(localMails[0].id);
-      } else if (mails && mails.length) {
-        mail.setSelected(mails[0].id);
-      }
-    }
-  }, [mails, localMails]);
+    // Reset selection on initial mount so no email is displayed by default.
+    mail.setSelected(null);
+    mail.setSelectedTab("inbox");
+  }, []);
 
   // Calculate counts from local state
   const inboxMails = localMails.filter((m) => m.type === "inbox");
@@ -160,6 +154,41 @@ export function MailComponent({
   const unreadMailsCount = inboxMails.filter((m) => !m.read).length;
   const inboxMailsCount = inboxMails.length;
   const sentMailsCount = sentMails.length;
+
+  const markMailAsRead = async (item: MailType) => {
+    if (!item || item.read || item.type !== "inbox") return;
+
+    setLocalMails((prev) =>
+      prev.map((mailItem) =>
+        mailItem.id === item.id ? { ...mailItem, read: true } : mailItem,
+      ),
+    );
+
+    const uid = item.id.startsWith("inbox_") ? item.id.slice(6) : item.id;
+
+    try {
+      await fetch("/api/imap/mark-read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uid, mailbox: "INBOX" }),
+      });
+    } catch (error) {
+      // Ignore failure; UI is updated optimistically.
+    }
+  };
+
+  const handleMailSelect = async (item: MailType) => {
+    const nextTab = item.type === "sent" ? "sent" : mail.selectedTab || "inbox";
+
+    mail.setSelectedTab(nextTab);
+    mail.setSelected(item.id);
+
+    if (!item.read && item.type === "inbox") {
+      await markMailAsRead(item);
+    }
+  };
 
   // Separate compose link from inbox/sent links
   // const composeLink = {
@@ -296,17 +325,20 @@ export function MailComponent({
             </div>
             <TabsContent value="inbox" className="m-0">
               <div className="flex items-center p-2">
-                <MailList items={inboxMails} />
+                <MailList items={inboxMails} onSelect={handleMailSelect} />
               </div>
             </TabsContent>
             <TabsContent value="sent" className="m-0">
               <div className="flex items-center p-2">
-                <MailList items={sentMails} />
+                <MailList items={sentMails} onSelect={handleMailSelect} />
               </div>
             </TabsContent>
             <TabsContent value="unread" className="m-0">
               <div className="flex items-center p-2">
-                <MailList items={inboxMails.filter((m) => !m.read)} />
+                <MailList
+                  items={inboxMails.filter((m) => !m.read)}
+                  onSelect={handleMailSelect}
+                />
               </div>
             </TabsContent>
           </Tabs>

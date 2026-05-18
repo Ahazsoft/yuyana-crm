@@ -89,6 +89,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   dict: any;
   build: number;
   session: Session;
+  notificationCounts?: Record<string, number>;
 }
 
 export function AppSidebar({
@@ -96,6 +97,7 @@ export function AppSidebar({
   dict,
   build,
   session,
+  notificationCounts,
   ...props
 }: AppSidebarProps) {
   const { state } = useSidebar();
@@ -122,6 +124,7 @@ export function AppSidebar({
     if (crmModule && dict?.crm) {
       const crmItem = getCrmMenuItem({
         localizations: dict.crm,
+        counts: notificationCounts,
       });
       navItems.push(crmItem);
     }
@@ -141,19 +144,6 @@ export function AppSidebar({
     }
   }
 
-  // Task 2.4: Projects module navigation (with module filtering)
-  // Only show if Projects module is enabled
-  const projectsModule = modules.find(
-    (menuItem: any) => menuItem.name === "projects",
-  );
-  if (projectsModule && dict?.projects) {
-    const projectsItem = getProjectsMenuItem({
-      localizations: dict.projects,
-      userId: session.user.id,
-    });
-    navItems.push(projectsItem);
-  }
-
   //  const marketingModule = modules.find(
   //     (menuItem: any) => menuItem.name === "marketing" && menuItem.enabled,
   //   );
@@ -166,16 +156,30 @@ export function AppSidebar({
 
   // Task 2.5: Emails module navigation (with module filtering)
   // Only show if Emails module is enabled
-  if (session?.user?.role === "ADMIN" || session?.user?.role === "SALES") {
-    const emailsModule = modules.find(
-      (menuItem: any) => menuItem.name === "emails" && menuItem.enabled,
-    );
-    if (emailsModule && dict?.emails) {
-      const emailsItem = getEmailsMenuItem({
-        title: dict.emails,
-      });
-      navItems.push(emailsItem);
-    }
+
+  const emailsModule = modules.find(
+    (menuItem: any) => menuItem.name === "emails" && menuItem.enabled,
+  );
+  if (emailsModule && dict?.emails) {
+    const emailsItem = getEmailsMenuItem({
+      title: dict.emails,
+      badge: notificationCounts?.Emails || 0,
+    });
+    navItems.push(emailsItem);
+  }
+
+  // Task 2.4: Projects module navigation (with module filtering)
+  // Only show if Projects module is enabled
+  const projectsModule = modules.find(
+    (menuItem: any) => menuItem.name === "projects",
+  );
+  if (projectsModule && dict?.projects) {
+    const projectsItem = getProjectsMenuItem({
+      localizations: dict.projects,
+      userId: session.user.id,
+      counts: notificationCounts,
+    });
+    navItems.push(projectsItem);
   }
 
   // Task 2.6.2: Employees module navigation (with module filtering)

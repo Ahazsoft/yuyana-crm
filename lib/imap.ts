@@ -79,6 +79,7 @@ export async function getImapConfig(userId?: string) {
 
 export type FetchedEmail = {
   id: string;
+  uid?: string;
   subject?: string;
   from?: string;
   to?: string[];
@@ -145,13 +146,13 @@ export async function fetchRecentEmails({
           ? msg.flags.includes("\\Seen") || msg.flags.includes("Seen")
           : false;
 
+        const emailId = String(
+          msg.uid ?? parsed.messageId ?? parsed.date?.getTime() ?? Math.random(),
+        );
+
         results.push({
-          id: String(
-            msg.uid ??
-            parsed.messageId ??
-            parsed.date?.getTime() ??
-            Math.random(),
-          ),
+          id: emailId,
+          uid: emailId,
           subject: parsed.subject,
           from: parsed.from?.text,
           to: parsed.to?.value.map((v) => v.address),
@@ -164,8 +165,8 @@ export async function fetchRecentEmails({
             size: a.size,
           })),
           seen,
-          messageId: parsed.messageId,                 
-          references: parsed.references                
+          messageId: parsed.messageId,
+          references: parsed.references
             ? (typeof parsed.references === 'string'
               ? parsed.references
               : Array.isArray(parsed.references)
@@ -189,6 +190,92 @@ export async function fetchRecentEmails({
       INBOX: inboxResults,
       SENT: sentResults,
     };
+  } finally {
+    try {
+      await client.logout();
+    } catch (e) {
+      // ignore
+    }
+  }
+}
+
+export async function fetchUnreadInboxCount({ userId }: { userId?: string } = {}) {
+  const cfg = await getImapConfig(userId);
+
+  const client = new ImapFlow({
+    host: cfg.host!,
+    port: cfg.port!,
+    secure: cfg.secure!,
+    auth: {
+      user: cfg.user!,
+      pass: cfg.password!,
+    },
+    logger: {
+      debug: () => {},
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+    },
+  });
+
+  await client.connect();
+
+  try {
+    await client.mailboxOpen(cfg.mailbox || "INBOX");
+    const uids = await client.search({ seen: false });
+    return Array.isArray(uids) ? uids.length : 0;
+  } finally {
+    try {
+      await client.logout();
+    } catch (e) {
+      // ignore
+    }
+  }
+}
+
+export async function markEmailAsRead({
+  uid,
+  mailbox = "INBOX",
+  userId,
+}: {
+  uid: string;
+  mailbox?: string;
+  userId?: string;
+}) {
+  const cfg = await getImapConfig(userId);
+
+  const client = new ImapFlow({
+    host: cfg.host!,
+    port: cfg.port!,
+    secure: cfg.secure!,
+    auth: {
+      user: cfg.user!,
+      pass: cfg.password!,
+    },
+    logger: {
+      debug: () => {},
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+    },
+  });
+
+  await client.connect();
+
+  try {
+    await client.mailboxOpen(mailbox || cfg.mailbox || "INBOX");
+    const numericUid = /^\\d+$/.test(uid) ? Number(uid) : null;
+
+    if (numericUid !== null) {
+      await client.messageFlagsAdd(numericUid, ["\\Seen"], { uid: true });
+    } else {
+      const messageUids = await client.search({ header: ["message-id", uid] });
+      if (messageUids && messageUids.length) {
+        await client.messageFlagsAdd(messageUids, ["\\Seen"], { uid: true });
+      }
+    }
+
+    return true;
   } finally {
     try {
       await client.logout();

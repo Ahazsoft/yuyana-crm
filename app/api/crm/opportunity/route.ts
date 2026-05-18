@@ -86,6 +86,9 @@ export async function POST(req: Request) {
             description: `Opportunity : ${name} has been added by: ${authUser.name}.`,
             receiverId: admin.id,
             link: `/crm/opportunities/${newOpportunity.id}`,
+            category: "CRM",
+            subCategory: "Opportunity",
+       
           })),
         });
       }      

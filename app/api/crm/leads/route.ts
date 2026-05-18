@@ -83,6 +83,8 @@ export async function POST(req: Request) {
             description: `Lead Contact : ${first_name} has been added by: ${authUser.name}.`,
             receiverId: admin.id,
             link: `/crm/leads/${newLead.id}`,
+            category: "CRM",
+            subCategory: "Lead",       
           })),
         });
       }
@@ -184,6 +186,8 @@ export async function PUT(req: Request) {
             description: `Lead Contact Updated : ${lead.firstName} has been added by: ${authUser.name}.`,
             receiverId: admin.id,
             link: `/crm/leads/${updatedLead.id}`,
+            category: "CRM",
+            subCategory: "Lead",
           })),
         });
       }

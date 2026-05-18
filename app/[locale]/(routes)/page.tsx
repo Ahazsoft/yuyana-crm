@@ -9,6 +9,8 @@ import {
   FilePenLine,
   HeartHandshakeIcon,
   LandmarkIcon,
+  Lock,
+  ShieldX,
   UserIcon,
   Users2Icon,
 } from "lucide-react";
@@ -37,6 +39,7 @@ import { getActiveUsersCount } from "@/actions/dashboard/get-active-users-count"
 import { getOpportunitiesCount } from "@/actions/dashboard/get-opportunities-count";
 import { getExpectedRevenue } from "@/actions/crm/opportunity/get-expected-revenue";
 import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 const DashboardPage = async () => {
   const session = await getServerSession(authOptions);
@@ -73,6 +76,57 @@ const DashboardPage = async () => {
   const documentsModule = modules.find((module) => module.name === "documents");
   const employeesModule = modules.find((module) => module.name === "employees");
 
+  if (!session) {
+    redirect("/login");
+  }
+
+  const isAdmin = session.user.role === "ADMIN";
+  console.log(isAdmin);
+
+  if (!isAdmin) {
+    return (
+      <div className="mx-5">
+        <Container
+          title={dict("containerTitle")}
+          description={
+            "Welcome to Yuyana CRM cockpit, here you can see your company overview"
+          }
+        >
+          <div className="flex flex-col items-center justify-center py-12 px-6">
+            {/* Icon Container */}
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-red-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 p-6 rounded-full ring-1 ring-red-200 dark:ring-red-800">
+                <ShieldX
+                  className="w-16 h-16 text-red-500 dark:text-red-400"
+                  strokeWidth={1.5}
+                />
+              </div>
+            </div>
+
+            {/* Main Message */}
+            <div className="space-y-3 max-w-md">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Hello {session.user.name}
+              </h2>
+
+              <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+                <Lock className="w-4 h-4 flex-shrink-0" />
+                <p className="text-lg">
+                  You're not allowed to access this page.
+                </p>
+              </div>
+
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                This page is only available for administrators.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <Container
       title={dict("containerTitle")}
@@ -106,10 +160,12 @@ const DashboardPage = async () => {
               <div className="text-2xl font-medium">
                 {
                   //I need revenue value in format 1.000.000
-                  typeof revenue === 'number' ? revenue.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }) : "$0.00"
+                  typeof revenue === "number"
+                    ? revenue.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })
+                    : "$0.00"
                 }
               </div>
             </CardContent>

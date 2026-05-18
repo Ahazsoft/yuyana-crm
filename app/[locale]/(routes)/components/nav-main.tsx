@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuBadge,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
@@ -45,6 +46,7 @@ export interface NavItem {
   url?: string
   icon?: LucideIcon
   isActive?: boolean
+  badge?: number
   items?: NavSubItem[] // For collapsible groups
 }
 
@@ -52,6 +54,7 @@ export interface NavSubItem {
   title: string
   url: string
   isActive?: boolean
+  badge?: number
 }
 
 interface NavMainProps {
@@ -100,6 +103,9 @@ export function NavMain({ items, dict }: NavMainProps) {
                     >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
+                      {item.badge ? (
+                        <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                      ) : null}
                       <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -115,6 +121,9 @@ export function NavMain({ items, dict }: NavMainProps) {
                             >
                               <Link href={subItem.url}>
                                 <span>{subItem.title}</span>
+                                {subItem.badge ? (
+                                  <SidebarMenuBadge>{subItem.badge}</SidebarMenuBadge>
+                                ) : null}
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
@@ -140,6 +149,9 @@ export function NavMain({ items, dict }: NavMainProps) {
                 <Link href={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
+                  {item.badge ? (
+                    <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                  ) : null}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
