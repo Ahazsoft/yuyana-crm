@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
 
         // Run all three checks
-        const [ overdueTasksCount,  leadFollowUpCount,  contractExpiryCount] =
+        const [overdueTasksCount, leadFollowUpCount, contractExpiryCount] =
             await Promise.all([
                 notifyTaskDeadlines(now),
                 notifyLeadFollowUps(now),
@@ -215,4 +215,47 @@ async function notifyContractExpirations(
     }
 
     return count;
+}
+
+// ---------- Future: Contacts Birthday ( 1 day before )  ----------
+async function notifyContactBirthdays() {
+    // This is a bit more complex due to the need to ignore the year and handle leap years.
+    // We can fetch all contacts with a birthday in the next day (ignoring year) and then filter in JS.
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const contacts = await prisma.crm_Contacts.findMany({
+        where: {
+            birthday: { not: null },
+        },
+        select: { id: true, first_name: true, last_name: true, birthday: true, assigned_to: true },
+    });
+    let count = 0;
+    for (const contact of contacts) {
+        if (!contact.assigned_to || !contact.birthday) continue;
+        const birthdayThisYear = new Date(
+            now.getFullYear(),
+            contact.birthday.getMonth(),
+            contact.birthday.getDate()
+        );
+        const diffInDays = Math.ceil(
+            (birthdayThisYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (diffInDays === 1) {
+            const fullName = [contact.first_name, contact.last_name]
+                .filter(Boolean)
+                .join(" ");
+            await prisma.notifications.create({
+                data: {
+                    title: `🎉 Contact's birthday is tomorrow`,
+                    description: `Tomorrow is ${fullName}'s birthday. Consider sending them your wishes!`,
+                    link: `/contacts/${contact.id}`,
+                    receiverId: contact.assigned_to,
+                    category: "CRM",
+                    subCategory: "Contact",
+                },
+            });
+            count++;
+        }
+    }
 }

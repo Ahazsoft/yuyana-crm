@@ -30,6 +30,15 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Switch } from "@/components/ui/switch";
 import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 //TODO: fix all the types
 type UpdateContactFormProps = {
@@ -52,9 +61,10 @@ export function UpdateContactForm({
 
   const formSchema = z.object({
     id: z.string().min(5),
-    birthday_year: z.string().optional().nullable(),
-    birthday_month: z.string().optional().nullable(),
-    birthday_day: z.string().optional().nullable(),
+    // birthday_year: z.string().optional().nullable(),
+    // birthday_month: z.string().optional().nullable(),
+    // birthday_day: z.string().optional().nullable(),
+    birthday: z.string().optional(),
     first_name: z.string(),
     last_name: z.string(),
     description: z.string().nullable().optional(),
@@ -102,15 +112,16 @@ export function UpdateContactForm({
     social_skype: initialData.social_skype ?? "",
     social_youtube: initialData.social_youtube ?? "",
     social_tiktok: initialData.social_tiktok ?? "",
-    birthday_year: initialData.birthday
-      ? new Date(initialData.birthday).getFullYear().toString()
-      : "",
-    birthday_month: initialData.birthday
-      ? (new Date(initialData.birthday).getMonth() + 1).toString()
-      : "",
-    birthday_day: initialData.birthday
-      ? new Date(initialData.birthday).getDate().toString()
-      : "",
+    birthday:initialData.birthday ?? "",      
+    // birthday_year: initialData.birthday
+    //   ? new Date(initialData.birthday).getFullYear().toString()
+    //   : "",
+    // birthday_month: initialData.birthday
+    //   ? (new Date(initialData.birthday).getMonth() + 1).toString()
+    //   : "",
+    // birthday_day: initialData.birthday
+    //   ? new Date(initialData.birthday).getDate().toString()
+    //   : "",
   };
 
   //TODO: fix this any
@@ -271,26 +282,70 @@ export function UpdateContactForm({
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("website")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="https://www.domain.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("website")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="birthday"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Birthday - (optional)</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            disabled={isLoading}
+                            className={cn(
+                              "justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(new Date(field.value), "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date) => {
+                            field.onChange(date ? date.toISOString() : null);
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4"></div>
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-4"></div>
-            <div>
+            {/* <div>
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 {t("birthday")}
               </label>
@@ -392,7 +447,7 @@ export function UpdateContactForm({
                   )}
                 />
               </div>
-            </div>
+            </div> */}
             <FormField
               control={form.control}
               name="description"
@@ -510,133 +565,129 @@ export function UpdateContactForm({
             </div>
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
               <FormField
-                  control={form.control}
-                  name="social_twitter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("twitter")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.twitter.com/john"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="social_facebook"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("facebook")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.facebook.com/john"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                control={form.control}
+                name="social_twitter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("twitter")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.twitter.com/john"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="social_facebook"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("facebook")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.facebook.com/john"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
               <FormField
-                  control={form.control}
-                  name="social_linkedin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("linkedin")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.linkedin.com/john"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="social_skype"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("skype")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.skype.com/john"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                control={form.control}
+                name="social_linkedin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("linkedin")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.linkedin.com/john"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="social_skype"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("skype")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.skype.com/john"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                  control={form.control}
-                  name="social_youtube"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("youtube")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.youtube.com/nextcrmio"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="social_tiktok"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("tiktok")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="https://www.domain.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />              
-              
-            </div>
-
+                control={form.control}
+                name="social_youtube"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("youtube")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.youtube.com/nextcrmio"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm">
-                          {t("isActive")}
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                control={form.control}
+                name="social_tiktok"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("tiktok")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="https://www.domain.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm">{t("isActive")}</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div className="grid gap-2 py-5">
