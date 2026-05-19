@@ -8,7 +8,7 @@ export const UpdateContract = z.object({
   value: z.string().nullable().optional(),
   startDate: z.date(),
   endDate: z.date(),
-  renewalReminderDate: z.date(),
+  renewalReminderDate: z.date().optional(),
   customerSignedDate: z.date().optional(),
   companySignedDate: z.date().optional(),
   description: z.string().max(255).optional(),

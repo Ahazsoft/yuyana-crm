@@ -9,7 +9,7 @@ export const contractsSchema = z.object({
   value: z.number().nullable().optional(),
   startDate: z.date().nullable(),
   endDate: z.date().nullable(),
-  renewalReminderDate: z.date().nullable(),
+  renewalReminderDate: z.date().nullable().optional(),
   customerSignedDate: z.date().nullable().optional(),
   companySignedDate: z.date().nullable().optional(),
   description: z.string().nullable(),
