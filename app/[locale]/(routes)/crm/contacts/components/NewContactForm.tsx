@@ -30,6 +30,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { UserSearchCombobox } from "@/components/ui/user-search-combobox";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 //TODO: fix all the types
 type NewTaskFormProps = {
   accounts: any[];
@@ -45,9 +49,10 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const formSchema = z.object({
-    birthday_year: z.string().optional(),
-    birthday_month: z.string().optional(),
-    birthday_day: z.string().optional(),
+    // birthday_year: z.string().optional(),
+    // birthday_month: z.string().optional(),
+    // birthday_day: z.string().optional(),
+    birthday: z.string().optional(),
     first_name: z.string(),
     last_name: z.string().optional(),
     description: z.string().optional(),
@@ -117,9 +122,10 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
         social_skype: "",
         social_youtube: "",
         social_tiktok: "",
-        birthday_year: undefined,
-        birthday_month: undefined,
-        birthday_day: undefined,
+        birthday: "",
+        // birthday_year: undefined,
+        // birthday_month: undefined,
+        // birthday_day: undefined,
       });
       router.refresh();
       onFinish();
@@ -256,12 +262,68 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
                 </FormItem>
               )}
             /> */}
-            <div>
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                {t("birthday")}
-              </label>
-              <div className="flex space-x-3 w-full mt-2">
-                <FormField
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="birthday"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Birthday - (optional)</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            disabled={isLoading}
+                            className={`justify-start text-left font-normal ${
+                              !field.value ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(new Date(field.value), "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date) => {
+                            field.onChange(date ? date.toISOString() : "");
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border px-4">
+                    <FormLabel className="text-sm">
+                      Is contact active?
+                    </FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              {/* <FormField
                   control={form.control}
                   name="birthday_day"
                   render={({ field }) => (
@@ -357,8 +419,7 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-              </div>
+                /> */}
             </div>
 
             <FormField
@@ -426,78 +487,58 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
                   </FormItem>
                 )}
               />
-              </div>
+            </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("position")}</FormLabel>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("position")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="CTO"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("contactType")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          placeholder="CTO"
-                          {...field}
-                        />
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("contactTypePlaceholder")}
+                          />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("contactType")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("contactTypePlaceholder")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="flex overflow-y-auto h-56">
-                          {contactType.map((type) => (
-                            <SelectItem key={type.id} value={type.id}>
-                              {type.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="space-y-2">                
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-sm">
-                          Is contact active?
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {/* <div className="space-y-2">
+                      <SelectContent className="flex overflow-y-auto h-56">
+                        {contactType.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* <div className="space-y-2">
                 <FormField
                   control={form.control}
                   name="social_twitter"

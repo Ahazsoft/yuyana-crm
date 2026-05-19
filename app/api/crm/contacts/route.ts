@@ -18,12 +18,14 @@ export async function POST(req: Request) {
       return new NextResponse("No form data", { status: 400 });
     }
 
+    console.log({ body });
     const {
       assigned_to,
       assigned_account,
-      birthday_day,
-      birthday_month,
-      birthday_year,
+      // birthday_day,
+      // birthday_month,
+      // birthday_year,
+      birthday,
       description,
       email,
       personal_email,
@@ -50,26 +52,23 @@ export async function POST(req: Request) {
         updatedBy: userId,
         ...(assigned_account
           ? {
-              assigned_accounts: {
-                connect: {
-                  id: assigned_account,
-                },
+            assigned_accounts: {
+              connect: {
+                id: assigned_account,
               },
-            }
+            },
+          }
           : {}),
         ...(assigned_to
           ? {
-              assigned_to_user: {
-                connect: {
-                  id: assigned_to,
-                },
+            assigned_to_user: {
+              connect: {
+                id: assigned_to,
               },
-            }
+            },
+          }
           : {}),
-        birthday:
-          birthday_day && birthday_month && birthday_year
-            ? birthday_day + "/" + birthday_month + "/" + birthday_year
-            : null,
+        birthday,
         description,
         email,
         personal_email,
@@ -116,8 +115,9 @@ export async function POST(req: Request) {
             subCategory: "Contact",
           })),
         });
-      }      
+      }
     }
+    console.log("New contact created:", newContact);
 
     return NextResponse.json({ newContact }, { status: 200 });
   } catch (error) {
@@ -144,9 +144,10 @@ export async function PUT(req: Request) {
       id,
       assigned_account,
       assigned_to,
-      birthday_day,
-      birthday_month,
-      birthday_year,
+      // birthday_day,
+      // birthday_month,
+      // birthday_year,
+      birthday,
       description,
       email,
       personal_email,
@@ -175,26 +176,27 @@ export async function PUT(req: Request) {
         updatedBy: userId,
         ...(assigned_account
           ? {
-              assigned_accounts: {
-                connect: {
-                  id: assigned_account,
-                },
+            assigned_accounts: {
+              connect: {
+                id: assigned_account,
               },
-            }
+            },
+          }
           : {}),
         ...(assigned_to
           ? {
-              assigned_to_user: {
-                connect: {
-                  id: assigned_to,
-                },
+            assigned_to_user: {
+              connect: {
+                id: assigned_to,
               },
-            }
+            },
+          }
           : {}),
-        birthday:
-          birthday_day && birthday_month && birthday_year
-            ? birthday_day + "/" + birthday_month + "/" + birthday_year
-            : null,
+        birthday,
+        // birthday:
+        //   birthday_day && birthday_month && birthday_year
+        //     ? birthday_day + "/" + birthday_month + "/" + birthday_year
+        //     : null,
         description,
         email,
         personal_email,
@@ -215,7 +217,7 @@ export async function PUT(req: Request) {
       },
     });
 
-    
+
     return NextResponse.json({ newContact }, { status: 200 });
   } catch (error) {
     console.log("UPDATE_CONTACT_PUT]", error);

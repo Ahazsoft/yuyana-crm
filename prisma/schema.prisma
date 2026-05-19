@@ -174,7 +174,7 @@ model crm_Contacts {
   v                 Int                       @default(0) @map("__v")
   account           String?                   @db.Uuid
   assigned_to       String?                   @db.Uuid
-  birthday          String?
+  birthday          DateTime?
   created_by        String?                   @db.Uuid
   createdBy         String?                   @db.Uuid
   created_on        DateTime?                 @default(now())
