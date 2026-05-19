@@ -39,7 +39,6 @@ const UpdateContractForm = ({
   const contractType: "customer" | "company" =
     data.type === "customer" ? "customer" : "company";
 
-
   const contractStatuses = [
     { id: "NOTSTARTED", name: "Not started" },
     { id: "INPROGRESS", name: "In progress" },
@@ -63,9 +62,9 @@ const UpdateContractForm = ({
 
     const startDate = new Date(formData.get("startDate") as string);
     const endDate = new Date(formData.get("endDate") as string);
-    const renewalReminderDate = new Date(
-      formData.get("renewalReminderDate") as string,
-    );
+    // const renewalReminderDate = new Date(
+    //   formData.get("renewalReminderDate") as string,
+    // );
 
     const description = formData.get("description") as string;
     const status = formData.get("status") as string;
@@ -92,7 +91,7 @@ const UpdateContractForm = ({
       title,
       startDate,
       endDate,
-      renewalReminderDate,
+      // renewalReminderDate,
       customerSignedDate,
       companySignedDate,
       description,
@@ -114,7 +113,7 @@ const UpdateContractForm = ({
       open={onOpen}
       setOpen={setOpen}
     >
-      <form action={onAction} className="space-y-4">
+      <form action={onAction} className="space-y-4 w-[35vw]">
         {/* Title */}
         <FormInput
           id="title"
@@ -153,13 +152,13 @@ const UpdateContractForm = ({
 
         {/* Renewal + Signed */}
         <div className="flex gap-5">
-          <FormDatePicker
+          {/* <FormDatePicker
             id="renewalReminderDate"
             label="Renewal Reminder Date"
             type="hidden"
             errors={fieldErrors}
             defaultValue={data.renewalReminderDate}
-          />
+          /> */}
 
           {contractType === "customer" ? (
             <FormDatePicker
@@ -178,6 +177,16 @@ const UpdateContractForm = ({
               defaultValue={data.companySignedDate}
             />
           )}
+
+          <div className="space-y-2 px-0">
+            <label className="text-xs font-semibold">Assigned To</label>
+            <UserSearchCombobox
+              value={assignedTo}
+              onChange={setAssignedTo}
+              placeholder="Select assigned user"
+              name="assigned_to"
+            />
+          </div>
         </div>
 
         {/* ✅ ENTITY SELECT (FIXED) */}

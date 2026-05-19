@@ -52,9 +52,9 @@ const CreateContractForm = ({
     const title = formData.get("title") as string;
     const startDate = new Date(formData.get("startDate") as string);
     const endDate = new Date(formData.get("endDate") as string);
-    const renewalReminderDate = new Date(
-      formData.get("renewalReminderDate") as string,
-    );
+    // const renewalReminderDate = new Date(
+    //   formData.get("renewalReminderDate") as string,
+    // );
     const description = formData.get("description") as string;
     const account = formData.get("account") as string;
     const contact = formData.get("contact") as string;
@@ -74,7 +74,7 @@ const CreateContractForm = ({
       title,
       startDate,
       endDate,
-      renewalReminderDate,
+      // renewalReminderDate,
       customerSignedDate,
       companySignedDate,
       description,
@@ -102,7 +102,7 @@ const CreateContractForm = ({
         action={onAction}
         className="space-y-4 flex-col justify-between items-center"
       >
-        <div className="space-y-1 flex flex-row justify-around">
+        <div className="w-[35vw] space-y-1 flex flex-row justify-around">
           <FormInput
             className="w-[35vw]"
             id="title"
@@ -156,12 +156,12 @@ const CreateContractForm = ({
         </div>
 
         <div className="space-y-2 flex flex-row justify-around">
-          <FormDatePicker
+          {/* <FormDatePicker
             id="renewalReminderDate"
             label="Renewal Reminder Date"
             type="hidden"
             errors={fieldErrors}
-          />
+          /> */}
 
           {/* Conditionally show the appropriate signed date */}
           {contractType === "customer" ? (
@@ -179,6 +179,17 @@ const CreateContractForm = ({
               errors={fieldErrors}
             />
           )}
+
+          <div className="flex flex-col w-full px-4 pt-1">
+            <label className="text-sm font-medium">{c("assignedTo")}</label>
+            <UserSearchCombobox
+              value={assignedTo}
+              onChange={setAssignedTo}
+              placeholder={c("selectUser")}
+              disabled={isLoading}
+              name="assigned_to"
+            />
+          </div>
         </div>
 
         {contractType === "company" && (
@@ -210,16 +221,7 @@ const CreateContractForm = ({
             />
           </>
         )}
-        <>
-          <label className="text-sm font-medium">{c("assignedTo")}</label>
-          <UserSearchCombobox
-            value={assignedTo}
-            onChange={setAssignedTo}
-            placeholder={c("selectUser")}
-            disabled={isLoading}
-            name="assigned_to"
-          />
-        </>
+
         <div className="space-y-2 flex flex-row justify-between">
           <FormTextarea
             id="description"

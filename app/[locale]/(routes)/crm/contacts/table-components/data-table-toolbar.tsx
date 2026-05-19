@@ -18,7 +18,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
   // Choose a sensible default filter column. Contacts use 'last_name'.
-  const preferred = ["first_name", "username", "email"];
+  const preferred = ["name", "username", "email"];
   const filterColumnId =
     preferred.find((id) => !!table.getColumn(id)) ||
     table.getAllLeafColumns()?.[0]?.id ||
