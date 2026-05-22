@@ -213,9 +213,9 @@ export default function SegmentModal({ open, onClose, onCreate }: Props) {
                 onChange={(e) => setCompanySize(e.target.value)}
               >
                 <option value="">Select size</option>
-                <option value="SMALL">Small (&lt;50)</option>
-                <option value="MEDIUM">Medium (50-250)</option>
-                <option value="LARGE">Large (&gt;250)</option>
+                <option value="embassy">Embassy</option>
+                <option value="international">International</option>
+                <option value="locale">Locale</option>
               </select>
               {segType === "ACCOUNT" && companySize === "" && (
                 <p className="text-xs text-red-500 mt-1">

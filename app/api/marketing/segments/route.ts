@@ -6,7 +6,7 @@ import evaluateSegment from "@/actions/marketing/segments/evaluate-segment";
 
 export async function GET() {
   try {
-    console.log("[SEGMENTS_ROUTE_GET] incoming request");
+
     const data = await listSegments();
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
