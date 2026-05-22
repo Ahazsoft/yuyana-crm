@@ -35,7 +35,7 @@ export const getCrmMenuItem = ({ localizations, counts = {} }: Props): NavItem =
     "Accounts",
     "Contacts",
     "Contracts",
-    "Opportunities",
+    "Events",
   ]
 
   const totalCount = crmCategories.reduce(
@@ -69,7 +69,7 @@ export const getCrmMenuItem = ({ localizations, counts = {} }: Props): NavItem =
         badge: getBadgeValue(counts, "Contracts"),
       },
       {
-        title: localizations.opportunities,
+        title: "Events",
         url: "/crm/opportunities",
         badge: getBadgeValue(counts, "Opportunities"),
       },
