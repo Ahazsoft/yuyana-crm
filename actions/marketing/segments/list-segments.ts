@@ -22,6 +22,13 @@ function buildWhereFromFilters(filters: any[], target: string) {
         where.status = value === "ACTIVE" ? true : false;
       }
     }
+
+    if (target === "account") {
+      if (field === "companySize" && operator === "equals") {
+        // Use the CompanyType field (adjust the key if your Prisma schema uses a different name)
+        where.companyType = value;   // e.g., "SMALL", "MEDIUM", "LARGE"
+      }
+    }
   }
 
   return where;
@@ -68,33 +75,12 @@ export const listSegments = async () => {
             count = await prismadb.crm_Contacts.count({ where });
           }
         } else if (segType === "ACCOUNT") {
-          if (seg.accountFilters && Array.isArray(seg.accountFilters)) {
-            // support companySize filter with raw SQL fallback for numeric comparison
-            const rule = seg.accountFilters[0];
-            if (rule?.field === "companySize" && rule?.operator === "equals") {
-              const v = rule.value;
-              console.log(`[DEBUG] Segment ${seg.id} (ACCOUNT) - companySize filter:`, v);
-              if (v === "SMALL") {
-                const res: any = await prismadb.$queryRaw`
-                  SELECT COUNT(*)::int AS c FROM "crm_Accounts" WHERE (CASE WHEN employees ~ '^\\d+$' THEN CAST(employees AS integer) ELSE NULL END) < 50
-                `;
-                count = Number(res[0]?.c ?? 0);
-              } else if (v === "MEDIUM") {
-                const res: any = await prismadb.$queryRaw`
-                  SELECT COUNT(*)::int AS c FROM "crm_Accounts" WHERE (CASE WHEN employees ~ '^\\d+$' THEN CAST(employees AS integer) ELSE NULL END) BETWEEN 50 AND 250
-                `;
-                count = Number(res[0]?.c ?? 0);
-              } else if (v === "LARGE") {
-                const res: any = await prismadb.$queryRaw`
-                  SELECT COUNT(*)::int AS c FROM "crm_Accounts" WHERE (CASE WHEN employees ~ '^\\d+$' THEN CAST(employees AS integer) ELSE NULL END) > 250
-                `;
-                count = Number(res[0]?.c ?? 0);
-              }
-            } else {
-              // fallback: total accounts
-              count = await prismadb.crm_Accounts.count();
-            }
+          if (seg.accountFilters) {
+            const where = buildWhereFromFilters(seg.accountFilters as any[], "account");
+            console.log(`[DEBUG] Segment ${seg.id} (ACCOUNT) - filters:`, seg.accountFilters, "where:", where);
+            count = await prismadb.crm_Accounts.count({ where });
           } else {
+            // No filters provided – count all accounts
             count = await prismadb.crm_Accounts.count();
           }
         }
