@@ -181,11 +181,11 @@ export function UpdateOpportunityForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("name")}</FormLabel>
+                    <FormLabel>Event Name</FormLabel>
                     <FormControl>
                       <Input
                         disabled={isLoading}
-                        placeholder="New NextCRM functionality"
+                        placeholder="Enter the event name"
                         {...field}
                       />
                     </FormControl>
@@ -246,7 +246,7 @@ export function UpdateOpportunityForm({
                   <FormControl>
                     <Textarea
                       disabled={isLoading}
-                      placeholder="New NextCRM functionality"
+                      placeholder="Enter event description"
                       {...field}
                     />
                   </FormControl>

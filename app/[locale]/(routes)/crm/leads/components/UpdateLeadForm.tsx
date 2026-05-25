@@ -221,9 +221,17 @@ export function UpdateLeadForm({ initialData, setOpen }: NewTaskFormProps) {
     { name: "Other", id: "OTHER" },
   ];
 
-  const leadService = [
-    { name: "Out-Bound", id: "OUTBOUND" },
-    { name: "In-Bound", id: "INBOUND" },
+  // const leadService = [
+  //   { name: "Out-Bound", id: "OUTBOUND" },
+  //   { name: "In-Bound", id: "INBOUND" },
+  //   { name: "Others", id: "OTHER" },
+  // ];
+    const leadService = [
+    { name: "Embassy Appointment", id: "EMBASSYAPPOINTMENT" },
+    { name: "Europe Package", id: "EUROPEPACKAGE" },
+    { name: "Africa Package", id: "AFRICAPACKAGE" },
+    { name: "Ethiopia Tours", id: "ETHIOPIATOURS" },
+    { name: "Flight Ticket Service", id: "FLIGHTTICKETSERVICE" },
     { name: "Others", id: "OTHER" },
   ];
 

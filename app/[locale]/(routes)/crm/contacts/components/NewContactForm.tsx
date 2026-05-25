@@ -56,7 +56,7 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
     first_name: z.string(),
     last_name: z.string().optional(),
     description: z.string().optional(),
-    email: z.string(),
+    email: z.string().optional(),
     personal_email: z.string().optional(),
     office_phone: z.string().optional(),
     mobile_phone: z.string().optional(),
