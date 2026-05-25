@@ -45,10 +45,10 @@ export const getProjectsMenuItem = ({ localizations, userId, counts = {} }: Prop
         url: "/projects/dashboard",
         badge: projectsCount,
       },
-      {
-        title: localizations.projects,
-        url: "/projects",
-      },
+      // {
+      //   title: localizations.projects,
+      //   url: "/projects",
+      // },
       {
         title: localizations.allTasks,
         url: "/projects/tasks",

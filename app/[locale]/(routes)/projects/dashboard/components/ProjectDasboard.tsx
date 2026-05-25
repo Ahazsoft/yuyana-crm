@@ -126,7 +126,7 @@ const ProjectDashboardCockpit = ({
             return (
               <div
                 key={task.id}
-                className="group rounded-2xl border bg-background/60 backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group rounded-2xl border w-[30vw] bg-background/60 backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div
                   className={`h-2 w-full bg-gradient-to-r ${styles.gradient}`}
@@ -264,7 +264,7 @@ const ProjectDashboardCockpit = ({
             return (
               <div
                 key={task.id}
-                className="group rounded-2xl border bg-background/60 backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group rounded-2xl border w-[30vw] bg-background/60 backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div
                   className={`h-2 w-full bg-gradient-to-r ${styles.gradient}`}
