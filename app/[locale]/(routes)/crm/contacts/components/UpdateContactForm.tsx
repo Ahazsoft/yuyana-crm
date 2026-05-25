@@ -68,7 +68,7 @@ export function UpdateContactForm({
     first_name: z.string(),
     last_name: z.string(),
     description: z.string().nullable().optional(),
-    email: z.string(),
+    email: z.string().optional(),
     personal_email: z.string().nullable().optional(),
     office_phone: z.string().nullable().optional(),
     mobile_phone: z.string().nullable().optional(),

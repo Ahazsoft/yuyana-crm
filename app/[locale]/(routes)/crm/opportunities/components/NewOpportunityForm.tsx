@@ -193,11 +193,11 @@ export function NewOpportunityForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("name")}</FormLabel>
+                    <FormLabel>Event Name</FormLabel>
                     <FormControl>
                       <Input
                         disabled={isLoading}
-                        placeholder="Add a name for your opportunity"
+                        placeholder="Add a name for your event"
                         {...field}
                       />
                     </FormControl>

@@ -53,10 +53,10 @@ const OpportunitiesView = ({
           <div>
             <CardTitle>
               <Link href="/crm/opportunities" className="hover:underline">
-                {t("opportunities.viewTitle")}
+                Events
               </Link>
             </CardTitle>
-            <div className="text-sm text-muted-foreground mt-1">{data?.length ?? 0} opportunities</div>
+            <div className="text-sm text-muted-foreground mt-1">{data?.length ?? 0} events</div>
           </div>
           <div className="flex items-center space-x-2">
             <Sheet open={open} onOpenChange={setOpen}>
@@ -67,9 +67,9 @@ const OpportunitiesView = ({
               </SheetTrigger>
               <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle>{t("opportunities.sheetTitle")}</SheetTitle>
+                  <SheetTitle>Create New Event</SheetTitle>
                   <SheetDescription>
-                    {t("opportunities.sheetDescription")}
+                    Create a new event with company, contact, and deal information
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">

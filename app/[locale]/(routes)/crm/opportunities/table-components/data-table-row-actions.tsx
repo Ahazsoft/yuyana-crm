@@ -80,8 +80,8 @@ export function DataTableRowActions<TData>({
       <Sheet open={updateOpen} onOpenChange={setUpdateOpen}>
         <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Update Opportunity – {opportunity.name}</SheetTitle>
-            <SheetDescription>Update opportunity details</SheetDescription>
+            <SheetTitle>Update Event – {opportunity.name}</SheetTitle>
+            <SheetDescription>Update event details</SheetDescription>
           </SheetHeader>
           <div className="mt-6 space-y-4">
             <UpdateOpportunityForm

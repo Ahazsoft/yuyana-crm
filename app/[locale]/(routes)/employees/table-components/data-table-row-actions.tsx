@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -26,7 +27,6 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter();
-  // Use safeParse to avoid throwing if data doesn't fully conform to schema
   const parsed = EmployeeSchema.safeParse(row.original as any);
   const employee = (
     parsed.success ? parsed.data : (row.original as any)
@@ -35,27 +35,54 @@ export function DataTableRowActions<TData>({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pendingAction, setPendingAction] = useState<
-    "activate" | "deactivate" | null
+    "activate" | "deactivate" | "delete" | null
   >(null);
 
   const { toast } = useToast();
 
+  const currentStatus =
+    (employee as any).userStatus ?? (employee as any).status ?? "ACTIVE";
+
+  const modalTitle =
+    pendingAction === "delete"
+      ? "Delete employee?"
+      : pendingAction === "deactivate"
+        ? "Deactivate employee?"
+        : pendingAction === "activate"
+          ? "Activate employee?"
+          : "Are you sure?";
+
+  const modalDescription =
+    pendingAction === "delete"
+      ? "This employee will be permanently removed from the system."
+      : pendingAction === "deactivate"
+        ? "The employee will no longer be able to sign in."
+        : pendingAction === "activate"
+          ? "The employee will be able to sign in again."
+          : "This action cannot be undone.";
+
   const onConfirm = async () => {
-    console.log("employee object:", employee);
-    console.log("employee.id:", employee?.id);
-    if (!employee?.id || !pendingAction) return;
+    if (!employee?.id || !pendingAction) {
+      return;
+    }
+
     setLoading(true);
+
     try {
-      if (pendingAction === "deactivate") {
+      if (pendingAction === "delete") {
+        await axios.delete(`/api/user/${employee.id}`);
+        toast({
+          title: "Success",
+          description: `${employee.name || employee.email} has been deleted.`,
+        });
+      } else if (pendingAction === "deactivate") {
         await axios.post(`/api/employee/deactivate/${employee.id}`);
-        router.refresh();
         toast({
           title: "Success",
           description: "User has been deactivated.",
         });
       } else {
         await axios.post(`/api/employee/activate/${employee.id}`);
-        router.refresh();
         toast({
           title: "Success",
           description: "User has been activated.",
@@ -75,9 +102,6 @@ export function DataTableRowActions<TData>({
     }
   };
 
-  const currentStatus =
-    (employee as any).userStatus ?? (employee as any).status ?? "ACTIVE";
-
   return (
     <>
       <AlertModal
@@ -85,6 +109,8 @@ export function DataTableRowActions<TData>({
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         loading={loading}
+        title={modalTitle}
+        description={modalDescription}
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -96,7 +122,13 @@ export function DataTableRowActions<TData>({
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuContent align="end" className="w-[180px]">
+          <DropdownMenuItem
+            onClick={() => router.push(`/employees/${employee.id}`)}
+          >
+            View Activity
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           {currentStatus === "ACTIVE" ? (
             <DropdownMenuItem
               onClick={() => {
@@ -116,6 +148,14 @@ export function DataTableRowActions<TData>({
               Activate
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem
+            onClick={() => {
+              setPendingAction("delete");
+              setOpen(true);
+            }}
+          >
+            Delete Employee
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
