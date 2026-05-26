@@ -1,16 +1,15 @@
 "use client";
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
+import { Ban, Eye, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { EmployeeSchema, Employee } from "../table-data/schema";
 import { useRouter } from "next/navigation";
@@ -42,6 +41,9 @@ export function DataTableRowActions<TData>({
 
   const currentStatus =
     (employee as any).userStatus ?? (employee as any).status ?? "ACTIVE";
+
+  const deactivateLabel =
+    currentStatus === "ACTIVE" ? "Deactivate" : "Activate";
 
   const modalTitle =
     pendingAction === "delete"
@@ -112,52 +114,66 @@ export function DataTableRowActions<TData>({
         title={modalTitle}
         description={modalDescription}
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-          >
-            <DotsHorizontalIcon className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[180px]">
-          <DropdownMenuItem
-            onClick={() => router.push(`/employees/${employee.id}`)}
-          >
-            View Activity
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {currentStatus === "ACTIVE" ? (
-            <DropdownMenuItem
-              onClick={() => {
-                setPendingAction("deactivate");
-                setOpen(true);
-              }}
-            >
-              Deactivate
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onClick={() => {
-                setPendingAction("activate");
-                setOpen(true);
-              }}
-            >
-              Activate
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={() => {
-              setPendingAction("delete");
-              setOpen(true);
-            }}
-          >
-            Delete Employee
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+
+      <TooltipProvider delayDuration={0}>
+        <div className="flex items-center justify-end gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => router.push(`/employees/${employee.id}`)}
+              >
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">View</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>View</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  setPendingAction(
+                    currentStatus === "ACTIVE" ? "deactivate" : "activate",
+                  );
+                  setOpen(true);
+                }}
+              >
+                <Ban className="h-4 w-4" />
+                <span className="sr-only">{deactivateLabel}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{deactivateLabel}</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={() => {
+                  setPendingAction("delete");
+                  setOpen(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete</TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
     </>
   );
 }
