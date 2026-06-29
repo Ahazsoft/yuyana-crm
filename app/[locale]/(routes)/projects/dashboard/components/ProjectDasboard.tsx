@@ -8,6 +8,7 @@ import { TeamConversations } from "../../tasks/viewtask/[taskId]/components/team
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { getTaskDone } from "../../actions/get-task-done";
+import { Task, taskSchema } from "../../data/schema";
 import {
   Sheet,
   SheetContent,
@@ -40,8 +41,13 @@ export interface Tasks {
   content: string;
   dueDateAt: Date;
   priority: string;
-  section: string;
+  taskStatus: string;
   comments: Comment[];
+  user?: string;
+  assigned_user?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface Comment {
@@ -97,18 +103,19 @@ const priorityMap: Record<
 
 const ProjectDashboardCockpit = ({
   dashboardData,
-  boards,
-  sections,
+  // boards,
+  // sections,
   isAdmin,
 }: {
   dashboardData: DashboardData;
-  boards: any;
-  sections: Sections[];
+  // boards: any;
+  // sections: Sections[];
   isAdmin: boolean;
 }) => {
   const { toast } = useToast();
   const router = useRouter();
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+  const [editSheetOpen, setEditSheetOpen] = useState<string | null>(null);
 
   const onDone = async (taskId: string) => {
     setPendingTaskId(taskId);
@@ -219,7 +226,9 @@ const ProjectDashboardCockpit = ({
         )}
       >
         <div className="flex gap-3 border-l-[3px] border-transparent px-4 py-3">
-          <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", accent)} />
+          <span
+            className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", accent)}
+          />
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -265,7 +274,12 @@ const ProjectDashboardCockpit = ({
                   label: "View task",
                 })}
 
-                <Sheet>
+                <Sheet
+                  open={editSheetOpen === task.id}
+                  onOpenChange={(open) =>
+                    setEditSheetOpen(open ? task.id : null)
+                  }
+                >
                   <SheetTrigger asChild>
                     {renderActionButton({
                       icon: Pencil,
@@ -282,11 +296,30 @@ const ProjectDashboardCockpit = ({
                     </SheetHeader>
 
                     <div className="mt-6">
-                      <UpdateTaskDialog
-                        boards={boards}
-                        boardId={sections.find((s) => s.id === task.section)?.board}
-                        initialData={task}
-                      />
+                      {(() => {
+                        const initialData = {
+                          id: task.id,
+                          title: task.title,
+                          content: task.content, // ✅
+                          taskStatus: task.taskStatus ?? null, // ✅ include status
+                          dueDateAt: new Date(task.dueDateAt), // ✅ Date object
+                          priority: task.priority,
+                          user: task.user ?? task.assigned_user?.id ?? null,
+                          assigned_user: task.assigned_user?.id
+                            ? {
+                                id: task.assigned_user.id,
+                                name: task.assigned_user.name,
+                              }
+                            : null, // ✅ null when unassigned
+                        };
+
+                        return (
+                          <UpdateTaskDialog
+                            initialData={initialData}
+                            onDone={() => setEditSheetOpen(null)}
+                          />
+                        );
+                      })()}
                     </div>
                   </SheetContent>
                 </Sheet>
@@ -308,7 +341,10 @@ const ProjectDashboardCockpit = ({
                     </SheetHeader>
 
                     <div className="mt-6">
-                      <TeamConversations taskId={task.id} data={task.comments} />
+                      <TeamConversations
+                        taskId={task.id}
+                        data={task.comments}
+                      />
                     </div>
                   </SheetContent>
                 </Sheet>

@@ -34,19 +34,26 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   }, */
   {
-    accessorKey: "dueDateAt",
+    accessorKey: "title",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Due date" />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => (
-      <div className="w-[80px]">
-        {moment(row.getValue("dueDateAt")).format("YY-MM-DD")}
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
+    cell: ({ row }) => {
+      const label = labels.find(
+        (label) => label.value === row.original.content,
+      );
+
+      return (
+        <div className="flex space-x-2">
+          {label && <Badge variant="outline">{label.label}</Badge>}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("title")}
+          </span>
+        </div>
+      );
+    },
   },
-  {
+   {
     accessorKey: "assigned_user",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Assigned to" />
@@ -63,26 +70,46 @@ export const columns: ColumnDef<Task>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  
   {
-    accessorKey: "title",
+    accessorKey: "dueDateAt",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title="Due date" />
+    ),
+    cell: ({ row }) => (
+      <div className="w-[100px]">
+        {moment(row.getValue("dueDateAt")).format("DD-MM-YYYY")}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+ 
+  {
+    accessorKey: "priority",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Priority" />
     ),
     cell: ({ row }) => {
-      
-      
-      const label = labels.find(
-        (label) => label.value === row.original.content
+      const priority = priorities.find(
+        (priority) => priority.value === row.getValue("priority"),
       );
 
+      if (!priority) {
+        return null;
+      }
+
       return (
-        <div className="flex space-x-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("title")}
-          </span>
+        <div className="flex items-center">
+          {priority.icon && (
+            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{priority.label}</span>
         </div>
       );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
@@ -112,32 +139,19 @@ export const columns: ColumnDef<Task>[] = [
       return value.includes(row.getValue(id));
     },
   },
+
   {
-    accessorKey: "priority",
+    accessorKey: "createdAt",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Priority" />
+      <DataTableColumnHeader column={column} title="Created date" />
     ),
-    cell: ({ row }) => {
-      const priority = priorities.find(
-        (priority) => priority.value === row.getValue("priority"),
-      );
-
-      if (!priority) {
-        return null;
-      }
-
-      return (
-        <div className="flex items-center">
-          {priority.icon && (
-            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{priority.label}</span>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
+    cell: ({ row }) => (
+      <div className="w-[100px]">
+        {moment(row.getValue("createdAt")).format("DD-MM-YYYY")}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "actions",

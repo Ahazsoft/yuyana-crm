@@ -95,7 +95,7 @@ const TaskViewActions = ({
           </SheetHeader>
           <div className="mt-6 space-y-4">
             <UpdateTaskDialog
-              boards={boards}
+              // boards={boards}
               initialData={initialData}
               onDone={() => setOpenEdit(false)}
             />

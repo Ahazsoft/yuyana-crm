@@ -30,10 +30,10 @@ export async function POST(req: Request) {
   const {
     title,
     user,
-    board,
+    // board,
     priority,
     content,
-    account,
+    // account,
     dueDateAt,
   } = body;
 
@@ -41,30 +41,30 @@ export async function POST(req: Request) {
     return new NextResponse("Unauthenticated", { status: 401 });
   }
 
-  if (!title || !user || !board || !priority || !content) {
+  if (!title || !user || !priority || !content) {
     return new NextResponse("Missing one of the task data ", { status: 400 });
   }
 
   try {
-    //Get first section from board where position is smallest
-    const sectionId = await prismadb.sections.findFirst({
-      where: {
-        board: board,
-      },
-      orderBy: {
-        position: "asc",
-      },
-    });
+    // Get first section from board where position is smallest
+    // const sectionId = await prismadb.sections.findFirst({
+    //   where: {
+    //     board: board,
+    //   },
+    //   orderBy: {
+    //     position: "asc",
+    //   },
+    // });
 
-    if (!sectionId) {
-      return new NextResponse("No section found", { status: 400 });
-    }
+    // if (!sectionId) {
+    //   return new NextResponse("No section found", { status: 400 });
+    // }
 
-    const tasksCount = await prismadb.tasks.count({
-      where: {
-        section: sectionId.id,
-      },
-    });
+    // const tasksCount = await prismadb.tasks.count({
+    //   where: {
+    //     section: sectionId.id,
+    //   },
+    // });
 
     const task = await prismadb.tasks.create({
       data: {
@@ -73,24 +73,24 @@ export async function POST(req: Request) {
         title: title,
         content: content,
         dueDateAt: dueDateAt,
-        section: sectionId.id,
+        // section: sectionId.id,
         createdBy: session.user.id,
         updatedBy: session.user.id,
-        position: tasksCount > 0 ? tasksCount : 0,
+        // position: tasksCount > 0 ? tasksCount : 0,
         user: user,
         taskStatus: "ACTIVE",
       },
     });
 
-    //Make update to Board - updatedAt field to trigger re-render and reorder
-    await prismadb.boards.update({
-      where: {
-        id: board,
-      },
-      data: {
-        updatedAt: new Date(),
-      },
-    });
+    // Make update to Board - updatedAt field to trigger re-render and reorder
+    // await prismadb.boards.update({
+    //   where: {
+    //     id: board,
+    //   },
+    //   data: {
+    //     updatedAt: new Date(),
+    //   },
+    // });
 
     await prismadb.notifications.create({
       data: {

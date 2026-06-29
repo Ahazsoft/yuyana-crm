@@ -22,7 +22,7 @@ interface VercelInviteUserEmailProps {
   username: string;
   userLanguage: string;
   taskData: any;
-  boardData: any;
+  // boardData: any;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -32,7 +32,7 @@ export const UpdatedTaskFromProject = ({
   username,
   userLanguage,
   taskData,
-  boardData,
+  // boardData,
 }: VercelInviteUserEmailProps) => {
   const previewText =
     userLanguage === "en"
@@ -47,9 +47,9 @@ export const UpdatedTaskFromProject = ({
         <Body className="bg-white my-auto mx-auto font-sans">
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
             <Heading className="text-black text-2xl font-normal text-center p-0 my-[30px] mx-0">
-              {userLanguage === "en"
+              {/* {userLanguage === "en"
                 ? `There is a updated task from Project - ${boardData.title} module`
-                : `Úkol z modulu Projekty  - ${boardData.title} - byl aktualizován`}
+                : `Úkol z modulu Projekty  - ${boardData.title} - byl aktualizován`} */}
             </Heading>
             <Text className="text-black text-sm leading-[24px]">
               {userLanguage === "en"

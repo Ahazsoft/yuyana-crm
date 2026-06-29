@@ -34,7 +34,7 @@ import {
   getUsersTasksCount,
 } from "@/actions/dashboard/get-tasks-count";
 import { getModules } from "@/actions/get-modules";
-import { getEmployees } from "@/actions/get-empoloyees";
+import { getEmployees } from "@/actions/get-employees";
 import { getLeadsCount } from "@/actions/dashboard/get-leads-count";
 import { getBoardsCount } from "@/actions/dashboard/get-boards-count";
 import { getContactCount } from "@/actions/dashboard/get-contacts-count";
@@ -367,7 +367,7 @@ const DashboardPage = async () => {
           <SectionLabel label="Projects" />
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             <KpiCard
-              href="/projects"
+              href="/projects/tasks"
               title={dict("projects")}
               value={projects}
               sub="Active boards"

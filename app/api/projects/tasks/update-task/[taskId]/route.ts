@@ -32,8 +32,8 @@ export async function PUT(req: Request, props: { params: Promise<{ taskId: strin
   const {
     title,
     user,
-    board,
-    boardId,
+    // board,
+    // boardId,
     priority,
     content,
     dueDateAt,
@@ -55,22 +55,22 @@ export async function PUT(req: Request, props: { params: Promise<{ taskId: strin
 
   try {
     //Get first section from board where position is smallest
-    const sectionId = await prismadb.sections.findFirst({
-      where: {
-        board: board,
-      },
-      orderBy: {
-        position: "asc",
-      },
-    });
+    // const sectionId = await prismadb.sections.findFirst({
+    //   where: {
+    //     board: board,
+    //   },
+    //   orderBy: {
+    //     position: "asc",
+    //   },
+    // });
 
-    if (!sectionId) {
-      return new NextResponse("No section found", { status: 400 });
-    }
+    // if (!sectionId) {
+    //   return new NextResponse("No section found", { status: 400 });
+    // }
 
     const tasksCount = await prismadb.tasks.count({
       where: {
-        section: sectionId.id,
+        id: taskId,
       },
     });
 
@@ -89,27 +89,27 @@ export async function PUT(req: Request, props: { params: Promise<{ taskId: strin
     });
 
     //Update Board updated at field
-    await prismadb.boards.update({
-      where: {
-        id: boardId,
-      },
-      data: {
-        updatedAt: new Date(),
-      },
-    });
+    // await prismadb.boards.update({
+    //   where: {
+    //     id: boardId,
+    //   },
+    //   data: {
+    //     updatedAt: new Date(),
+    //   },
+    // });
 
     //Notification to user who is not a task creator
     if (user !== session.user.id) {
       console.log("User property:", user);
-      console.log("Board property:", boardId);
+      // console.log("Board property:", boardId);
       try {
         const notifyRecipient = await prismadb.users.findUnique({
           where: { id: user },
         });
 
-        const boardData = await prismadb.boards.findUnique({
-          where: { id: boardId },
-        });
+        // const boardData = await prismadb.boards.findUnique({
+        //   where: { id: boardId },
+        // });
 
         //console.log(notifyRecipient, "notifyRecipient");
 
@@ -130,7 +130,7 @@ export async function PUT(req: Request, props: { params: Promise<{ taskId: strin
             username: notifyRecipient?.name!,
             userLanguage: notifyRecipient?.userLanguage!,
             taskData: task,
-            boardData: boardData,
+            // boardData: boardData,
           }),
         });
         console.log("Email sent to user: ", notifyRecipient?.email!);

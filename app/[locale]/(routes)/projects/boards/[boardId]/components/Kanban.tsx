@@ -510,8 +510,8 @@ const Kanban = (props: any) => {
             </SheetHeader>
             <div className="mt-6 space-y-4">
               <UpdateTaskDialog
-                boards={boards}
-                boardId={boardId}
+                // boards={boards}
+                // boardId={boardId}
                 initialData={selectedTask}
                 onDone={() => setUpdateOpenSheet(false)}
               />

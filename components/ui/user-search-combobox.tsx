@@ -30,6 +30,7 @@ interface UserSearchComboboxProps {
   placeholder?: string;
   disabled?: boolean;
   name?: string;
+  selectedUserName?: string;
 }
 
 const PAGE_SIZE = 50;
@@ -40,6 +41,7 @@ export function UserSearchCombobox({
   placeholder = "Select user",
   disabled,
   name,
+  selectedUserName,
 }: UserSearchComboboxProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -96,7 +98,7 @@ export function UserSearchCombobox({
             type="button"
           >
             <span className="truncate text-sm">
-              {displayUser?.name ?? (
+              {displayUser?.name ?? selectedUserName ?? (
                 <span className="text-muted-foreground">{placeholder}</span>
               )}
             </span>

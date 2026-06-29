@@ -174,7 +174,6 @@ model crm_Contacts {
   v                 Int                       @default(0) @map("__v")
   account           String?                   @db.Uuid
   assigned_to       String?                   @db.Uuid
-  birthday          DateTime?
   created_by        String?                   @db.Uuid
   createdBy         String?                   @db.Uuid
   created_on        DateTime?                 @default(now())
@@ -204,6 +203,7 @@ model crm_Contacts {
   tags              String[]
   notes             String[]
   accountsIDs       String?                   @db.Uuid
+  birthday          DateTime?
   opportunities     ContactsToOpportunities[]
   documents         DocumentsToContacts[]
   assigned_accounts crm_Accounts?             @relation(fields: [accountsIDs], references: [id])
@@ -302,13 +302,13 @@ model Notifications {
   id          String    @id @default(uuid()) @db.Uuid
   title       String
   description String?
-  link        String? 
+  link        String?
   receiverId  String?   @db.Uuid
-  receiver    Users?    @relation(fields: [receiverId], references: [id])
   isSeen      Boolean   @default(false)
-  category   String
-  subCategory String     
   createdAt   DateTime? @default(now())
+  category    String
+  subCategory String
+  receiver    Users?    @relation(fields: [receiverId], references: [id])
 
   @@index([receiverId])
   @@index([createdAt])
@@ -533,7 +533,7 @@ model Tasks {
   updatedBy        String?            @db.Uuid
   dueDateAt        DateTime?          @default(now())
   lastEditedAt     DateTime?          @default(now()) @updatedAt
-  position         BigInt
+  position         String?
   priority         String
   section          String?            @db.Uuid
   tags             Json?
@@ -619,23 +619,22 @@ model TodoList {
 }
 
 model Users {
-  id               String       @id @default(uuid()) @db.Uuid
-  v                Int          @default(0) @map("__v")
-  account_name     String?
-  avatar           String?
-  email            String       @unique
-  is_account_admin Boolean      @default(false)
-  is_admin         Boolean      @default(false)
-  created_on       DateTime     @default(now())
-  lastLoginAt      DateTime?
-  name             String?
-  password         String?
-  username         String?
-  userStatus       ActiveStatus @default(PENDING)
-  userLanguage     Language     @default(en)
-  phone            String?
-  role             UserRole     @default(SALES)
-
+  id                    String                    @id @default(uuid()) @db.Uuid
+  v                     Int                       @default(0) @map("__v")
+  account_name          String?
+  avatar                String?
+  email                 String                    @unique
+  is_account_admin      Boolean                   @default(false)
+  is_admin              Boolean                   @default(false)
+  created_on            DateTime                  @default(now())
+  lastLoginAt           DateTime?
+  name                  String?
+  password              String?
+  username              String?
+  userStatus            ActiveStatus              @default(PENDING)
+  userLanguage          Language                  @default(en)
+  phone                 String?
+  role                  UserRole                  @default(SALES)
   watching_accounts     AccountWatchers[]
   watching_boards       BoardWatchers[]
   boards                Boards[]                  @relation("assigned_user")
@@ -643,6 +642,7 @@ model Users {
   created_by_documents  Documents[]               @relation("created_by_user")
   emailAccounts         EmailAccount[]
   assigned_invoices     Invoices[]
+  notifications         Notifications[]
   tasks                 Tasks[]
   accounts              crm_Accounts[]            @relation("AccountAssignedTo")
   crm_accounts_tasks    crm_Accounts_Tasks[]
@@ -656,7 +656,6 @@ model Users {
   emailTemplates        email_templates[]
   openAi_key            openAi_keys[]
   tasksComment          tasksComments[]
-  notifications         Notifications[]
 
   @@index([email])
   @@index([userStatus])

@@ -25,7 +25,7 @@ export const columns: ColumnDef<Lead>[] = [
   {
     accessorKey: "contact",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Contact" />
+      <DataTableColumnHeader column={column} title="Customers" />
     ),
     cell: ({ row }) => (
       <div>
