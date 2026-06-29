@@ -150,7 +150,7 @@ export function EmployeeMonthlyChart({
           />
           <Bar
             dataKey="accounts"
-            name="Accounts"
+            name="Companies"
             fill={ACTIVITY_COLORS.Accounts}
             radius={[4, 4, 0, 0]}
           />

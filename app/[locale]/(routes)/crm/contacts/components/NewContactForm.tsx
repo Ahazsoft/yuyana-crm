@@ -312,7 +312,7 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border px-4">
                     <FormLabel className="text-sm">
-                      Is contact active?
+                      Is customer active?
                     </FormLabel>
                     <FormControl>
                       <Switch
@@ -651,7 +651,7 @@ export function NewContactForm({ accounts, onFinish }: NewTaskFormProps) {
                 {c("savingData")}
               </span>
             ) : (
-              t("createButton")
+              "Create Customer"
             )}
           </Button>
         </div>

@@ -48,7 +48,7 @@ const ContactsView = ({ data, crmData }: ContactsViewProps) => {
           <div>
             <CardTitle>
               <Link href="/crm/contacts" className="hover:underline">
-                {t("contacts.viewTitle")}
+                Customers
               </Link>
             </CardTitle>
             
@@ -60,9 +60,9 @@ const ContactsView = ({ data, crmData }: ContactsViewProps) => {
               </SheetTrigger>
               <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
                 <SheetHeader>
-                  <SheetTitle>{t("contacts.sheetTitle")}</SheetTitle>
+                  <SheetTitle>{"Create new Customer"}</SheetTitle>
                   <SheetDescription>
-                    {t("contacts.sheetDescription")}
+                    {"Add a new customer to your CRM system. Fill in the contact details and assign to an account."}
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-4">

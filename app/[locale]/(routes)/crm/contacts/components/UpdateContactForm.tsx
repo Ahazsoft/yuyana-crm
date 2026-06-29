@@ -489,7 +489,7 @@ export function UpdateContactForm({
                 name="assigned_account"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("assignAccount")}</FormLabel>
+                    <FormLabel>{"Assign a Company"}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value ?? ""}
@@ -538,7 +538,7 @@ export function UpdateContactForm({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("contactType")}</FormLabel>
+                    <FormLabel>{"Customer Type"}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value ?? ""}

@@ -3,7 +3,7 @@ import Container from "../components/ui/Container2";
 import { getTranslations } from "next-intl/server";
 import EmailCreatorForm from "./components/EmailCreatorForm";
 import CreateEmployeeForm from "./components/AddEmployee";
-import { getEmployees } from "@/actions/get-empoloyees";
+import { getEmployees } from "@/actions/get-employees";
 import EmployeesTable from "./components/EmployeesTable";
 import { getServerSession } from "next-auth";
 import { AuthOptions } from "next-auth";

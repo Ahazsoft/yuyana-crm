@@ -3,7 +3,7 @@ import { prismadb } from "@/lib/prisma";
 export type ReportTimeline = "weekly" | "monthly";
 
 const ACTIVITY_COLORS = {
-  Accounts: "#09707e",
+  Companies: "#09707e",
   Contacts: "#0ea5e9",
   Leads: "#10b981",
   Opportunities: "#f97316",
@@ -262,7 +262,7 @@ function buildBreakdown(
   }
 ): EmployeeActivityBreakdown[] {
   return [
-    { type: "Accounts", count: totalCounts.accounts, color: ACTIVITY_COLORS.Accounts },
+    { type: "Companies", count: totalCounts.accounts, color: ACTIVITY_COLORS.Companies },
     { type: "Contacts", count: totalCounts.contacts, color: ACTIVITY_COLORS.Contacts },
     { type: "Leads", count: totalCounts.leads, color: ACTIVITY_COLORS.Leads },
     { type: "Events", count: totalCounts.opportunities, color: ACTIVITY_COLORS.Opportunities },

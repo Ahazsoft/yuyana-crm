@@ -3,7 +3,7 @@ import { prismadb } from "@/lib/prisma";
 
 export interface EmployeeActivityEntry {
   id: string;
-  type: "account" | "contact" | "lead" | "opportunity" | "contract";
+  type: "company" | "contact" | "lead" | "opportunity" | "contract";
   title: string;
   subtitle: string;
   status?: string | null;
@@ -212,7 +212,7 @@ export async function getEmployeeActivity(
   const activity: EmployeeActivityEntry[] = [
     ...accounts.map((account) => ({
       id: account.id,
-      type: "account" as const,
+      type: "company" as const,
       title: account.name,
       subtitle: "Account",
       status: account.status,

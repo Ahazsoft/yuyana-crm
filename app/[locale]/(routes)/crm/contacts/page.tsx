@@ -25,8 +25,8 @@ const AccountsPage = async () => {
 
   return (
     <Container
-      title={t("contacts.pageTitle")}
-      description={t("contacts.pageDescription")}
+      title="Customers"
+      description="Everything you need to know about your Customers"
     >
       <Suspense fallback={<SuspenseLoading />}>
         <ContactsView crmData={crmData} data={isAdmin ? contacts : myContacts} />

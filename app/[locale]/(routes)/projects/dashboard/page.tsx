@@ -30,8 +30,8 @@ const ProjectDashboard = async () => {
     >
       <ProjectDashboardCockpit
         dashboardData={dashboardData}
-        boards={boards}
-        sections={sections}
+        // boards={boards}
+        // sections={sections}
         isAdmin={isAdmin}
       />
     </Container>

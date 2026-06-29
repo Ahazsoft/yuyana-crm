@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Pencil, Trash, Eye } from "lucide-react"; // Added Pencil icon
+import { Pencil, Trash, Eye, CheckSquare } from "lucide-react"; // Added Pencil icon
 
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import AlertModal from "@/components/modals/alert-modal";
 import { Task, taskSchema } from "../data/schema";
+import { getTaskDone } from "../../actions/get-task-done";
 
 // Import your Task Dialog
 import UpdateTaskDialog from "@/app/[locale]/(routes)/projects/dialogs/UpdateTask";
@@ -47,6 +48,7 @@ export function DataTableRowActions<TData>({
   const [open, setOpen] = useState(false); // Delete modal state
   const [editOpen, setEditOpen] = useState(false); // Edit sheet state
   const [isLoading, setIsLoading] = useState(false);
+  const [isMarkingDone, setIsMarkingDone] = useState(false);
 
   const onDelete = async () => {
     setIsLoading(true);
@@ -75,6 +77,27 @@ export function DataTableRowActions<TData>({
     }
   };
 
+  const onMarkDone = async () => {
+    setIsMarkingDone(true);
+    try {
+      await getTaskDone(task.id);
+      toast({
+        title: "Task marked as done",
+        description: "Task was updated successfully.",
+      });
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to mark task as done.",
+      });
+    } finally {
+      setIsMarkingDone(false);
+    }
+  };
+
   return (
     <>
       {/* Delete Confirmation Modal */}
@@ -97,12 +120,10 @@ export function DataTableRowActions<TData>({
           <div className="mt-6 space-y-4">
             <UpdateTaskDialog
               initialData={task}
-              // Note: If UpdateTaskDialog requires 'boards' prop, 
-              // you may need to pass it here or fetch it inside the dialog
               onDone={() => {
                 setEditOpen(false);
                 router.refresh();
-              } } boards={undefined}            />
+              } }/>
           </div>
         </SheetContent>
       </Sheet>
@@ -132,6 +153,14 @@ export function DataTableRowActions<TData>({
               Edit Task
             </DropdownMenuItem>
           )}
+
+          <DropdownMenuItem
+            onClick={onMarkDone}
+            disabled={isMarkingDone}
+          >
+            <CheckSquare className="mr-2 h-4 w-4" />
+            Mark as done
+          </DropdownMenuItem>
 
           <DropdownMenuSeparator />
           

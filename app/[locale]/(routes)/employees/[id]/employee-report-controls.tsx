@@ -57,7 +57,7 @@ function formatDate(value?: Date | string | null) {
 
 function typeStyles(type: EmployeeActivityEntry["type"]) {
   switch (type) {
-    case "account":
+    case "company":
       return "bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-500/10";
     case "contact":
       return "bg-sky-500/10 text-sky-700 hover:bg-sky-500/10 dark:text-sky-300";

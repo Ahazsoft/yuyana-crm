@@ -79,8 +79,8 @@ export function DataTableRowActions<TData>({
       <Sheet open={updateOpen} onOpenChange={setUpdateOpen}>
         <SheetContent className="w-full md:max-w-[771px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Update Contact - {contact?.first_name} {contact?.last_name}</SheetTitle>
-            <SheetDescription>Update contact details</SheetDescription>
+            <SheetTitle>Update Customer - {contact?.first_name} {contact?.last_name}</SheetTitle>
+            <SheetDescription>Update customer details</SheetDescription>
           </SheetHeader>
           <div className="mt-6 space-y-4">
             <UpdateContactForm

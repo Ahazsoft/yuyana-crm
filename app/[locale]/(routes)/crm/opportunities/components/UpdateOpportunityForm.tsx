@@ -445,14 +445,14 @@ export function UpdateOpportunityForm({
                   name="account"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("assignedAccount")}</FormLabel>
+                      <FormLabel>Assigned Company</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Choose account " />
+                            <SelectValue placeholder="Choose company " />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">
@@ -474,14 +474,14 @@ export function UpdateOpportunityForm({
                   name="contact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Assigned Contact</FormLabel>
+                      <FormLabel>Assigned Customer</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a contact" />
+                            <SelectValue placeholder="Select a Customer" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">

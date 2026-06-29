@@ -446,7 +446,7 @@ export function NewOpportunityForm({
                   name="account"
                   render={({ field }) => (
                     <FormItem hidden={accountId ? true : false}>
-                      <FormLabel>{t("assignedAccount")}</FormLabel>
+                      <FormLabel>{"Assigned Company"}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -479,19 +479,19 @@ export function NewOpportunityForm({
                   name="contact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Assigned Contact</FormLabel>
+                      <FormLabel>Assigned Customer</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a user to assign the account" />
+                            <SelectValue placeholder="Select a customer" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="flex overflow-y-auto h-56">
                           <Input
-                            placeholder="Search contact..."
+                            placeholder="Search customer..."
                             onChange={(e) =>
                               setSearchContactValue(e.target.value)
                             }
