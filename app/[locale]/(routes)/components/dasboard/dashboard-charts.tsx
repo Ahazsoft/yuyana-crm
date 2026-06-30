@@ -30,7 +30,7 @@ const SERIES = [
   { key: "Leads",     color: "#f97316" }, // orange
   { key: "Events",    color: "#a855f7" }, // violet
   { key: "Companies", color: "#0ea5e9" }, // sky
-  { key: "Contacts",  color: "#10b981" }, // emerald
+  { key: "Customers",  color: "#10b981" }, // emerald
 ] as const;
 
 const STAGE_COLORS = [
@@ -194,7 +194,7 @@ export function MonthlyTrendChart({ data }: { data: MonthlyTrendPoint[] }) {
         <div>
           <h2 className="font-semibold text-base">CRM Activity Trend</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Leads, events, companies &amp; contacts — last 6 months
+            Leads, events, companies &amp; customers — last 6 months
           </p>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
@@ -407,7 +407,7 @@ export function LeadsBarChart({ data }: { data: MonthlyTrendPoint[] }) {
         <div>
           <h2 className="font-semibold text-base">Monthly Volume Breakdown</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Leads, events, companies &amp; contacts — last 6 months
+            Leads, events, companies &amp; customers — last 6 months
           </p>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">

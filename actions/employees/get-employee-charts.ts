@@ -263,7 +263,7 @@ function buildBreakdown(
 ): EmployeeActivityBreakdown[] {
   return [
     { type: "Companies", count: totalCounts.accounts, color: ACTIVITY_COLORS.Companies },
-    { type: "Contacts", count: totalCounts.contacts, color: ACTIVITY_COLORS.Contacts },
+    { type: "Customers", count: totalCounts.contacts, color: ACTIVITY_COLORS.Contacts },
     { type: "Leads", count: totalCounts.leads, color: ACTIVITY_COLORS.Leads },
     { type: "Events", count: totalCounts.opportunities, color: ACTIVITY_COLORS.Opportunities },
     { type: "Contracts", count: totalCounts.contracts, color: ACTIVITY_COLORS.Contracts },
@@ -333,7 +333,7 @@ export async function getEmployeeCharts(
       }),
       prismadb.crm_Leads.findMany({
         where: {
-          createdBy: employeeId,
+          assigned_to: employeeId,
           createdAt: { gte: range.start, lte: range.end },
         },
         select: { createdAt: true },

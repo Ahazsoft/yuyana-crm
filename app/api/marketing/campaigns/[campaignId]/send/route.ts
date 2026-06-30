@@ -15,6 +15,11 @@ import Underline from "@tiptap/extension-underline";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
+import Heading from "@tiptap/extension-heading";
+import BulletList from "@tiptap/extension-bullet-list";
+import ListItem from "@tiptap/extension-list-item";
+import HardBreak from "@tiptap/extension-hard-break";
+import ImageExtension from "@tiptap/extension-image";
 
 // ------- Helper: build query from lead filters -------
 async function buildLeadWhereFromFilters(filters: any[]): Promise<any> {
@@ -118,6 +123,11 @@ function tiptapJsonToHtml(json: any): string {
         Bold,
         Italic,
         Underline,
+        Heading,
+        BulletList,
+        ListItem,
+        HardBreak,
+        ImageExtension,
       ];
       return generateHTML(json, extensions);
     } catch (e) {

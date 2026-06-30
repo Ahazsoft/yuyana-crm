@@ -33,14 +33,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isAdmin: boolean;
-  boards: any;
+  // boards: any;
 }
 
 export function TasksDataTable<TData, TValue>({
   columns,
   data,
   isAdmin,
-  boards
+  // boards
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -57,7 +57,7 @@ export function TasksDataTable<TData, TValue>({
     columns,
     meta: {
       isAdmin,
-      boards,
+      // boards,
     },
     state: {
       sorting,

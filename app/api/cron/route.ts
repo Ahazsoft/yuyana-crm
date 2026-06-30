@@ -41,9 +41,15 @@ export async function GET(request: Request) {
 
 // ---------- Overdue Tasks  ----------
 async function notifyTaskDeadlines(now: Date): Promise<number> {
-    // Overdue: any task with dueDateAt < now and not completed
+    // Overdue: any task that became overdue in the last 24 hours
+    const oneDayAgo = new Date(now);
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
     const overdueCondition = {
-        dueDateAt: { lt: now },
+        dueDateAt: { 
+            gte: oneDayAgo,
+            lt: now 
+        },
         taskStatus: { not: 'COMPLETE' as const },
     };
 

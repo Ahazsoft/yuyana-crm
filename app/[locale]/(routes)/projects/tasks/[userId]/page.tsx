@@ -35,7 +35,7 @@ const TaskDetailPage = async (props: TaskDetailPageProps) => {
         data={tasks}
         columns={columns}
         isAdmin={isAdmin}
-        boards={boards}
+        // boards={boards}
       />
     </Container>
   );
