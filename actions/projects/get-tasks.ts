@@ -6,51 +6,51 @@ export const getTasks = async () => {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const boards = await prismadb.boards.findMany({
-    where: {
-      OR: [
-        {
-          user: userId,
-        },
-        {
-          visibility: "public",
-        },
-      ],
-    },
-    include: {
-      assigned_user: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  // const boards = await prismadb.boards.findMany({
+  //   where: {
+  //     OR: [
+  //       {
+  //         user: userId,
+  //       },
+  //       {
+  //         visibility: "public",
+  //       },
+  //     ],
+  //   },
+  //   include: {
+  //     assigned_user: {
+  //       select: {
+  //         name: true,
+  //       },
+  //     },
+  //   },
+  //   orderBy: {
+  //     createdAt: "desc",
+  //   },
+  // });
 
-  if (!boards) return null;
+  // if (!boards) return null;
   if (!userId) return null;
 
   //Filtering tasks by section and board
-  const sections = await prismadb.sections.findMany({
-    where: {
-      OR: boards.map((board: any) => {
-        return {
-          board: board.id,
-        };
-      }),
-    },
-  });
+  // const sections = await prismadb.sections.findMany({
+  //   where: {
+  //     OR: boards.map((board: any) => {
+  //       return {
+  //         board: board.id,
+  //       };
+  //     }),
+  //   },
+  // });
 
   const data = await prismadb.tasks.findMany({
-    where: {
-      OR: sections.map((section: any) => {
-        return {
-          section: section.id,
-        };
-      }),
-    },
+    // where: {
+    //   OR: sections.map((section: any) => {
+    //     return {
+    //       section: section.id,
+    //     };
+    //   }),
+    // },
     include: {
       assigned_user: {
         select: {

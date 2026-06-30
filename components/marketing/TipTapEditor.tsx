@@ -5,7 +5,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 // V3 Change: UI Components are now in /menus
 import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
-
+import { generateHTML } from '@tiptap/html'
 // V3 Change: Most extensions are still named imports {}
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -62,7 +62,7 @@ const TiptapEditor = ({
       BubbleMenuExtension,
       FloatingMenuExtension,
     ],
-    content: value,
+    content: value ?? "",
     // V3 Mandatory for Next.js
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -72,7 +72,7 @@ const TiptapEditor = ({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert max-w-none focus:outline-none min-h-[350px] p-8 border rounded-lg bg-background shadow-sm",
+          "prose dark:prose-invert w-full max-w-full focus:outline-none min-h-[420px] p-8 border rounded-lg bg-background shadow-sm",
       },
     },
   });
@@ -148,7 +148,7 @@ const TiptapEditor = ({
     formData.append("file", file);
 
     // POST to new marketing template images endpoint
-    const res = await fetch("/api/marketing/templates/images", {
+    const res = await fetch("/api/marketing/templates/image", {
       method: "POST",
       body: formData,
     });
@@ -249,7 +249,7 @@ const TiptapEditor = ({
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Image Uploader */}
-        {/* <MenuBtn>
+        <MenuBtn>
           <label className="cursor-pointer">
             <ImageDown size={16} />
             <input
@@ -262,7 +262,7 @@ const TiptapEditor = ({
               }}
             />
           </label>
-        </MenuBtn> */}
+        </MenuBtn>
       </div>
 
       {/* V3 BUBBLE MENU */}
@@ -310,7 +310,7 @@ const TiptapEditor = ({
         </MenuBtn>
       </FloatingMenu>
 
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="min-h-[420px] w-full" />
 
       {editor.isActive("image") && (
         <div className="absolute right-3 top-3 z-20 bg-popover border rounded p-2 flex items-center gap-2">

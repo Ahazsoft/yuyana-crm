@@ -78,8 +78,23 @@ export function NewLeadForm({ accounts, onFinish }: NewTaskFormProps) {
   type NewLeadFormValues = z.infer<typeof formSchema>;
 
   const form = useForm<NewLeadFormValues>({
-    resolver: zodResolver(formSchema),
-  });
+  resolver: zodResolver(formSchema),
+  defaultValues: {
+    first_name: '',
+    last_name: '',
+    company: '',
+    email: '',
+    phone: '',
+    description: '',
+    lead_source: '',
+    refered_by: '',
+    campaign: '',
+    assigned_to: '',
+    status: '',
+    service: '',
+    followup_date: '',
+  },
+});
 
   const onSubmit = async (data: NewLeadFormValues) => {
     // If "Others" is selected, replace service with the custom text

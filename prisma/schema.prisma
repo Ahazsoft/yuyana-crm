@@ -170,46 +170,47 @@ model crm_Opportunities_Type {
 }
 
 model crm_Contacts {
-  id                String                    @id @default(uuid()) @db.Uuid
-  v                 Int                       @default(0) @map("__v")
-  account           String?                   @db.Uuid
-  assigned_to       String?                   @db.Uuid
-  created_by        String?                   @db.Uuid
-  createdBy         String?                   @db.Uuid
-  created_on        DateTime?                 @default(now())
-  cratedAt          DateTime?                 @default(now())
-  last_activity     DateTime?                 @default(now())
-  updatedAt         DateTime?                 @updatedAt
-  updatedBy         String?                   @db.Uuid
-  last_activity_by  String?                   @db.Uuid
-  description       String?
-  email             String?
-  personal_email    String?
-  first_name        String
-  last_name         String?
-  office_phone      String?
-  mobile_phone      String?
-  website           String?
-  position          String?
-  status            Boolean                   @default(true)
-  social_twitter    String?
-  social_facebook   String?
-  social_linkedin   String?
-  social_skype      String?
-  social_instagram  String?
-  social_youtube    String?
-  social_tiktok     String?
-  type              String?                   @default("Customer")
-  tags              String[]
-  notes             String[]
-  accountsIDs       String?                   @db.Uuid
-  birthday          DateTime?
-  opportunities     ContactsToOpportunities[]
-  documents         DocumentsToContacts[]
-  assigned_accounts crm_Accounts?             @relation(fields: [accountsIDs], references: [id])
-  assigned_to_user  Users?                    @relation("assigned_contacts", fields: [assigned_to], references: [id])
-  crate_by_user     Users?                    @relation("created_contacts", fields: [created_by], references: [id])
-  crmContracts      crm_Contracts[]
+  id                 String                    @id @default(uuid()) @db.Uuid
+  v                  Int                       @default(0) @map("__v")
+  account            String?                   @db.Uuid
+  assigned_to        String?                   @db.Uuid
+  created_by         String?                   @db.Uuid
+  createdBy          String?                   @db.Uuid
+  created_on         DateTime?                 @default(now())
+  cratedAt           DateTime?                 @default(now())
+  last_activity      DateTime?                 @default(now())
+  updatedAt          DateTime?                 @updatedAt
+  updatedBy          String?                   @db.Uuid
+  last_activity_by   String?                   @db.Uuid
+  description        String?
+  email              String?
+  personal_email     String?
+  first_name         String
+  last_name          String?
+  office_phone       String?
+  mobile_phone       String?
+  website            String?
+  position           String?
+  status             Boolean                   @default(true)
+  social_twitter     String?
+  social_facebook    String?
+  social_linkedin    String?
+  social_skype       String?
+  social_instagram   String?
+  social_youtube     String?
+  social_tiktok      String?
+  type               String?                   @default("Customer")
+  tags               String[]
+  notes              String[]
+  accountsIDs        String?                   @db.Uuid
+  birthday           DateTime?
+  opportunities      ContactsToOpportunities[]
+  documents          DocumentsToContacts[]
+  assigned_accounts  crm_Accounts?             @relation(fields: [accountsIDs], references: [id])
+  assigned_to_user   Users?                    @relation("assigned_contacts", fields: [assigned_to], references: [id])
+  crate_by_user      Users?                    @relation("created_contacts", fields: [created_by], references: [id])
+  crmContracts       crm_Contracts[]
+  crmLeadConversions crm_LeadConversions[]
 
   @@index([assigned_to])
   @@index([created_by])
@@ -257,6 +258,35 @@ model crm_Contracts {
   @@index([endDate])
   @@index([createdAt])
   @@index([startDate, endDate])
+}
+
+model crm_LeadConversions {
+  id          String   @id @default(uuid()) @db.Uuid
+  v           Int      @default(0) @map("__v")
+  customerId  String   @db.Uuid // Links to the newly created contact/customer
+  convertedAt DateTime @default(now())
+  convertedBy String?  @db.Uuid // The specific user who clicked "Convert"
+
+  lead_source   String?
+  refered_by    String?
+  campaign      String?
+  status        String?   @default("CONVERTED")
+  type          String?   @default("DEMO")
+  assigned_to   String?   @db.Uuid // CRITICAL: Captures the salesperson at the time of conversion
+  followup_date DateTime?
+  service       String    @default("OUTBOUND")
+
+  // --- Relations ---
+  converted_to crm_Contacts @relation(fields: [customerId], references: [id])
+
+  // --- Indexes for insane performance ---
+  // These indexes ensure your per-user math queries (LC / LC+L) remain lightning-fast
+  @@index([convertedAt]) // For time-period filtering
+  @@index([assigned_to]) // For your specific per-user grouping
+  @@index([convertedBy]) // For who converted it
+  @@index([customerId]) // For reverse-linking from the contact
+  @@index([campaign]) // Optional: For campaign ROI reporting
+  @@index([service]) // Optional: For service type reporting
 }
 
 model Boards {

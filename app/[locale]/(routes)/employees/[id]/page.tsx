@@ -1,5 +1,6 @@
 import { getEmployeeActivity } from "@/actions/get-employee-activity";
 import { getEmployeeCharts } from "@/actions/employees/get-employee-charts";
+import { getEmployeeConversionMetrics } from "@/actions/employees/get-employee-conversion-metrics";
 import { authOptions } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +59,7 @@ export default async function EmployeeActivityPage({
 
   const employee = activityData.employee;
   const chartData = await getEmployeeCharts(id);
+  const conversionMetrics = await getEmployeeConversionMetrics(id);
 
   return (
     <Container
@@ -109,7 +111,8 @@ export default async function EmployeeActivityPage({
             <p className="text-sm font-medium text-muted-foreground mb-4">
               Performance Summary
             </p>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
+
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground">Total Entries</p>
                 <p className="mt-1 text-2xl font-bold">
@@ -119,6 +122,17 @@ export default async function EmployeeActivityPage({
                   {chartData.timeline === "weekly" ? "Selected week" : "Selected month"}
                 </p>
               </div>
+              
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <p className="text-xs text-muted-foreground">Total Lead Conversions</p>
+                <p className="mt-1 text-2xl font-bold">
+                  {conversionMetrics.conversionCount}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {chartData.timeline === "weekly" ? "Selected week" : "Selected month"}
+                </p>
+              </div>
+              
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground">Last Login</p>
                 <p className="mt-1 text-sm font-semibold">
@@ -127,6 +141,7 @@ export default async function EmployeeActivityPage({
                     : "Never"}
                 </p>
               </div>
+              
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground">Member Since</p>
                 <p className="mt-1 text-sm font-semibold">

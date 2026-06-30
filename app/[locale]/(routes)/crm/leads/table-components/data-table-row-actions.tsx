@@ -42,6 +42,7 @@ export function DataTableRowActions<TData>({
   const [loading, setLoading] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [archiveLoading, setArchiveLoading] = useState(false);
+  const [promoteLoading, setPromoteLoading] = useState(false);
 
   const { toast } = useToast();
 
@@ -90,6 +91,26 @@ export function DataTableRowActions<TData>({
       });
     } finally {
       setArchiveLoading(false);
+    }
+  };
+
+  const onPromoteToCustomer = async () => {
+    setPromoteLoading(true);
+    try {
+      await axios.post(`/api/crm/leads/${lead?.id}/promote`);
+      toast({
+        title: "Success",
+        description: "Lead promoted to customer successfully.",
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to promote lead to customer. Please try again.",
+      });
+    } finally {
+      setPromoteLoading(false);
     }
   };
 
@@ -142,6 +163,9 @@ export function DataTableRowActions<TData>({
               : lead.isArchived === "archived"
                 ? "Unarchive"
                 : "Archive"}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onPromoteToCustomer} disabled={promoteLoading}>
+            {promoteLoading ? "Loading..." : "Promote to customer"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setOpen(true)}>

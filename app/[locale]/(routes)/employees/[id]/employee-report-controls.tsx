@@ -17,6 +17,7 @@ import type {
   ReportTimeline,
 } from "@/actions/employees/get-employee-charts";
 import type { EmployeeActivityEntry } from "@/actions/get-employee-activity";
+import type { EmployeeConversionMetrics } from "@/actions/employees/get-employee-conversion-metrics";
 import { EmployeeBreakdownChart, EmployeeMonthlyChart } from "./employee-charts";
 
 function getCurrentMonthValue() {
@@ -175,6 +176,7 @@ export function EmployeeReportControls({
   const [selected, setSelected] = useState(initialData.selected);
   const [chartData, setChartData] = useState(initialData);
   const [activityData, setActivityData] = useState(initialActivity);
+  const [metricsData, setMetricsData] = useState<EmployeeConversionMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -190,7 +192,7 @@ export function EmployeeReportControls({
       setError(null);
 
       try {
-        const [chartResponse, activityResponse] = await Promise.all([
+        const [chartResponse, activityResponse, metricsResponse] = await Promise.all([
           fetch(
             `/api/employees/${employeeId}/charts?timeline=${timeline}&selected=${encodeURIComponent(selected)}`,
             {
@@ -205,19 +207,28 @@ export function EmployeeReportControls({
               signal: controller.signal,
             }
           ),
+          fetch(
+            `/api/employees/${employeeId}/conversion-metrics?timeline=${timeline}&selected=${encodeURIComponent(selected)}`,
+            {
+              cache: "no-store",
+              signal: controller.signal,
+            }
+          ),
         ]);
 
-        if (!chartResponse.ok || !activityResponse.ok) {
+        if (!chartResponse.ok || !activityResponse.ok || !metricsResponse.ok) {
           throw new Error("Unable to load report data");
         }
 
-        const [chartPayload, activityPayload] = await Promise.all([
+        const [chartPayload, activityPayload, metricsPayload] = await Promise.all([
           chartResponse.json() as Promise<EmployeeChartData>,
           activityResponse.json() as Promise<{ activity: EmployeeActivityEntry[] }>,
+          metricsResponse.json() as Promise<EmployeeConversionMetrics>,
         ]);
 
         setChartData(chartPayload);
         setActivityData(activityPayload.activity);
+        setMetricsData(metricsPayload);
       } catch (fetchError) {
         if ((fetchError as Error).name === "AbortError") {
           return;
@@ -271,6 +282,30 @@ export function EmployeeReportControls({
             <p className="text-sm font-medium text-primary">Loading report…</p>
           ) : null}
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">Leads in range</p>
+          <p className="mt-2 text-3xl font-semibold">{metricsData?.leadCount ?? 0}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {metricsData?.label ?? "No period selected"}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">Conversions in range</p>
+          <p className="mt-2 text-3xl font-semibold">{metricsData?.conversionCount ?? 0}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Captured from lead conversions
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-sm font-medium text-muted-foreground">Conversion rate</p>
+          <p className="mt-2 text-3xl font-semibold">{metricsData?.conversionRate ?? 0}%</p>
+          {/* <p className="mt-1 text-xs text-muted-foreground">
+            100
+          </p> */}
         </div>
       </div>
 

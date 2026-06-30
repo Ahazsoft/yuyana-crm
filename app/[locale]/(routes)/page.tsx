@@ -303,7 +303,7 @@ const DashboardPage = async () => {
               />
               <KpiCard
                 href="/crm/contacts"
-                title={dict("contacts")}
+                title="Customers"
                 value={contacts}
                 sub="Total contacts"
                 IconComponent={Contact}
@@ -366,14 +366,14 @@ const DashboardPage = async () => {
         <div>
           <SectionLabel label="Projects" />
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-            <KpiCard
+            {/* <KpiCard
               href="/projects/tasks"
               title={dict("projects")}
               value={projects}
               sub="Active boards"
               IconComponent={Briefcase}
               accent="#09707e"
-            />
+            /> */}
             <KpiCard
               href="/projects/tasks"
               title={dict("tasks")}
