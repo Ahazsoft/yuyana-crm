@@ -395,7 +395,7 @@ const DashboardPage = async () => {
       )}
 
       {/* ── Finance & Documents ── */}
-      {(invoiceModule?.enabled || documentsModule?.enabled) && (
+      {/* {(invoiceModule?.enabled || documentsModule?.enabled) && (
         <div>
           <SectionLabel label="Finance & Documents" />
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
@@ -421,7 +421,7 @@ const DashboardPage = async () => {
             )}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ── Storage ── */}
       {/* <div>
