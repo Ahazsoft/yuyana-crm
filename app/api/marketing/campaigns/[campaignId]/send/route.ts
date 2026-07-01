@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import resendHelper from "@/lib/resend";
 import nodemailer from "nodemailer";
 import imaps from "imap-simple";
+import sendEmail from "@/lib/sendmail";
 
 // Tiptap imports for converting JSON → HTML
 import { generateHTML } from "@tiptap/html";
@@ -22,6 +23,29 @@ import HardBreak from "@tiptap/extension-hard-break";
 import ImageExtension from "@tiptap/extension-image";
 
 // ------- Helper: build query from lead filters -------
+function addCampaignTrackingToHtml(html: string, campaignId: string, recipient: string, baseUrl: string): string {
+  const trackingUrl = `${baseUrl}/api/marketing/campaigns/${campaignId}/track?recipient=${encodeURIComponent(recipient)}`;
+  const pixel = `<img src="${trackingUrl}" width="1" height="1" alt="" style="display:none;border:0;" />`;
+  const unsubscribeUrl = `${baseUrl}/api/marketing/campaigns/${campaignId}/unsubscribe?recipient=${encodeURIComponent(recipient)}`;
+
+  const bodyHtml = `
+    <html>
+      <body style="margin:0;padding:0;background-color:#f5f7fb;font-family:Arial,sans-serif;color:#111827;">
+        <div style="max-width:640px;margin:0 auto;padding:24px;">
+          <div style="background:#ffffff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+            ${html}
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#6b7280;text-align:center;">
+            <a href="${unsubscribeUrl}" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>
+          </div>
+        </div>        
+      </body>
+    </html>
+  `;
+
+  return bodyHtml;
+}
+
 async function buildLeadWhereFromFilters(filters: any[]): Promise<any> {
   const where: any = {};
   if (!Array.isArray(filters)) return where;
@@ -213,7 +237,9 @@ export async function POST(
 
     // 5. Send to each recipient inline (Resend first, Nodemailer fallback)
     const results: any[] = [];
+    const failedRecipients: Array<{ email: string; error: string }> = [];
     const isDynamic = (seg as any).type === "DYNAMIC";
+    const baseUrl = new URL(req.url).origin;
 
     for (let i = 0; i < recipients.length; i++) {
       const recipient = recipients[i];
@@ -229,16 +255,26 @@ export async function POST(
         processedHtml = await replaceTemplates(processedHtml, recipient);
       }
 
+      const trackedHtml = addCampaignTrackingToHtml(processedHtml, campaignId, recipient, baseUrl);
+
       const emailPayload = {
         from: fromAddress,
         to: recipient,
         subject: subject || campaign.emailSubject,
-        html: processedHtml,
+        html: trackedHtml,
+        headers: {
+          "List-Unsubscribe": `<${baseUrl}/api/marketing/campaigns/${campaignId}/unsubscribe?recipient=${encodeURIComponent(recipient)}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       };
 
       let sent = false;
       let via = null;
       let errorDetail = null;
+
+      if (i > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
 
       // --- Try Resend ---
       try {
@@ -263,7 +299,7 @@ export async function POST(
       } catch (resendError: any) {
         const statusCode = resendError?.statusCode ?? 500;
 
-        // ✅ Only log: Resend failure with useful details
+        //  Only log: Resend failure with useful details
         console.error(`[campaign-send] Resend FAIL (${statusCode}) for ${recipient}: ${resendError?.message || "unknown error"}`);
 
         if (statusCode === 401 || statusCode === 400 || statusCode === 403) {
@@ -311,10 +347,40 @@ export async function POST(
         via: via || undefined,
         error: errorDetail || undefined,
       });
+
+      if (!sent) {
+        failedRecipients.push({
+          email: recipient,
+          error: errorDetail || "Unknown error",
+        });
+      }
     }
 
     // 6. Update campaign sentCount
     const successfulCount = results.filter((r) => r.status === "sent").length;
+
+    try {
+      const admins = await prismadb.users.findMany({ where: { is_admin: true } });
+      const failedPayload = JSON.stringify({
+        campaignId,
+        campaignName: campaign.name,
+        failedRecipients,
+        sentAt: new Date().toISOString(),
+      }, null, 2);
+
+      await Promise.all(
+        admins.map((admin) =>
+          sendEmail({
+            from: process.env.EMAIL_FROM || fromAddress,
+            to: admin.email,
+            subject: `[Marketing] Campaign send failed recipients for ${campaign.name}`,
+            text: `Campaign send finished.\n\nFailed recipients:\n${failedPayload}`,
+          }),
+        ),
+      );
+    } catch (adminMailError) {
+      console.error("Failed to notify admins about campaign failures", adminMailError);
+    }
 
     try {
       await prismadb.crm_marketing_campaigns.update({

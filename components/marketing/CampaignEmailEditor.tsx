@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import TiptapEditor from "@/components/marketing/TipTapEditor";
 import CampaignSendButton from "./CampaignSendButton";
+import EmailPreview from "@/components/EmailPreview";
 
 export default function CampaignEmailEditor({
   campaignId,
@@ -123,6 +124,15 @@ export default function CampaignEmailEditor({
         <label className="text-sm font-semibold">Email Body</label>
         <TiptapEditor value={body} onChange={setBody} />
       </div>
+      {/* <div className="space-y-2">
+        <label className="text-sm font-semibold">Email Template </label>
+        <EmailPreview
+          username={"username"}
+          invitedByUsername={"invitedBy"}
+          invitedUserPassword={"invitedUserPassword"}
+          userLanguage={"en"}
+        />
+      </div> */}
 
       <div className="flex items-center justify-end gap-3">
         <div className="text-sm text-muted-foreground">{status}</div>
